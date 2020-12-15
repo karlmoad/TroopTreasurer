@@ -13,7 +13,7 @@ function(format_source_paths PATH_VALUE LIST_VAR)
 endfunction()
 
 set(SOURCES mainwindow.cpp mainwindow.ui)
-set(HEADERS mainwindow.h)
+set(HEADERS mainwindow.h panelwindow.h)
 
 format_source_paths("/src" SOURCES)
 format_source_paths("/include/ui" HEADERS)
