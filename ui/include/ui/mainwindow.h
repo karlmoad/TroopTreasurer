@@ -2,10 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
-namespace Ui {
-class MainWindow;
-}
+#include <QtWidgets>
+#include <QIcon>
+#include <QString>
 
 class MainWindow : public QMainWindow
 {
@@ -16,7 +15,8 @@ public:
     ~MainWindow();
 
 private:
-    Ui::MainWindow *ui;
+    class MainWindowImpl;
+    MainWindowImpl *impl;
 };
 
 #endif // MAINWINDOW_H
