@@ -1,0 +1,51 @@
+#ifndef IMPORTTEMPLATEPANEL_H
+#define IMPORTTEMPLATEPANEL_H
+
+#include <QWidget>
+#include "itemstate.h"
+#include "panelwindow.h"
+
+namespace Ui {
+class ImportTemplatePanel;
+}
+
+class ImportTemplatePanel : public QWidget , public PanelWindow
+{
+    Q_OBJECT
+public:
+    explicit ImportTemplatePanel(QWidget *parent = nullptr);
+    ~ImportTemplatePanel();
+
+    virtual ItemState getCurrentState() const override;
+
+    virtual const QString &panelMenuText() const override;
+
+    virtual const QList<QAction *>& menuItems() const override;
+
+    virtual const QList<QAction *>& toolbarItems() const override;
+
+    virtual bool allowMultipleInstances() override;
+
+    Q_SIGNAL virtual void itemActionStateChange(ItemState state) override;
+
+    Q_SLOT virtual void itemActionHandler(ItemAction action) override;
+
+    Q_SLOT void actionTestHandler();
+
+    Q_SLOT void actionValidateHandler();
+
+    Q_SLOT void sendUpdateButtonHandler();
+
+private:
+    class ImportTemplatePanelImpl;
+    Ui::ImportTemplatePanel *ui;
+    ImportTemplatePanelImpl *impl;
+
+
+private:
+    void itemActionNotifyChange(ItemState change);
+
+
+};
+
+#endif // IMPORTTEMPLATEPANEL_H

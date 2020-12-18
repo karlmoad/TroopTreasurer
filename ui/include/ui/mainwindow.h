@@ -7,6 +7,7 @@
 #include <QString>
 #include <QMap>
 #include <QList>
+#include "itemstate.h"
 
 namespace Ui
 {
@@ -22,8 +23,7 @@ public:
     ~MainWindow();
 
 public slots:
-    void NotifyContextItemActions(bool actionNew, bool actionEdit, bool actionDelete);
-    void NotifyContextSavable(bool savable);
+    void NotifyContextItemStateChange(const ItemState& state);
     void PanelCloseHandler(int panel);
 
 signals:

@@ -9,26 +9,18 @@
 #include <QIcon>
 #include <QString>
 #include <QList>
+#include "itemstate.h"
 
-class PanelWindow: public QObject
+class PanelWindow
 {
-    Q_OBJECT
 public:
-    explicit PanelWindow(QObject *parent=nullptr): QObject(parent){};
-    virtual ~PanelWindow()=default;
-
-    virtual QList<QAction> menuItems()=0;
-    virtual QList<QAction> toolbarItems()=0;
-
-signals:
-    virtual void itemActionStateChange(bool actionNew, bool actionEdit, bool actionDelete)=0;
-    virtual void saveActionStateChanged(bool savable)=0;
-
-public slots:
-    virtual void newItemHandler()=0;
-    virtual void editItemHandler()=0;
-    virtual void deleteItemHandler()=0;
-    virtual void saveItemHandler()=0;
+    virtual const QString& panelMenuText() const =0;
+    virtual const QList<QAction*>& menuItems() const =0;
+    virtual const QList<QAction*>& toolbarItems() const =0;
+    virtual ItemState getCurrentState() const =0;
+    virtual void itemActionStateChange(ItemState state)=0;
+    virtual void itemActionHandler(ItemAction action)=0;
+    virtual bool allowMultipleInstances()=0;
 };
 
 #endif //TROOPTREASURER_PANELWINDOW_H

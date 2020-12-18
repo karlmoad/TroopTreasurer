@@ -88,16 +88,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
-void MainWindow::NotifyContextItemActions(bool actionNew, bool actionEdit, bool actionDelete)
+void MainWindow::NotifyContextItemStateChange(const ItemState &state)
 {
-    actAddItem->setEnabled(actionNew);
-    actEditItem->setEnabled(actionEdit);
-    actDeleteItem->setEnabled(actionDelete);
-}
 
-void MainWindow::NotifyContextSavable(bool savable)
-{
-    actSave->setEnabled(savable);
 }
 
 void MainWindow::PanelCloseHandler(int panel)
@@ -114,3 +107,5 @@ void MainWindow::ConnectPanel(QWidget *panel, const QString &header)
 {
 
 }
+
+
