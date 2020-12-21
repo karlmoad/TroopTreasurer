@@ -1,0 +1,6 @@
+function(format_source_paths PATH_VALUE LIST_VAR)
+    foreach(ENTRY ${${LIST_VAR}})
+        list(APPEND TEMP_LIST ${CMAKE_CURRENT_LIST_DIR}${PATH_VALUE}/${ENTRY})
+    endforeach()
+    set(${LIST_VAR} ${TEMP_LIST} PARENT_SCOPE)
+endfunction()

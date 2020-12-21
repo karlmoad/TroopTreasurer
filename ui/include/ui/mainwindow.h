@@ -1,3 +1,23 @@
+/*
+ * TroopTreasurer UI
+ * Author: Karl Moad
+ * ---------------------------------
+ * MainWindow is the primary application window that displays
+ * all child panels of user functionality.
+ *
+ * Responsible for maintaining:
+ *  Main toolbar and menu objects and state
+ *  Active and inactive panels
+ *      - signals registration and de-registration on active state
+ *      change of a child panel
+ *
+ * Note:  This window purposely does not implement the Impl pattern so that
+ * all modification to the member structure incur a fresh compilation
+ * with each modification to eliminate issues.
+ *
+*/
+
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
@@ -10,6 +30,7 @@
 #include "panelfactory.h"
 #include "panelwindow.h"
 #include "itemstate.h"
+#include "applicationsettingsdialog.h"
 
 namespace Ui
 {
@@ -28,6 +49,7 @@ public slots:
     void ContextItemStateChangeHandler(ItemState state);
     void PanelCloseHandler(int panelIdx);
     void ActivePanelChanged(int index);
+    void SettingsHandler();
 
 signals:
     void ContextItemActionTriggered(ItemAction action);

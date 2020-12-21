@@ -1,3 +1,17 @@
+/*
+ * TroopTreasurer UI
+ * Author: Karl Moad
+ * ---------------------------------
+ *  ImportTemplatePanel provides user functionality
+ *  to edit and maintain data import template specifications.
+ *
+ *  Base template linkage is within application resources, while
+ *  the template definitions are stored to a local application
+ *  directory per user.
+ *
+ *  Inherits PanelWindow to interact and broadcast state to
+ *  application level menus and toolbars
+ */
 #ifndef IMPORTTEMPLATEPANEL_H
 #define IMPORTTEMPLATEPANEL_H
 

@@ -1,6 +1,10 @@
-//
-// Created by Karl Moad on 12/18/20.
-//
+/*
+ * TroopTreasurer UI
+ * Author: Karl Moad
+ * ---------------------------------
+ * PanelWindow stub implementation
+ * for constructor and destructor
+ */
 
 #include "ui/panelwindow.h"
 

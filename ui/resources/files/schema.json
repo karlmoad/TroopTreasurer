@@ -1,0 +1,47 @@
+{
+  "TT" : {
+    "display": "Troop Track Transaction File",
+    "table": "TROOP_TRACK_DATA",
+    "import": true,
+    "dupcheck": false,
+    "truncate": true,
+    "fields":[
+      {"name": "ID", "dt":"string", "length":40, "nullable": false},
+      {"name": "UPLOAD_BATCH", "dt":"string", "length":40, "nullable": false},
+      {"name": "RECORD_HASH", "dt":"string", "length":64, "nullable": false, "match_key": true},
+      {"name": "ACCT_HASH", "dt":"string", "length":64, "nullable": false},
+      {"name": "ACCT_NAME", "dt":"string", "length":200, "nullable": false},
+      {"name": "ACTIVITY_DATE", "dt":"date", "format": "yyyy-mm-dd", "nullable": false},
+      {"name": "ACTIVITY_VALUE", "dt":"decimal", "nullable": false},
+      {"name": "MEMO", "dt":"string", "nullable": true},
+      {"name": "PAYEE", "dt":"string", "length":200, "nullable": true},
+      {"name": "DESCRIPTION", "dt":"string", "nullable": true},
+      {"name": "CATEGORIES", "dt":"string", "length":200, "nullable": true},
+      {"name": "CHECK_NUM", "dt":"string", "length":50, "nullable": true},
+      {"name": "TENDER_TYPE", "dt":"string", "length":100, "nullable": true},
+      {"name": "TENDER_HASH", "dt":"string", "length":64, "nullable": true},
+      {"name": "DETAILS", "dt":"string", "nullable": true},
+      {"name": "BALANCE", "dt":"decimal", "nullable": false}
+    ]
+  },
+  "BANK": {
+    "display": "Mars Bank Transaction File",
+    "table": "BANK_DATA",
+    "import": true,
+    "dupcheck": true,
+    "truncate": false,
+    "fields":[
+      {"name": "ID", "dt":"string", "length":40, "nullable": false},
+      {"name": "UPLOAD_BATCH", "dt":"string", "length":40, "nullable": false},
+      {"name": "RECORD_HASH", "dt":"string", "length":64, "nullable": false, "match_key": true},
+      {"name": "TRANS_DATE", "dt":"date", "format": "yyyy-mm-dd", "nullable": false},
+      {"name": "TRANS_VALUE", "dt":"decimal", "nullable": false},
+      {"name": "CAT_NUM", "dt": "int", "nullable": true},
+      {"name": "CAT_NAME", "dt":"string", "length":100, "nullable": true},
+      {"name": "REF_NUM", "dt":"string", "length":100, "nullable": true},
+      {"name": "DESC", "dt":"string", "length":100, "nullable": true},
+      {"name": "CODE", "dt":"string", "length":100, "nullable": true},
+      {"name": "IDENTIFIER", "dt":"string", "length":50, "nullable": true}
+    ]
+  }
+}

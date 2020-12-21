@@ -5,15 +5,25 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-function(format_source_paths PATH_VALUE LIST_VAR)
-    foreach(ENTRY ${${LIST_VAR}})
-        list(APPEND TEMP_LIST ${CMAKE_CURRENT_LIST_DIR}${PATH_VALUE}/${ENTRY})
-    endforeach()
-    set(${LIST_VAR} ${TEMP_LIST} PARENT_SCOPE)
-endfunction()
+include(${CMAKE_SOURCE_DIR}/cmake_modules/SourceFunctions.cmake)
 
-set(SOURCES mainwindow.cpp mainwindow.ui importtemplatepanel.cpp importtemplatepanel.ui panelfactory.cpp panelwindow.cpp)
-set(HEADERS mainwindow.h panelwindow.h itemstate.h importtemplatepanel.h panelfactory.h)
+set(SOURCES mainwindow.cpp mainwindow.ui
+            importtemplatepanel.cpp importtemplatepanel.ui
+            panelfactory.cpp panelwindow.cpp
+            applicationsettingsdialog.cpp applicationsettingsdialog.ui
+            databasesettingspane.cpp databasesettingspane.ui
+            mainsettingspane.cpp mainsettingspane.ui
+            applicationsettings.cpp)
+set(HEADERS mainwindow.h
+        panelwindow.h
+        itemstate.h
+        importtemplatepanel.h
+        panelfactory.h
+        applicationsettingsdialog.h
+        databasesettingspane.h
+        mainsettingspane.h
+        applicationsettings.h
+        applicationsettingspane.h)
 
 format_source_paths("/src" SOURCES)
 format_source_paths("/include/ui" HEADERS)

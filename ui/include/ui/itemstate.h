@@ -1,7 +1,13 @@
-//
-// Created by Karl Moad on 12/16/20.
-//
-
+/*
+ * TroopTreasurer UI
+ * Author: Karl Moad
+ * ---------------------------------
+ * ItemAction is an application enum identifying
+ * base action identifier of MainWindow defined context actions
+ *
+ * ItemState is a bitset used to communicate to the MainWindow the current viable
+ * panel state based on the panel objects current context
+ */
 #include <bitset>
 
 #ifndef TROOPTREASURER_ITEMSTATE_H

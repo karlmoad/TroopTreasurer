@@ -1,6 +1,16 @@
-//
-// Created by Karl Moad on 12/15/20.
-//
+/*
+ * TroopTreasurer UI
+ * Author: Karl Moad
+ * ---------------------------------
+ *  PanelWindow Class
+ *
+ *  Abstract base class for all windows that will be presented as
+ *  functional panels for the user to interact within the main window
+ *  of the application.  Class contains methods to define contextual
+ *  panel menus and toolbar items wile also providing the signal linkage
+ *  base for action declared and controlled by the main window
+ *
+ */
 
 #ifndef TROOPTREASURER_PANELWINDOW_H
 #define TROOPTREASURER_PANELWINDOW_H

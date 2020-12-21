@@ -53,6 +53,11 @@ void MainWindow::init()
 
     defaultActions.append(actImportData);
 
+    actSettings = new QAction("Settings",this);
+    mnuFile->addAction(actSettings);
+    defaultActions.append(actSettings);
+    connect(actSettings, &QAction::triggered, this, &MainWindow::SettingsHandler);
+
     mnuFile->addSeparator();
     actQuit = new QAction("&Quit", this);
     mnuFile->addAction(actQuit);
@@ -344,4 +349,11 @@ void MainWindow::defaultState()
     {
         this->menuBar()->addMenu(defaultMenus[i]);
     }
+}
+
+void MainWindow::SettingsHandler()
+{
+    ApplicationSettingsDialog *appSettings = new ApplicationSettingsDialog(this);
+    appSettings->setModal(true);
+    appSettings->show();
 }
