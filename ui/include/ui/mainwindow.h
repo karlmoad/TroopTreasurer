@@ -46,6 +46,7 @@ private:
     void deactivatePanel(PanelWindow *panel, int index);
     void unregisterPanel(PanelWindow *panel, int index);
     void registerPanel(PanelWindow *panel, int index);
+    void defaultState();
 
 
 private:
@@ -66,12 +67,14 @@ private:
     QAction *actEditItem;
     QAction *actAddItem;
     QAction *actDeleteItem;
+    QAction *actSep;
     QAction *actFundsManagement;
     QMap<int,QList<QAction*>> panelMenus;
     QMap<int,QList<QAction*>> panelToolbarItems;
     QMap<Panel, QList<int>> panel2Index;
     QMap<int, PanelWindow*> index2Panel;
-    int currentActivePanelIndex=-1;
+    QList<QAction*> defaultActions;
+    QList<QMenu*> defaultMenus;
 };
 
 #endif // MAINWINDOW_H

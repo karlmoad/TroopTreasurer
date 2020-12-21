@@ -18,6 +18,7 @@ void MainWindow::init()
     mnuFile = this->menuBar()->addMenu("&File");
     mnuEdit = this->menuBar()->addMenu("&Edit");
     mnuAbout = this->menuBar()->addMenu("&About");
+    defaultMenus.append({mnuFile, mnuEdit, mnuAbout});
 
     //File menu
     mnuFileOpenSubmenu = mnuFile->addMenu("Open");
@@ -34,6 +35,8 @@ void MainWindow::init()
     connect(actSave, &QAction::triggered, [this](){
         emit ContextItemActionTriggered(ItemAction::SAVE);
     });
+    defaultActions.append(actSave);
+
 
     mnuFileImportSubmenu = mnuFile->addMenu("Import");
     actImportEditTemplates = new QAction("Edit Templates", this);
@@ -41,18 +44,22 @@ void MainWindow::init()
     connect(actImportEditTemplates, &QAction::triggered, [this](){
         OpenImportTemplateEditorPanel();
     });
+    defaultActions.append(actImportEditTemplates);
 
     actImportData = new QAction("Import Data", this);
     actImportData->setStatusTip("Import a data file");
-
     mnuFileImportSubmenu->addAction(actImportEditTemplates);
     mnuFileImportSubmenu->addAction(actImportData);
+
+    defaultActions.append(actImportData);
 
     mnuFile->addSeparator();
     actQuit = new QAction("&Quit", this);
     mnuFile->addAction(actQuit);
 
-    actAddItem = new QAction(QIcon(":/resources/page_white_add.png"),"Add new item", this);
+    defaultActions.append(actQuit);
+
+    actAddItem = new QAction(QIcon(":/resources/page_white_add.png"),"Add item", this);
     actAddItem->setStatusTip("Add new item to current context");
     actAddItem->setEnabled(false);
     mnuEdit->addAction(actAddItem);
@@ -60,6 +67,7 @@ void MainWindow::init()
     connect(actAddItem, &QAction::triggered, [this](){
         emit ContextItemActionTriggered(ItemAction::ADD);
     });
+    defaultActions.append(actAddItem);
 
     actEditItem = new QAction(QIcon(":/resources/page_white_edit.png"),"Edit item", this);
     actEditItem->setStatusTip("Edit the current context selected item");
@@ -69,20 +77,25 @@ void MainWindow::init()
     connect(actEditItem, &QAction::triggered, [this](){
         emit ContextItemActionTriggered(ItemAction::EDIT);
     });
+    defaultActions.append(actEditItem);
 
     actDeleteItem = new QAction(QIcon(":/resources/page_white_delete.png"),"Delete item",this);
     actDeleteItem->setStatusTip("Delete the current context selected item");
     actDeleteItem->setEnabled(false);
+    mnuEdit->addAction(actDeleteItem);
     mainToolbar->addAction(actDeleteItem);
     connect(actDeleteItem, &QAction::triggered, [this](){
         emit ContextItemActionTriggered(ItemAction::DELETE);
     });
+    defaultActions.append(actDeleteItem);
 
-    mainToolbar->addSeparator();
+    actSep = mainToolbar->addSeparator();
+    defaultActions.append(actSep);
 
     actAbout = new QAction("About", this);
     actAbout->setStatusTip("About this program");
     mnuAbout->addAction(actAbout);
+    defaultActions.append(actAbout);
 
     connect(actAbout, &QAction::triggered, [this](){
         qDebug() << "About clicked";
@@ -115,13 +128,14 @@ void MainWindow::ContextItemStateChangeHandler(ItemState state)
 void MainWindow::PanelCloseHandler(int panelIdx)
 {
     PanelWindow *p = dynamic_cast<PanelWindow*>(ui->tabMain->widget(panelIdx));
+    deactivatePanel(p,panelIdx);
     ui->tabMain->removeTab(panelIdx);
     p->close();
     unregisterPanel(p,panelIdx);
 
     if(ui->tabMain->count() ==0)
     {
-        currentActivePanelIndex=-1;
+        defaultState();
     }
     delete(p);
 }
@@ -233,7 +247,7 @@ void MainWindow::activatePanel(PanelWindow *panel, int index)
     connect(panel, &PanelWindow::itemActionStateChange, this, &MainWindow::ContextItemStateChangeHandler);
     connect(this, &MainWindow::ContextItemActionTriggered, panel, &PanelWindow::itemActionHandler);
     setPanelMenuToolbarVisibility(panel,index,true);
-
+    panel->activate();
 }
 
 void MainWindow::deactivatePanel(PanelWindow *panel, int index)
@@ -299,9 +313,35 @@ void MainWindow::setPanelMenuToolbarVisibility(PanelWindow *panel, int index, bo
 
 void MainWindow::ActivePanelChanged(int index)
 {
-    PanelWindow *p = index2Panel[index];
-    if(p)
+    if(index >=0)
     {
-        activatePanel(p, index);
+        PanelWindow *p = index2Panel[index];
+        if (p)
+        {
+            activatePanel(p, index);
+        }
+    }
+}
+
+void MainWindow::defaultState()
+{
+    actSave->setEnabled(false);
+    actEditItem->setEnabled(false);
+    actAddItem->setEnabled(false);
+    actDeleteItem->setEnabled(false);
+
+    QList<QAction *> actions = mainToolbar->findChildren<QAction*>(QString(), Qt::FindDirectChildrenOnly);
+    for(int i =0; i< actions.count(); i++)
+    {
+        if(!defaultActions.contains(actions[i]))
+        {
+            mainToolbar->removeAction(actions[i]);
+        }
+    }
+
+    this->menuBar()->clear();
+    for(int i=0; i<defaultMenus.count(); i++)
+    {
+        this->menuBar()->addMenu(defaultMenus[i]);
     }
 }

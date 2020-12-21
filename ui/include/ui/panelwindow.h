@@ -24,6 +24,7 @@ public:
     virtual ItemState getCurrentState() const = 0;
     virtual bool hasMenu() const = 0;
     virtual bool hasToolbarItems() const = 0;
+    virtual void activate()=0;
 
 signals:
     void itemActionStateChange(ItemState state);

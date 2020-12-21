@@ -22,6 +22,8 @@ public:
 
     virtual bool hasMenu() const override;
 
+    virtual void activate() override;
+
     virtual bool hasToolbarItems() const override;
 
     virtual const QList<QAction *>& menuItems() const override;
@@ -46,6 +48,7 @@ private:
 
 private:
     void itemActionNotifyChange(ItemState change);
+    void sendCurrentSelectionState();
 
 
 };

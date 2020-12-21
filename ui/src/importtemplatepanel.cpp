@@ -114,9 +114,9 @@ ImportTemplatePanel::ImportTemplatePanel(QWidget *parent) :
     impl->setListReference(ui->lstMessages);
     connect(ui->btnSend, &QPushButton::clicked, this , &ImportTemplatePanel::sendUpdateButtonHandler);
     ui->chkNew->setCheckState(Qt::Checked);
-    ui->chkEdit->setCheckState(Qt::Checked);
-    ui->chkDelete->setCheckState(Qt::Checked);
-    ui->chkSave->setCheckState(Qt::Checked);
+    ui->chkEdit->setCheckState(Qt::Unchecked);
+    ui->chkDelete->setCheckState(Qt::Unchecked);
+    ui->chkSave->setCheckState(Qt::Unchecked);
 }
 
 ImportTemplatePanel::~ImportTemplatePanel()
@@ -167,12 +167,7 @@ void ImportTemplatePanel::actionValidateHandler()
 
 void ImportTemplatePanel::sendUpdateButtonHandler()
 {
-    ItemState s;
-    s.setSaveEnabled(ui->chkSave->checkState() == Qt::Checked);
-    s.setEditEnabled(ui->chkEdit->checkState() == Qt::Checked);
-    s.setAddEnabled(ui->chkNew->checkState() == Qt::Checked);
-    s.setDeleteEnabled(ui->chkDelete->checkState() == Qt::Checked);
-    impl->setCurrentState(s);
+    sendCurrentSelectionState();
 }
 
 QString ImportTemplatePanel::panelName() const
@@ -188,4 +183,19 @@ bool ImportTemplatePanel::hasMenu() const
 bool ImportTemplatePanel::hasToolbarItems() const
 {
     return true;
+}
+
+void ImportTemplatePanel::activate()
+{
+    sendCurrentSelectionState();
+}
+
+void ImportTemplatePanel::sendCurrentSelectionState()
+{
+    ItemState s;
+    s.setSaveEnabled(ui->chkSave->checkState() == Qt::Checked);
+    s.setEditEnabled(ui->chkEdit->checkState() == Qt::Checked);
+    s.setAddEnabled(ui->chkNew->checkState() == Qt::Checked);
+    s.setDeleteEnabled(ui->chkDelete->checkState() == Qt::Checked);
+    impl->setCurrentState(s);
 }
