@@ -7,6 +7,8 @@
 #include <QString>
 #include <QMap>
 #include <QList>
+#include "panelfactory.h"
+#include "panelwindow.h"
 #include "itemstate.h"
 
 namespace Ui
@@ -23,14 +25,12 @@ public:
     ~MainWindow();
 
 public slots:
-    void NotifyContextItemStateChange(const ItemState& state);
-    void PanelCloseHandler(int panel);
+    void ContextItemStateChangeHandler(ItemState state);
+    void PanelCloseHandler(int panelIdx);
+    void ActivePanelChanged(int index);
 
 signals:
-    void SaveItemInContext();
-    void NewItemInContext();
-    void EditItemInContext();
-    void DeleteItemInContext();
+    void ContextItemActionTriggered(ItemAction action);
 
 protected:
     virtual void closeEvent(QCloseEvent *event) override;
@@ -38,11 +38,18 @@ protected:
 
 private:
     void init();
-    void OpenFundsManagementPanel();
-    void ConnectPanel(QWidget *panel, const QString& header);
+    void OpenImportTemplateEditorPanel();
+    QMenu* getMenu(const QString &text);
+    void initNewPanel(Panel panel);
+    void setPanelMenuToolbarVisibility(PanelWindow *panel, int index, bool visible);
+    void activatePanel(PanelWindow *panel, int index);
+    void deactivatePanel(PanelWindow *panel, int index);
+    void unregisterPanel(PanelWindow *panel, int index);
+    void registerPanel(PanelWindow *panel, int index);
+
+
 private:
     Ui::MainWindow *ui;
-    QMenuBar *mainMenuBar;
     QToolBar *mainToolbar;
     QMenu *mnuFile;
     QMenu *mnuAbout;
@@ -60,7 +67,11 @@ private:
     QAction *actAddItem;
     QAction *actDeleteItem;
     QAction *actFundsManagement;
-    QMap<int,QList<QAction>> panelMenus;
+    QMap<int,QList<QAction*>> panelMenus;
+    QMap<int,QList<QAction*>> panelToolbarItems;
+    QMap<Panel, QList<int>> panel2Index;
+    QMap<int, PanelWindow*> index2Panel;
+    int currentActivePanelIndex=-1;
 };
 
 #endif // MAINWINDOW_H

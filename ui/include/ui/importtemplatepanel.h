@@ -9,7 +9,7 @@ namespace Ui {
 class ImportTemplatePanel;
 }
 
-class ImportTemplatePanel : public QWidget , public PanelWindow
+class ImportTemplatePanel : public PanelWindow
 {
     Q_OBJECT
 public:
@@ -20,13 +20,15 @@ public:
 
     virtual const QString &panelMenuText() const override;
 
+    virtual bool hasMenu() const override;
+
+    virtual bool hasToolbarItems() const override;
+
     virtual const QList<QAction *>& menuItems() const override;
 
     virtual const QList<QAction *>& toolbarItems() const override;
 
-    virtual bool allowMultipleInstances() override;
-
-    Q_SIGNAL virtual void itemActionStateChange(ItemState state) override;
+    virtual QString panelName() const override;
 
     Q_SLOT virtual void itemActionHandler(ItemAction action) override;
 

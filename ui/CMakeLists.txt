@@ -12,8 +12,8 @@ function(format_source_paths PATH_VALUE LIST_VAR)
     set(${LIST_VAR} ${TEMP_LIST} PARENT_SCOPE)
 endfunction()
 
-set(SOURCES mainwindow.cpp mainwindow.ui importtemplatepanel.cpp importtemplatepanel.ui )
-set(HEADERS mainwindow.h panelwindow.h itemstate.h importtemplatepanel.h)
+set(SOURCES mainwindow.cpp mainwindow.ui importtemplatepanel.cpp importtemplatepanel.ui panelfactory.cpp panelwindow.cpp)
+set(HEADERS mainwindow.h panelwindow.h itemstate.h importtemplatepanel.h panelfactory.h)
 
 format_source_paths("/src" SOURCES)
 format_source_paths("/include/ui" HEADERS)
