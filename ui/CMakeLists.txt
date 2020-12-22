@@ -14,6 +14,7 @@ set(SOURCES mainwindow.cpp mainwindow.ui
             databasesettingspane.cpp databasesettingspane.ui
             mainsettingspane.cpp mainsettingspane.ui
             applicationsettings.cpp)
+
 set(HEADERS mainwindow.h
         panelwindow.h
         itemstate.h
@@ -23,7 +24,8 @@ set(HEADERS mainwindow.h
         databasesettingspane.h
         mainsettingspane.h
         applicationsettings.h
-        applicationsettingspane.h)
+        applicationsettingspane.h
+        applicationconstants.h)
 
 format_source_paths("/src" SOURCES)
 format_source_paths("/include/ui" HEADERS)
@@ -34,4 +36,4 @@ add_library(ui)
 target_sources(ui PRIVATE ${SOURCES} PUBLIC ${HEADERS} ${CMAKE_CURRENT_LIST_DIR}/resources.qrc)
 
 target_include_directories(ui PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src)
-target_link_libraries(ui Qt5::Core Qt5::Widgets)
+target_link_libraries(ui Qt5::Core Qt5::Widgets objects)

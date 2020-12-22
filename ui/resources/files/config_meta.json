@@ -1,0 +1,67 @@
+{
+  "application_id": "TroopDataManager.koad.io",
+  "secured": [
+    {"section": "database", "setting": "password"}
+  ],
+  "database": {
+    "type":"mysql",
+    "parameters": [
+      { "name": "host",
+        "display": "Host/Server",
+        "type": "text",
+        "required": true
+      },
+      { "name": "schema",
+        "display": "Schema",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name" : "port",
+        "display": "Port",
+        "type": "text",
+        "required": true,
+        "default": "3306"
+      },
+      {
+        "name": "user",
+        "display": "User",
+        "type": "text",
+        "required": true,
+        "default": "root"
+      },
+      {
+        "name": "password",
+        "display": "Password",
+        "type": "password",
+        "required": true,
+        "default": "password"
+      },
+      {
+        "name": "usessl",
+        "display": "Use SSL",
+        "type": "flag",
+        "required": true,
+        "default": true
+      },
+      {
+        "name": "svr_key",
+        "display": "Sever Key",
+        "type": "file",
+        "required": false
+      },
+      {
+        "name" : "svr_crt",
+        "display": "Sever Certificate",
+        "type": "file",
+        "required": false
+      },
+      {
+        "name": "ca_crt",
+        "display": "CA Certificate",
+        "type": "file",
+        "required": false
+      }
+    ]
+  }
+}
