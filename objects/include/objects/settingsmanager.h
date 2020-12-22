@@ -18,9 +18,7 @@
 #include <QJsonValue>
 #include <QFile>
 #include <QString>
-#include "objects/keychain/KeyManager.h"
-#include "objects/keychain/KeyManagerFactory.h"
-#include "constants.h"
+
 
 class SettingsManager
 {

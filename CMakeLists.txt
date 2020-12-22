@@ -35,6 +35,7 @@ if (APPLE)
     message(STATUS "Build Type Apple OSX")
 endif()
 
+add_subdirectory(keymanager)
 add_subdirectory(objects)
 add_subdirectory(ui)
 add_executable(TroopTreasurer ${BUNDLE_QUALIFIER} main.cpp ${ICON_RESOURCE})

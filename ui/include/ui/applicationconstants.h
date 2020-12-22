@@ -1,7 +1,8 @@
-//
-// Created by Karl Moad on 12/21/20.
-//
-
+/*
+ * TroopTreasurer UI
+ * Author: Karl Moad
+ * ---------------------------------
+ */
 #ifndef TROOPTREASURER_APPLICATIONCONSTANTS_H
 #define TROOPTREASURER_APPLICATIONCONSTANTS_H
 

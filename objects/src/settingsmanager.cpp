@@ -117,7 +117,7 @@ private:
 
 SettingsManager* SettingsManager::_instance= nullptr;
 
-SettingsManager::SettingsManager(QString settingPath, QString configMetaPath): impl(new SettingsManagerImpl(settingPath, configMetaPath)
+SettingsManager::SettingsManager(QString settingPath, QString configMetaPath): impl(new SettingsManagerImpl(settingPath, configMetaPath))
 {}
 
 SettingsManager::~SettingsManager()
