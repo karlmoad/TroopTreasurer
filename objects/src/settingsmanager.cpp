@@ -25,9 +25,9 @@ public:
             file1.close();
             _settings = QJsonDocument::fromJson(raw1).object();
         }
+        else
         {
-            ObjectError err("Unable to open and read settings file", static_cast<int>(ObjectErrorCode::ERROR_READ_FILE));
-            err.raise();
+            _settings = QJsonObject();
         }
         _settingsPath = settingPath;
         init();
@@ -171,7 +171,7 @@ void SettingsManager::free()
     delete SettingsManager::_instance;
 }
 
-QJsonObject SettingsManager::getConfigurationMetadata(const QString &key)
+QJsonObject SettingsManager::getConfigurationSectionMetadata(const QString &key)
 {
     return impl->getConfigurationMetadata(key);
 }

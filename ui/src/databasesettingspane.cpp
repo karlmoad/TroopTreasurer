@@ -32,3 +32,8 @@ void DatabaseSettingsPane::save()
 {
 
 }
+
+void DatabaseSettingsPane::loadConfiguration(const QJsonObject &config)
+{
+
+}

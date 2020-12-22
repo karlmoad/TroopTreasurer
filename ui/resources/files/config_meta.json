@@ -4,8 +4,10 @@
     {"section": "database", "setting": "password"}
   ],
   "database": {
-    "display" : "Database Settings",
-    "type":"mysql",
+    "meta": {
+      "display": "Database Settings",
+      "icon": ":/resources/database.png"
+    },
     "parameters": [
       { "name": "host",
         "display": "Host/Server",

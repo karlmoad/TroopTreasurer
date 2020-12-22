@@ -28,7 +28,7 @@ public:
     static SettingsManager *getInstance();
     static SettingsManager *initialize(QString settingPath, QString configMetaPath);
     static void free();
-    QJsonObject getConfigurationMetadata(const QString& key);
+    QJsonObject getConfigurationSectionMetadata(const QString& key);
     QJsonObject getSettingsSegment(QString const &key);
     void setSettingsSegment(QJsonObject data, const QString& key);
     bool saveSettings(QString *message);

@@ -15,6 +15,7 @@ class ApplicationSettingsPane
 {
 public:
     virtual ApplicationSettingsType settingsType()=0;
+    virtual void loadConfiguration(const QJsonObject& config)=0;
     virtual void loadSettings(const QJsonObject& settings)=0;
     virtual QJsonObject settings()=0;
     virtual void save()=0;

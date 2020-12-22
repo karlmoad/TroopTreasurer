@@ -6,10 +6,12 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent), ui(new Ui::MainWind
     ui->setupUi(this);
     setUnifiedTitleAndToolBarOnMac(true);
     init();
+    loadSettings();
 }
 
 MainWindow::~MainWindow()
 {
+    SettingsManager::free();
     delete ui;
 }
 
@@ -356,4 +358,10 @@ void MainWindow::SettingsHandler()
     ApplicationSettingsDialog *appSettings = new ApplicationSettingsDialog(this);
     appSettings->setModal(true);
     appSettings->show();
+}
+
+void MainWindow::loadSettings()
+{
+    QString settingsPath = QString("%1%2").arg(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation), APP::ApplicationSettingsFile);
+    settingsManager = SettingsManager::initialize(settingsPath,APP::ApplicationConfigMetadataFile);
 }

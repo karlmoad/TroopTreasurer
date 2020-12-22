@@ -1,6 +1,8 @@
 #include "ui/applicationsettingsdialog.h"
 #include "ui_applicationsettingsdialog.h"
 #include "ui/databasesettingspane.h"
+#include "objects/settingsmanager.h"
+#include "objects/objecterror.h"
 
 class ApplicationSettingsDialog::ApplicationSettingsDialogImpl
 {
@@ -9,6 +11,7 @@ public:
     {
         _ui = new Ui::ApplicationSettingsDialog();
         _ui->setupUi(_pane);
+        settingsManager = SettingsManager::getInstance();
         init();
         connect(_ui->btnBack, &QPushButton::clicked, _pane, &ApplicationSettingsDialog::onBackClickHandler);
         connect(_ui->btnSave, &QPushButton::clicked, _pane, &ApplicationSettingsDialog::onSaveClickHandler);
@@ -43,6 +46,8 @@ public:
             {
                 enableBack(true);
                 DatabaseSettingsPane *dbp = new DatabaseSettingsPane(_pane);
+                dbp->loadConfiguration(settingsManager->getConfigurationSectionMetadata(ApplicationSettingsUtility::ApplicationSettingTypeToString(ApplicationSettingsType::DATABASE)));
+                dbp->loadSettings(settingsManager->getSettingsSegment(ApplicationSettingsUtility::ApplicationSettingTypeToString(ApplicationSettingsType::DATABASE)));
                 int idx = _ui->panes->addWidget(dbp);
                 _ui->panes->setCurrentIndex(idx);
             }
@@ -63,6 +68,7 @@ private:
     ApplicationSettingsDialog *_pane;
     Ui::ApplicationSettingsDialog *_ui;
     MainSettingsPane *_main;
+    SettingsManager *settingsManager;
 };
 
 ApplicationSettingsDialog::ApplicationSettingsDialog(QWidget *parent) :

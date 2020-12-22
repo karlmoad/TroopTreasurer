@@ -12,6 +12,8 @@ class DatabaseSettingsPane;
 class DatabaseSettingsPane : public QWidget, public ApplicationSettingsPane
 {
     Q_OBJECT
+public:
+    virtual void loadConfiguration(const QJsonObject& config) override;
 
 public:
     explicit DatabaseSettingsPane(QWidget *parent = nullptr);

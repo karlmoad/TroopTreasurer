@@ -27,10 +27,14 @@
 #include <QString>
 #include <QMap>
 #include <QList>
+#include <QStandardPaths>
 #include "panelfactory.h"
 #include "panelwindow.h"
 #include "itemstate.h"
 #include "applicationsettingsdialog.h"
+#include "objects/settingsmanager.h"
+#include "objects/objecterror.h"
+#include "applicationconstants.h"
 
 namespace Ui
 {
@@ -60,6 +64,7 @@ protected:
 
 private:
     void init();
+    void loadSettings();
     void OpenImportTemplateEditorPanel();
     QMenu* getMenu(const QString &text);
     void initNewPanel(Panel panel);
@@ -97,6 +102,7 @@ private:
     QMap<int, PanelWindow*> index2Panel;
     QList<QAction*> defaultActions;
     QList<QMenu*> defaultMenus;
+    SettingsManager *settingsManager;
 };
 
 #endif // MAINWINDOW_H
