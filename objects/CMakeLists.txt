@@ -3,8 +3,8 @@ project(objects)
 
 include(${CMAKE_SOURCE_DIR}/cmake_modules/SourceFunctions.cmake)
 
-set(SOURCES settingsmanager.cpp)
-set(HEADERS settingsmanager.h)
+set(SOURCES settingsmanager.cpp objecterror.cpp)
+set(HEADERS settingsmanager.h objecterror.h)
 
 format_source_paths("/src" SOURCES)
 format_source_paths("/include/objects" HEADERS)

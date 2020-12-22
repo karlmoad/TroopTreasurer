@@ -1,4 +1,6 @@
 #include "objects/settingsmanager.h"
+#include "keymanager/keymanager.h"
+#include "objects/objecterror.h"
 
 class SettingsManager::SettingsManagerImpl
 {
@@ -11,6 +13,11 @@ public:
             file.close();
             _configMeta = QJsonDocument::fromJson(raw).object();
         }
+        else
+        {
+            ObjectError err("Unable to open and read configuration metadata file", static_cast<int>(ObjectErrorCode::ERROR_READ_FILE));
+            err.raise();
+        }
 
         QFile file1(settingPath);
         if(file1.open(QFile::ReadOnly | QFile::Text)){
@@ -18,12 +25,17 @@ public:
             file1.close();
             _settings = QJsonDocument::fromJson(raw1).object();
         }
+        {
+            ObjectError err("Unable to open and read settings file", static_cast<int>(ObjectErrorCode::ERROR_READ_FILE));
+            err.raise();
+        }
         _settingsPath = settingPath;
         init();
     }
 
     void init()
     {
+        KeyManager kmgr(_configMeta["application_id"].toString());
         QJsonObject settings = _settings;
         QJsonArray secureItems = _configMeta["secured"].toArray();
         for(int i =0; i<secureItems.count(); i++)
@@ -36,9 +48,17 @@ public:
                     QString secured = section[secureItems[i].toObject()["setting"].toString()].toString();
                     if (secured.trimmed().size() > 0)
                     {
-                        // TODO implement KeyManager
-                        //section[secureItems[i].toObject()["setting"].toString()] = keymanager->get(generateSecureSettingTag(secureItems[i].toObject()["Section"].toString(),secureItems[i].toObject()["setting"].toString());
-                        settings[secureItems[i].toObject()["section"].toString()] = section;
+                        QString securedValue;
+                        if(kmgr.getValue(generateSecureSettingTag(secureItems[i].toObject()["Section"].toString(),secureItems[i].toObject()["setting"].toString()), securedValue))
+                        {
+                            section[secureItems[i].toObject()["setting"].toString()] = securedValue;
+                            settings[secureItems[i].toObject()["section"].toString()] = section;
+                        }
+                        else
+                        {
+                            ObjectError err(kmgr.lastError().getErrorMessage(), kmgr.lastError().getErrorCode());
+                            err.raise();
+                        }
                     }
                 }
             }
@@ -48,6 +68,7 @@ public:
 
     bool save(QString *message)
     {
+        KeyManager kmgr(_configMeta["application_id"].toString());
         QJsonObject settings = _settings;
         QJsonArray secureItems = _configMeta["secured"].toArray();
         for(int i =0; i<secureItems.count(); i++)
@@ -60,10 +81,17 @@ public:
                     QString secured = section[secureItems[i].toObject()["setting"].toString()].toString();
                     if (secured.trimmed().size() > 0)
                     {
-                        // TODO implement KeyManager
                         //Over write password value in settings with default value so that we dont save the value to the fs unsecured
-                        section[secureItems[i].toObject()["setting"].toString()] = generateSecureSettingTag(secureItems[i].toObject()["Section"].toString(),secureItems[i].toObject()["setting"].toString());
-                        settings[secureItems[i].toObject()["section"].toString()] = section;
+                        if(kmgr.setValue(generateSecureSettingTag(secureItems[i].toObject()["Section"].toString(),secureItems[i].toObject()["setting"].toString()), secured))
+                        {
+                            section[secureItems[i].toObject()["setting"].toString()] = generateSecureSettingTag(secureItems[i].toObject()["Section"].toString(),secureItems[i].toObject()["setting"].toString());
+                            settings[secureItems[i].toObject()["section"].toString()] = section;
+                        }
+                        else
+                        {
+                            ObjectError err(kmgr.lastError().getErrorMessage(), kmgr.lastError().getErrorCode());
+                            err.raise();
+                        }
                     }
                 }
             }

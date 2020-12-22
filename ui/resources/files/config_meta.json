@@ -4,6 +4,7 @@
     {"section": "database", "setting": "password"}
   ],
   "database": {
+    "display" : "Database Settings",
     "type":"mysql",
     "parameters": [
       { "name": "host",
