@@ -1,3 +1,7 @@
+#include <QMap>
+#include <QList>
+#include <QJsonObject>
+#include <QMessageBox>
 #include "ui/applicationsettingsdialog.h"
 #include "ui_applicationsettingsdialog.h"
 #include "ui/databasesettingspane.h"
@@ -58,10 +62,31 @@ public:
 
     void backClicked()
     {
-        enableBack(false);
-        QWidget *pane = _ui->panes->widget(1);
-        _ui->panes->removeWidget(pane);
-        _ui->panes->setCurrentIndex(0);
+        if(_ui->panes->count() > 1)
+        {
+            enableBack(false);
+            QWidget *widget = _ui->panes->widget(1);
+            ApplicationSettingsPane *pane = (ApplicationSettingsPane*)widget;
+            _changed[pane->settingsType()] = pane->settings();
+            _ui->panes->removeWidget(widget);
+            _ui->panes->setCurrentIndex(0);
+        }
+    }
+
+    void save()
+    {
+        QList<ApplicationSettingsType> keys = _changed.keys();
+        //set all changed segments in the settings manager
+        for(int i = 0; i< keys.count(); i++)
+        {
+            settingsManager->setSettingsSegment(_changed[keys[i]],ApplicationSettingsUtility::ApplicationSettingTypeToString(keys[i]));
+        }
+
+        QString msg;
+        if(!settingsManager->saveSettings(&msg))
+        {
+            QMessageBox::critical(_pane,"Error",msg);
+        }
     }
 
 private:
@@ -69,6 +94,7 @@ private:
     Ui::ApplicationSettingsDialog *_ui;
     MainSettingsPane *_main;
     SettingsManager *settingsManager;
+    QMap<ApplicationSettingsType, QJsonObject> _changed;
 };
 
 ApplicationSettingsDialog::ApplicationSettingsDialog(QWidget *parent) :
@@ -85,7 +111,7 @@ ApplicationSettingsDialog::~ApplicationSettingsDialog()
 
 void ApplicationSettingsDialog::onSaveClickHandler()
 {
-    this->close();
+    impl->save();
 }
 
 void ApplicationSettingsDialog::onCloseClickHandler()
