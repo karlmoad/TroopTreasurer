@@ -51,8 +51,8 @@ bool KeyManager::setValue(const QString &key, const QString &value)
     SecKeychainItemRef item;
     OSStatus ret = SecKeychainFindGenericPassword(
             NULL,
-            impl->getApplicationId().length(),
-            impl->getApplicationId().toStdString().c_str(),
+            skey.length(),
+            skey.toStdString().c_str(),
             skey.length(),
             skey.toStdString().c_str(),
             NULL,
@@ -75,8 +75,8 @@ bool KeyManager::setValue(const QString &key, const QString &value)
     } else {
         ret = SecKeychainAddGenericPassword(
                 NULL,
-                impl->getApplicationId().length(),
-                impl->getApplicationId().toStdString().c_str(),
+                skey.length(),
+                skey.toStdString().c_str(),
                 skey.length(),
                 skey.toStdString().c_str(),
                 value.length(),

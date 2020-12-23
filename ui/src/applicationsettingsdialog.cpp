@@ -88,35 +88,30 @@ public:
 
     void save()
     {
-        bool proceed = true;
-        if(_ui->panes->count() > 1) // make sure a sub-pane is currently active, get its content and push into change list
+        if(_ui->panes->count() > 1)
         {
-            proceed = syncCurrentChanges();
+            QWidget *widget = _ui->panes->widget(1);
+            ApplicationSettingsPane *pane = dynamic_cast<ApplicationSettingsPane*>(widget);
+            if(pane)
+            {
+                //set pane settings values into settingsManager context
+                settingsManager->setSettingsSegment(pane->settings(),ApplicationSettingsUtility::ApplicationSettingTypeToString(pane->settingsType()));
+                QString msg;
+                //save SettingsManager context
+                if (!settingsManager->saveSettings(&msg))
+                {
+                    QMessageBox::critical(_pane, "Error", msg);
+                }
+            }
+            else
+            {
+                QMessageBox::critical(_pane,"Error","Error unable to save settings");
+            }
         }
-
-        qDebug() << "Changes:" << _changed.values();
-
-//        if(proceed)
-//        {
-//            QList<ApplicationSettingsType> keys = _changed.keys();
-//            //set all changed segments in the settings manager
-//            for (int i = 0; i < keys.count(); i++)
-//            {
-//                settingsManager->setSettingsSegment(_changed[keys[i]],
-//                                                    ApplicationSettingsUtility::ApplicationSettingTypeToString(
-//                                                            keys[i]));
-//            }
-//
-//            QString msg;
-//            if (!settingsManager->saveSettings(&msg))
-//            {
-//                QMessageBox::critical(_pane, "Error", msg);
-//            }
-//        }
-//        else
-//        {
-//            QMessageBox::critical(_pane,"Error","Error unable to synchronize settings");
-//        }
+        else
+        {
+            QMessageBox::critical(_pane,"Error","Error unable to save settings, invalid settings pane state");
+        }
     }
 
     void setWindowTitle(const QString &title)
@@ -124,45 +119,11 @@ public:
         _pane->setWindowTitle(title);
     }
 
-
-private:
-    bool syncCurrentChanges()
-    {
-        if(_ui->panes->count() > 1)
-        {
-            QWidget *widget = _ui->panes->widget(1);
-            ApplicationSettingsPane *pane = dynamic_cast<ApplicationSettingsPane*>(widget);
-            if(pane)
-            {
-                mergeChange(pane->settingsType(),pane->settings());
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        return false;
-    }
-
-    void mergeChange(ApplicationSettingsType type, QJsonObject data)
-    {
-        if(_changed.contains(type))
-        {
-            _changed[type] = data;
-        }
-        else
-        {
-            _changed.insert(type, data);
-        }
-    }
-
 private:
     ApplicationSettingsDialog *_pane;
     Ui::ApplicationSettingsDialog *_ui;
     MainSettingsPane *_main;
     SettingsManager *settingsManager;
-    QMap<ApplicationSettingsType, QJsonObject> _changed;
     const QString defaultWindowTitle = "Application Settings";
 };
 
