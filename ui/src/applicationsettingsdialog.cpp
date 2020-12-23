@@ -7,6 +7,7 @@
 #include "ui/databasesettingspane.h"
 #include "objects/settingsmanager.h"
 #include "objects/objecterror.h"
+#include <QDebug>
 
 class ApplicationSettingsDialog::ApplicationSettingsDialogImpl
 {
@@ -30,17 +31,18 @@ public:
 
     void init()
     {
-        enableBack(false);
+        enableSubPaneButtons(false);
         _main = new MainSettingsPane(_pane);
         int idx = _ui->panes->addWidget(_main);
         _ui->panes->setCurrentIndex(idx);
         setWindowTitle(defaultWindowTitle);
     }
 
-    void enableBack(bool enable)
+    void enableSubPaneButtons(bool enable)
     {
         _ui->btnBack->setEnabled(enable);
         _ui->btnBack->setVisible(enable);
+        _ui->btnSave->setEnabled(enable);
     }
 
     void showPane(ApplicationSettingsType type)
@@ -49,7 +51,7 @@ public:
         {
             case ApplicationSettingsType::DATABASE:
             {
-                enableBack(true);
+                enableSubPaneButtons(true);
                 DatabaseSettingsPane *dbp = new DatabaseSettingsPane(_pane);
                 dbp->loadSettings(settingsManager->getConfigurationSectionMetadata(ApplicationSettingsUtility::ApplicationSettingTypeToString(ApplicationSettingsType::DATABASE)),
                                   settingsManager->getSettingsSegment(ApplicationSettingsUtility::ApplicationSettingTypeToString(ApplicationSettingsType::DATABASE)));
@@ -66,10 +68,8 @@ public:
     {
         if(_ui->panes->count() > 1)
         {
-            enableBack(false);
+            enableSubPaneButtons(false);
             QWidget *widget = _ui->panes->widget(1);
-            ApplicationSettingsPane *pane = (ApplicationSettingsPane*)widget;
-            _changed[pane->settingsType()] = pane->settings();
             _ui->panes->removeWidget(widget);
             _ui->panes->setCurrentIndex(0);
             setWindowTitle(defaultWindowTitle);
@@ -78,23 +78,70 @@ public:
 
     void save()
     {
-        QList<ApplicationSettingsType> keys = _changed.keys();
-        //set all changed segments in the settings manager
-        for(int i = 0; i< keys.count(); i++)
+        bool proceed = true;
+        if(_ui->panes->count() > 1) // make sure a sub-pane is currently active, get its content and push into change list
         {
-            settingsManager->setSettingsSegment(_changed[keys[i]],ApplicationSettingsUtility::ApplicationSettingTypeToString(keys[i]));
+            proceed = syncCurrentChanges();
         }
 
-        QString msg;
-        if(!settingsManager->saveSettings(&msg))
+        if(proceed)
         {
-            QMessageBox::critical(_pane,"Error",msg);
+            QList<ApplicationSettingsType> keys = _changed.keys();
+            //set all changed segments in the settings manager
+            for (int i = 0; i < keys.count(); i++)
+            {
+                settingsManager->setSettingsSegment(_changed[keys[i]],
+                                                    ApplicationSettingsUtility::ApplicationSettingTypeToString(
+                                                            keys[i]));
+            }
+
+            QString msg;
+            if (!settingsManager->saveSettings(&msg))
+            {
+                QMessageBox::critical(_pane, "Error", msg);
+            }
+        }
+        else
+        {
+            QMessageBox::critical(_pane,"Error","Error unable to synchronize settings");
         }
     }
 
     void setWindowTitle(const QString &title)
     {
         _pane->setWindowTitle(title);
+    }
+
+
+private:
+    bool syncCurrentChanges()
+    {
+        if(_ui->panes->count() > 1)
+        {
+            QWidget *widget = _ui->panes->widget(1);
+            ApplicationSettingsPane *pane = dynamic_cast<ApplicationSettingsPane*>(widget);
+            if(pane)
+            {
+                mergeChange(pane->settingsType(),pane->settings());
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+
+    void mergeChange(ApplicationSettingsType type, QJsonObject data)
+    {
+        if(_changed.contains(type))
+        {
+            _changed[type] = data;
+        }
+        else
+        {
+            _changed.insert(type, data);
+        }
     }
 
 private:

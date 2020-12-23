@@ -1,6 +1,7 @@
 #include "objects/settingsmanager.h"
 #include "keymanager/keymanager.h"
 #include "objects/objecterror.h"
+#include <QDebug>
 
 class SettingsManager::SettingsManagerImpl
 {
@@ -105,6 +106,8 @@ public:
                 }
             }
         }
+
+        qDebug() << settings;
 
         QFile file(_settingsFile);
         if(file.open(QFile::ReadWrite | QFile::Text))

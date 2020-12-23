@@ -1,5 +1,5 @@
 {
-  "application_id": "TroopDataManager.koad.io",
+  "application_id": "TroopTreasurer.koad.io",
   "secured": [
     {"section": "database", "setting": "password"}
   ],

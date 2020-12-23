@@ -1,6 +1,7 @@
 #include "ui/databasesettingspane.h"
 #include "ui_databasesettingspane.h"
 #include "objects/settingsmodel.h"
+#include <QDebug>
 
 class DatabaseSettingsPane::DatabaseSettingsPaneImpl
 {
@@ -67,7 +68,7 @@ public:
         QSqlDatabase::removeDatabase("TEST");
     }
 
-    const QJsonObject& getSettings() const
+    QJsonObject getSettings()
     {
         return _model->getSettings();
     }
