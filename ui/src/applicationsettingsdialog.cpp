@@ -34,6 +34,7 @@ public:
         _main = new MainSettingsPane(_pane);
         int idx = _ui->panes->addWidget(_main);
         _ui->panes->setCurrentIndex(idx);
+        setWindowTitle(defaultWindowTitle);
     }
 
     void enableBack(bool enable)
@@ -54,6 +55,7 @@ public:
                                   settingsManager->getSettingsSegment(ApplicationSettingsUtility::ApplicationSettingTypeToString(ApplicationSettingsType::DATABASE)));
                 int idx = _ui->panes->addWidget(dbp);
                 _ui->panes->setCurrentIndex(idx);
+                setWindowTitle("Database Settings");
             }
             default:
                 break;
@@ -70,6 +72,7 @@ public:
             _changed[pane->settingsType()] = pane->settings();
             _ui->panes->removeWidget(widget);
             _ui->panes->setCurrentIndex(0);
+            setWindowTitle(defaultWindowTitle);
         }
     }
 
@@ -89,12 +92,18 @@ public:
         }
     }
 
+    void setWindowTitle(const QString &title)
+    {
+        _pane->setWindowTitle(title);
+    }
+
 private:
     ApplicationSettingsDialog *_pane;
     Ui::ApplicationSettingsDialog *_ui;
     MainSettingsPane *_main;
     SettingsManager *settingsManager;
     QMap<ApplicationSettingsType, QJsonObject> _changed;
+    const QString defaultWindowTitle = "Application Settings";
 };
 
 ApplicationSettingsDialog::ApplicationSettingsDialog(QWidget *parent) :

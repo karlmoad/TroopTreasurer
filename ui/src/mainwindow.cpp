@@ -362,6 +362,5 @@ void MainWindow::SettingsHandler()
 
 void MainWindow::loadSettings()
 {
-    QString settingsPath = QString("%1%2").arg(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation), APP::ApplicationSettingsFile);
-    settingsManager = SettingsManager::initialize(settingsPath,APP::ApplicationConfigMetadataFile);
+    settingsManager = SettingsManager::initialize(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation),APP::ApplicationSettingsFile,APP::ApplicationConfigMetadataFile);
 }

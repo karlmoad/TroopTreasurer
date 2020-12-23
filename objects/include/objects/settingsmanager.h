@@ -17,16 +17,17 @@
 #include <QJsonArray>
 #include <QJsonValue>
 #include <QFile>
+#include <QDir>
 #include <QString>
 
 
 class SettingsManager
 {
 public:
-    SettingsManager(QString settingPath, QString configMetaPath);
+    SettingsManager(const QString& settingPath,const QString& settingsFile,const QString& configMetaPath);
     ~SettingsManager();
     static SettingsManager *getInstance();
-    static SettingsManager *initialize(QString settingPath, QString configMetaPath);
+    static SettingsManager *initialize(const QString& settingPath,const QString& settingsFile,const QString& configMetaPath);
     static void free();
     QJsonObject getConfigurationSectionMetadata(const QString& key);
     QJsonObject getSettingsSegment(QString const &key);

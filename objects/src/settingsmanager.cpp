@@ -5,9 +5,9 @@
 class SettingsManager::SettingsManagerImpl
 {
 public:
-    SettingsManagerImpl(QString settingPath, QString configPath)
+    SettingsManagerImpl(const QString& settingPath,const QString& settingsFile,const QString& configMetaPath)
     {
-        QFile file(configPath);
+        QFile file(configMetaPath);
         if(file.open(QFile::ReadOnly | QFile::Text)){
             QByteArray raw = file.readAll();
             file.close();
@@ -19,7 +19,16 @@ public:
             err.raise();
         }
 
-        QFile file1(settingPath);
+        _settingsPath = settingPath;
+        _settingsFile = QString(settingPath + "/" + settingsFile);
+        QDir dir(_settingsPath);
+        //check if settings directory exists iuf not create it
+        if(!dir.exists())
+        {
+            dir.mkpath(".");
+        }
+
+        QFile file1(_settingsFile);
         if(file1.open(QFile::ReadOnly | QFile::Text)){
             QByteArray raw1 = file1.readAll();
             file1.close();
@@ -29,7 +38,7 @@ public:
         {
             _settings = QJsonObject();
         }
-        _settingsPath = settingPath;
+
         init();
     }
 
@@ -97,14 +106,14 @@ public:
             }
         }
 
-        QFile file(_settingsPath);
+        QFile file(_settingsFile);
         if(file.open(QFile::ReadWrite | QFile::Text))
         {
-            file.write(QJsonDocument(_settings).toJson());
+            file.write(QJsonDocument(settings).toJson());
             file.close();
             return true;
         }
-        *message = "Unable to write settings file: " + _settingsPath;
+        *message = "Unable to write settings file: " + _settingsPath + " Error: " + file.errorString();
         return false;
     }
 
@@ -140,12 +149,13 @@ private:
     QJsonObject _configMeta;
     QJsonObject _settings;
     QString _settingsPath;
+    QString _settingsFile;
 
 };
 
 SettingsManager* SettingsManager::_instance= nullptr;
 
-SettingsManager::SettingsManager(QString settingPath, QString configMetaPath): impl(new SettingsManagerImpl(settingPath, configMetaPath))
+SettingsManager::SettingsManager(const QString& settingPath,const QString& settingsFile,const QString& configMetaPath): impl(new SettingsManagerImpl(settingPath,settingsFile,configMetaPath))
 {}
 
 SettingsManager::~SettingsManager()
@@ -158,10 +168,10 @@ SettingsManager *SettingsManager::getInstance()
     return SettingsManager::_instance;
 }
 
-SettingsManager *SettingsManager::initialize(QString settingPath, QString configMetaPath)
+SettingsManager *SettingsManager::initialize(const QString& settingPath,const QString& settingsFile,const QString& configMetaPath)
 {
     if(SettingsManager::_instance== nullptr) {
-        SettingsManager::_instance = new SettingsManager(settingPath, configMetaPath);
+        SettingsManager::_instance = new SettingsManager(settingPath, settingsFile, configMetaPath);
     }
     return SettingsManager::_instance;
 }
