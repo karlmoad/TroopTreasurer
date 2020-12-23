@@ -9,8 +9,8 @@ public:
     DatabaseSettingsPaneImpl(DatabaseSettingsPane *pane): _pane(pane), _ui(new Ui::DatabaseSettingsPane)
     {
         _ui->setupUi(_pane);
-        _model = new SettingsModel(_pane);
-        _delegate = new SettingsModelDelegate(_pane);
+        _model = new SettingsModel();
+        _delegate = new SettingsModelDelegate();
         _ui->tblSettings->setModel(_model);
         _ui->tblSettings->setItemDelegate(_delegate);
         connect(_ui->btnTest, &QPushButton::clicked, _pane, &DatabaseSettingsPane::testConnectionSettings);

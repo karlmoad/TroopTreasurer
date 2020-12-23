@@ -43,6 +43,9 @@ public:
         _ui->btnBack->setEnabled(enable);
         _ui->btnBack->setVisible(enable);
         _ui->btnSave->setEnabled(enable);
+        _ui->btnSave->setVisible(enable);
+        _ui->btnClose->setEnabled(!enable);
+        _ui->btnClose->setVisible(!enable);
     }
 
     void showPane(ApplicationSettingsType type)
@@ -84,27 +87,29 @@ public:
             proceed = syncCurrentChanges();
         }
 
-        if(proceed)
-        {
-            QList<ApplicationSettingsType> keys = _changed.keys();
-            //set all changed segments in the settings manager
-            for (int i = 0; i < keys.count(); i++)
-            {
-                settingsManager->setSettingsSegment(_changed[keys[i]],
-                                                    ApplicationSettingsUtility::ApplicationSettingTypeToString(
-                                                            keys[i]));
-            }
+        qDebug() << "Changes:" << _changed.values();
 
-            QString msg;
-            if (!settingsManager->saveSettings(&msg))
-            {
-                QMessageBox::critical(_pane, "Error", msg);
-            }
-        }
-        else
-        {
-            QMessageBox::critical(_pane,"Error","Error unable to synchronize settings");
-        }
+//        if(proceed)
+//        {
+//            QList<ApplicationSettingsType> keys = _changed.keys();
+//            //set all changed segments in the settings manager
+//            for (int i = 0; i < keys.count(); i++)
+//            {
+//                settingsManager->setSettingsSegment(_changed[keys[i]],
+//                                                    ApplicationSettingsUtility::ApplicationSettingTypeToString(
+//                                                            keys[i]));
+//            }
+//
+//            QString msg;
+//            if (!settingsManager->saveSettings(&msg))
+//            {
+//                QMessageBox::critical(_pane, "Error", msg);
+//            }
+//        }
+//        else
+//        {
+//            QMessageBox::critical(_pane,"Error","Error unable to synchronize settings");
+//        }
     }
 
     void setWindowTitle(const QString &title)
@@ -130,6 +135,7 @@ private:
                 return false;
             }
         }
+        return false;
     }
 
     void mergeChange(ApplicationSettingsType type, QJsonObject data)

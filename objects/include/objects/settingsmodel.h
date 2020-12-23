@@ -24,7 +24,6 @@ class SettingsModel: public QAbstractTableModel
 Q_OBJECT
 public:
     explicit SettingsModel(QObject *parent= nullptr);
-    virtual ~SettingsModel();
 
     int rowCount(const QModelIndex &parent) const override;
     int columnCount(const QModelIndex &parent) const override;
@@ -37,8 +36,8 @@ public:
     const QJsonObject& getSettings() const;
 
 private:
-    class SettingsModelImpl;
-    SettingsModelImpl *impl;
+    QJsonObject _settingsValues;
+    QJsonArray _settingsMeta;
 };
 
 class SettingsModelDelegate: public QStyledItemDelegate

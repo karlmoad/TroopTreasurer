@@ -1,17 +1,12 @@
 #include "objects/settingsmodel.h"
+#include <QDebug>
 
-struct SettingsModel::SettingsModelImpl
-{
-    QJsonObject _settingsValues;
-    QJsonArray _settingsMeta;
-};
-
-SettingsModel::SettingsModel(QObject *parent) : QAbstractTableModel(parent), impl(new SettingsModelImpl)
+SettingsModel::SettingsModel(QObject *parent) : QAbstractTableModel(parent)
 {}
 
 int SettingsModel::rowCount(const QModelIndex &parent) const
 {
-    return impl->_settingsMeta.size();
+    return _settingsMeta.size();
 }
 
 int SettingsModel::columnCount(const QModelIndex &parent) const
@@ -21,9 +16,9 @@ int SettingsModel::columnCount(const QModelIndex &parent) const
 
 QVariant SettingsModel::data(const QModelIndex &index, int role) const
 {
-    if(index.row() < impl->_settingsMeta.size())
+    if(index.row() < _settingsMeta.size())
     {
-        QJsonObject meta = impl->_settingsMeta.at(index.row()).toObject();
+        QJsonObject meta = _settingsMeta.at(index.row()).toObject();
         switch(index.column())
         {
             case 0:
@@ -43,9 +38,9 @@ QVariant SettingsModel::data(const QModelIndex &index, int role) const
                     }
                     case Qt::DisplayRole:
                     {
-                        if (impl->_settingsValues.contains(meta["name"].toString()))
+                        if (_settingsValues.contains(meta["name"].toString()))
                         {
-                            return impl->_settingsValues[meta["name"].toString()].toVariant();
+                            return _settingsValues[meta["name"].toString()].toVariant();
                         }
                         else
                         {
@@ -89,14 +84,14 @@ QVariant SettingsModel::headerData(int section, Qt::Orientation orientation, int
 
 bool SettingsModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if(index.row() < impl->_settingsMeta.size())
+    if(index.row() < _settingsMeta.size())
     {
         switch(role)
         {
             case Qt::UserRole:
             {
-                QJsonObject meta = impl->_settingsMeta.at(index.row()).toObject();
-                impl->_settingsValues[meta["name"].toString()] = QJsonValue::fromVariant(value);
+                QJsonObject meta = _settingsMeta.at(index.row()).toObject();
+                _settingsValues[meta["name"].toString()] = QJsonValue::fromVariant(value);
                 this->dataChanged(index, index);
                 return true;
             }
@@ -122,42 +117,30 @@ Qt::ItemFlags SettingsModel::flags(const QModelIndex &index) const
 
 const QJsonObject& SettingsModel::getSettings() const
 {
-    return impl->_settingsValues;
+    return _settingsValues;
 }
 
 void SettingsModel::loadSettings(const QJsonArray& meta, const QJsonObject& settings)
 {
     beginResetModel();
-    impl->_settingsMeta = meta;
-    impl-> _settingsValues = settings;
+    _settingsMeta = meta;
+    _settingsValues = settings;
 
     //init default values
-    for(int i = 0; i< impl->_settingsMeta.size(); i++)
+    for(int i = 0; i< _settingsMeta.size(); i++)
     {
-        QJsonObject md = impl->_settingsMeta.at(i).toObject();
+        QJsonObject md = _settingsMeta.at(i).toObject();
+        QString name = md["name"].toString();
+        QJsonValue val;
         if(md.contains("default"))
         {
-            QString name = md["name"].toString();
-            QJsonValue val = md[name];
-            if(impl->_settingsValues.contains(name))
-            {
-                if(impl->_settingsValues[name].toString().trimmed().size() <= 0)
-                {
-                    impl->_settingsValues[name] = val;
-                }
-            }
-            else
-            {
-                impl->_settingsValues[name] = val;
-            }
+            val= md["default"];
         }
-    }
-    endResetModel();
-}
+        _settingsValues[name] = val;
 
-SettingsModel::~SettingsModel()
-{
-    delete impl;
+    }
+
+    endResetModel();
 }
 
 SettingsModelDelegate::SettingsModelDelegate(QObject *parent) : QStyledItemDelegate(parent){}
@@ -227,7 +210,7 @@ void SettingsModelDelegate::setEditorData(QWidget *editor, const QModelIndex &in
                 ctrl->setCheckState(Qt::Unchecked);
                 return;
             }
-//            case FILE:  //TODO Getting funny artifacts visually, remove until can be resolved
+//            case FILE:
 //            {
 //                QString def_path = QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation)[0];
 //                QVariant val = index.model()->data(index, Qt::DisplayRole);

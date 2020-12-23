@@ -1,5 +1,6 @@
 #include "ui/mainsettingspane.h"
 #include "ui_mainsettingspane.h"
+#include <QDebug>
 
 class MainSettingsPane::MainSettingsPaneImpl
 {
@@ -9,6 +10,7 @@ public:
         _pane = pane;
         _ui = new Ui::MainSettingsPane();
         _ui->setupUi(_pane);
+        connect(_ui->lstPanes, &QListWidget::itemDoubleClicked, _pane, &MainSettingsPane::paneListItemClicked, Qt::UniqueConnection);
         init();
     }
 
@@ -32,7 +34,6 @@ private:
             item->setData(Qt::UserRole, static_cast<int>(sections[i]));
             _ui->lstPanes->addItem(item);
         }
-        connect(_ui->lstPanes, &QListWidget::itemDoubleClicked, _pane, &MainSettingsPane::paneListItemClicked);
     }
 };
 
@@ -50,5 +51,6 @@ MainSettingsPane::~MainSettingsPane()
 
 void MainSettingsPane::paneListItemClicked(QListWidgetItem *item)
 {
+    qDebug() << "Settings Pane Selected";
     emit settingsSectionSelected(static_cast<ApplicationSettingsType>(item->data(Qt::UserRole).toInt()));
 }
