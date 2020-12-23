@@ -30,10 +30,10 @@ set(HEADERS mainwindow.h
 format_source_paths("/src" SOURCES)
 format_source_paths("/include/ui" HEADERS)
 
-find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Core Widgets Network Sql REQUIRED)
 
 add_library(ui)
 target_sources(ui PRIVATE ${SOURCES} PUBLIC ${HEADERS} ${CMAKE_CURRENT_LIST_DIR}/resources.qrc)
 
 target_include_directories(ui PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src)
-target_link_libraries(ui Qt5::Core Qt5::Widgets objects)
+target_link_libraries(ui Qt5::Core Qt5::Widgets Qt5::Network Qt5::Sql objects)

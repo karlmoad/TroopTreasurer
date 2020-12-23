@@ -46,8 +46,8 @@ public:
             {
                 enableBack(true);
                 DatabaseSettingsPane *dbp = new DatabaseSettingsPane(_pane);
-                dbp->loadConfiguration(settingsManager->getConfigurationSectionMetadata(ApplicationSettingsUtility::ApplicationSettingTypeToString(ApplicationSettingsType::DATABASE)));
-                dbp->loadSettings(settingsManager->getSettingsSegment(ApplicationSettingsUtility::ApplicationSettingTypeToString(ApplicationSettingsType::DATABASE)));
+                dbp->loadSettings(settingsManager->getConfigurationSectionMetadata(ApplicationSettingsUtility::ApplicationSettingTypeToString(ApplicationSettingsType::DATABASE)),
+                                  settingsManager->getSettingsSegment(ApplicationSettingsUtility::ApplicationSettingTypeToString(ApplicationSettingsType::DATABASE)));
                 int idx = _ui->panes->addWidget(dbp);
                 _ui->panes->setCurrentIndex(idx);
             }

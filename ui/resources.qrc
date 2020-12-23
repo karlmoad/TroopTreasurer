@@ -1,6 +1,8 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
     <qresource prefix="/">
+        <file>resources/files/schema.json</file>
+        <file>resources/files/config_meta.json</file>
         <file>resources/add.png</file>
         <file>resources/accept.png</file>
         <file>resources/add.png</file>
