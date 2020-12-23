@@ -51,6 +51,5 @@ MainSettingsPane::~MainSettingsPane()
 
 void MainSettingsPane::paneListItemClicked(QListWidgetItem *item)
 {
-    qDebug() << "Settings Pane Selected";
     emit settingsSectionSelected(static_cast<ApplicationSettingsType>(item->data(Qt::UserRole).toInt()));
 }

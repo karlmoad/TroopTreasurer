@@ -16,12 +16,15 @@ public:
     {
         _ui = new Ui::ApplicationSettingsDialog();
         _ui->setupUi(_pane);
+        _main = new MainSettingsPane(_pane);
+        _ui->panes->addWidget(_main);
+        _ui->panes->setCurrentIndex(0);
         settingsManager = SettingsManager::getInstance();
         init();
         connect(_ui->btnBack, &QPushButton::clicked, _pane, &ApplicationSettingsDialog::onBackClickHandler);
         connect(_ui->btnSave, &QPushButton::clicked, _pane, &ApplicationSettingsDialog::onSaveClickHandler);
         connect(_ui->btnClose, &QPushButton::clicked, _pane, &ApplicationSettingsDialog::onCloseClickHandler);
-        connect(_main, &MainSettingsPane::settingsSectionSelected, _pane, &ApplicationSettingsDialog::onSettingPaneSelection);
+        connect(_main, &MainSettingsPane::settingsSectionSelected, _pane, &ApplicationSettingsDialog::onSettingPaneSelection, Qt::UniqueConnection);
     }
 
     ~ApplicationSettingsDialogImpl()
@@ -32,9 +35,6 @@ public:
     void init()
     {
         enableSubPaneButtons(false);
-        _main = new MainSettingsPane(_pane);
-        int idx = _ui->panes->addWidget(_main);
-        _ui->panes->setCurrentIndex(idx);
         setWindowTitle(defaultWindowTitle);
     }
 
@@ -50,20 +50,27 @@ public:
 
     void showPane(ApplicationSettingsType type)
     {
-        switch(type)
+        if(_ui->panes->count() == 1) // Only add a new pane if no others exist
         {
-            case ApplicationSettingsType::DATABASE:
+            switch (type)
             {
-                enableSubPaneButtons(true);
-                DatabaseSettingsPane *dbp = new DatabaseSettingsPane(_pane);
-                dbp->loadSettings(settingsManager->getConfigurationSectionMetadata(ApplicationSettingsUtility::ApplicationSettingTypeToString(ApplicationSettingsType::DATABASE)),
-                                  settingsManager->getSettingsSegment(ApplicationSettingsUtility::ApplicationSettingTypeToString(ApplicationSettingsType::DATABASE)));
-                int idx = _ui->panes->addWidget(dbp);
-                _ui->panes->setCurrentIndex(idx);
-                setWindowTitle("Database Settings");
+                case ApplicationSettingsType::DATABASE:
+                {
+                    enableSubPaneButtons(true);
+                    DatabaseSettingsPane *dbp = new DatabaseSettingsPane(_pane);
+                    dbp->loadSettings(settingsManager->getConfigurationSectionMetadata(
+                            ApplicationSettingsUtility::ApplicationSettingTypeToString(
+                                    ApplicationSettingsType::DATABASE)),
+                                      settingsManager->getSettingsSegment(
+                                              ApplicationSettingsUtility::ApplicationSettingTypeToString(
+                                                      ApplicationSettingsType::DATABASE)));
+                    int idx = _ui->panes->addWidget(dbp);
+                    _ui->panes->setCurrentIndex(idx);
+                    setWindowTitle("Database Settings");
+                }
+                default:
+                    break;
             }
-            default:
-                break;
         }
     }
 
