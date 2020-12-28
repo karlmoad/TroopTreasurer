@@ -73,6 +73,7 @@ public:
                 }
             }
         }
+
         _settings = settings;
     }
 
@@ -106,8 +107,6 @@ public:
                 }
             }
         }
-
-        qDebug() << settings;
 
         QFile file(_settingsFile);
         if(file.open(QFile::ReadWrite | QFile::Text))

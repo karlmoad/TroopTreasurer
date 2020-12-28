@@ -33,7 +33,7 @@ bool KeyManager::getValue(const QString &key, QString &value)
             NULL);
 
     if (ret == 0) {
-        QString pass = QString::fromLatin1(value_char_array, value_length);
+        value = QString::fromLatin1(value_char_array, value_length);
         SecKeychainItemFreeContent(NULL, value_char_array);
         return true;
     }else
