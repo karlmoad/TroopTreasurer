@@ -41,7 +41,7 @@ private:
 class KeyManager
 {
 public:
-    explicit KeyManager(const QString& AppId);
+    explicit KeyManager();
     virtual ~KeyManager();
 
     KeyManager(const KeyManager&) = delete;

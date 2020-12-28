@@ -45,7 +45,7 @@ public:
 
     void init()
     {
-        KeyManager kmgr(_configMeta["application_id"].toString());
+        KeyManager kmgr;
         QJsonObject settings = _settings;
         QJsonArray secureItems = _configMeta["secured"].toArray();
         for(int i =0; i<secureItems.count(); i++)
@@ -78,7 +78,7 @@ public:
 
     bool save(QString *message)
     {
-        KeyManager kmgr(_configMeta["application_id"].toString());
+        KeyManager kmgr;
         QJsonObject settings = _settings;
         QJsonArray secureItems = _configMeta["secured"].toArray();
         for(int i =0; i<secureItems.count(); i++)

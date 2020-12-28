@@ -9,7 +9,7 @@
 #include "keymanager/keymanager.h"
 #include "keymanager_impl.h"
 
-KeyManager::KeyManager(const QString &AppId): impl(new KeyManagerImpl(AppId))
+KeyManager::KeyManager(): impl(new KeyManagerImpl())
 {}
 
 KeyManager::~KeyManager()
@@ -20,15 +20,14 @@ KeyManager::~KeyManager()
 bool KeyManager::getValue(const QString &key, QString &value)
 {
     impl->resetLastError();
-    QString skey = impl->generateKeyStorageKey(key);
     UInt32 value_length;
     char* value_char_array;
     OSStatus ret = SecKeychainFindGenericPassword(
             NULL,
-            impl->getApplicationId().length(),
-            impl->getApplicationId().toStdString().c_str(),
-            skey.length(),
-            skey.toStdString().c_str(),
+            key.length(),
+            key.toStdString().c_str(),
+            key.length(),
+            key.toStdString().c_str(),
             &value_length,
             (void**)&value_char_array,
             NULL);
@@ -47,14 +46,13 @@ bool KeyManager::getValue(const QString &key, QString &value)
 bool KeyManager::setValue(const QString &key, const QString &value)
 {
     impl->resetLastError();
-    QString skey = impl->generateKeyStorageKey(key);
     SecKeychainItemRef item;
     OSStatus ret = SecKeychainFindGenericPassword(
             NULL,
-            skey.length(),
-            skey.toStdString().c_str(),
-            skey.length(),
-            skey.toStdString().c_str(),
+            key.length(),
+            key.toStdString().c_str(),
+            key.length(),
+            key.toStdString().c_str(),
             NULL,
             NULL,
             &item);
@@ -75,10 +73,10 @@ bool KeyManager::setValue(const QString &key, const QString &value)
     } else {
         ret = SecKeychainAddGenericPassword(
                 NULL,
-                skey.length(),
-                skey.toStdString().c_str(),
-                skey.length(),
-                skey.toStdString().c_str(),
+                key.length(),
+                key.toStdString().c_str(),
+                key.length(),
+                key.toStdString().c_str(),
                 value.length(),
                 value.toStdString().c_str(),
                 NULL);

@@ -11,7 +11,7 @@
 #include "keymanager/keymanager.h"
 #include "keymanager_impl.h"
 
-KeyManager::KeyManager(const QString &AppId): impl(new KeyManagerImpl(AppId))
+KeyManager::KeyManager(): impl(new KeyManagerImpl())
 {}
 
 KeyManager::~KeyManager()
@@ -22,7 +22,7 @@ KeyManager::~KeyManager()
 bool KeyManager::getValue(const QString &key, QString &value)
 {
     impl->resetLastError();
-    LPCWSTR lkey = (LPCWSTR)impl->generateKeyStorageKey(key).utf16();
+    LPCWSTR lkey = (LPCWSTR)key.utf16();
     PCREDENTIALW cred;
 
     if(!CredReadW(lkey, CRED_TYPE_GENERIC, 0, &cred))
@@ -50,7 +50,7 @@ bool KeyManager::setValue(const QString &key, const QString &value)
 
     CREDENTIALW cred;
     char *val = value.toUtf8().data();
-    LPWSTR key = (LPCWSTR)impl->generateKeyStorageKey(key).utf16();
+    LPWSTR key = (LPCWSTR)key.utf16();
     LPWSTR acct = (LPWSTR)key.utf16();
 
     memset(&cred, 0, sizeof(cred));
