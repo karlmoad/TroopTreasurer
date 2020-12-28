@@ -7,7 +7,6 @@
 #include "ui/databasesettingspane.h"
 #include "objects/settingsmanager.h"
 #include "objects/objecterror.h"
-#include <QDebug>
 
 class ApplicationSettingsDialog::ApplicationSettingsDialogImpl
 {

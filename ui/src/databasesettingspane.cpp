@@ -1,7 +1,6 @@
 #include "ui/databasesettingspane.h"
 #include "ui_databasesettingspane.h"
 #include "objects/settingsmodel.h"
-#include <QDebug>
 
 class DatabaseSettingsPane::DatabaseSettingsPaneImpl
 {

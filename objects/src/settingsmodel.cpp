@@ -1,5 +1,4 @@
 #include "objects/settingsmodel.h"
-#include <QDebug>
 
 SettingsModel::SettingsModel(QObject *parent) : QAbstractTableModel(parent)
 {}
@@ -130,16 +129,23 @@ void SettingsModel::loadSettings(const QJsonArray& meta, const QJsonObject& sett
     for(int i = 0; i< _settingsMeta.size(); i++)
     {
         QJsonObject md = _settingsMeta.at(i).toObject();
-        QString name = md["name"].toString();
-        QJsonValue val;
         if(md.contains("default"))
         {
-            val= md["default"];
+            QString name = md["name"].toString();
+            QJsonValue val = md[name];
+            if(_settingsValues.contains(name))
+            {
+                if(_settingsValues[name].toString().trimmed().size() <= 0)
+                {
+                    _settingsValues[name] = val;
+                }
+            }
+            else
+            {
+                _settingsValues[name] = val;
+            }
         }
-        _settingsValues[name] = val;
-
     }
-
     endResetModel();
 }
 
