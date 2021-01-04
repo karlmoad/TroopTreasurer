@@ -19,10 +19,6 @@
 #include "itemstate.h"
 #include "panelwindow.h"
 
-namespace Ui {
-class ImportTemplatePanel;
-}
-
 class ImportTemplatePanel : public PanelWindow
 {
     Q_OBJECT
@@ -52,18 +48,13 @@ public:
 
     Q_SLOT void actionValidateHandler();
 
-    Q_SLOT void sendUpdateButtonHandler();
-
 private:
     class ImportTemplatePanelImpl;
-    Ui::ImportTemplatePanel *ui;
     ImportTemplatePanelImpl *impl;
 
 
 private:
     void itemActionNotifyChange(ItemState change);
-    void sendCurrentSelectionState();
-
 
 };
 

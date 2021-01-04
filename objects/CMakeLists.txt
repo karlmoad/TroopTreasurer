@@ -5,8 +5,33 @@ set(CMAKE_AUTOMOC ON)
 
 include(${CMAKE_SOURCE_DIR}/cmake_modules/SourceFunctions.cmake)
 
-set(SOURCES settingsmanager.cpp objecterror.cpp settingsmodel.cpp)
-set(HEADERS settingsmanager.h objecterror.h settingsmodel.h)
+set(SOURCES settingsmanager.cpp
+            objecterror.cpp
+            settingsmodel.cpp
+            templatemappingmodel.cpp
+            csvmodel.cpp
+            argument.cpp
+            expression.cpp
+            utility.cpp
+            expressionfactory.cpp
+            importspecification.cpp
+            importspecificationruntime.cpp)
+
+set(HEADERS settingsmanager.h
+            objecterror.h
+            settingsmodel.h
+            templatemappingmodel.h
+            csvmodel.h
+            argument.h
+            expression.h
+            utility.h
+            batchexpression.h
+            hashingexpression.h
+            uuidexpression.h
+            valueexpression.h
+            expressionfactory.h
+            importspecification.h
+            importspecificationruntime.h)
 
 format_source_paths("/src" SOURCES)
 format_source_paths("/include/objects" HEADERS)

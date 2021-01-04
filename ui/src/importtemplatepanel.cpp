@@ -7,9 +7,10 @@
 class ImportTemplatePanel::ImportTemplatePanelImpl
 {
 public:
-    ImportTemplatePanelImpl(ImportTemplatePanel *panel)
+    ImportTemplatePanelImpl(ImportTemplatePanel *panel): ui(new Ui::ImportTemplatePanel)
     {
         this->_panel = panel;
+        ui->setupUi(_panel);
         _actTest = new QAction(QIcon(":/resources/bug.png"), "Test Template", panel);
         _actValidate = new QAction(QIcon(":/resources/page_white_gear.png"), "Validate Template", panel);
         _actTest->setStatusTip("Test the templates function");
@@ -22,12 +23,7 @@ public:
 
     ~ImportTemplatePanelImpl()
     {
-
-    }
-
-    void setListReference(QListWidget *list)
-    {
-        _list = list;
+        delete ui;
     }
 
     const QString& name() const
@@ -50,19 +46,19 @@ public:
         switch(action)
         {
             case ItemAction::ADD:
-                _list->addItem("Add action received");
+
                 break;
             case ItemAction::EDIT:
-                _list->addItem("Edit action received");
+
                 break;
             case ItemAction::SAVE:
-                _list->addItem("Save action received");
+
                 break;
             case ItemAction::DELETE:
-                _list->addItem("Delete action received");
+
                 break;
             default:
-                _list->addItem("Unknown action received");
+
                 break;
         }
     }
@@ -85,7 +81,7 @@ public:
 
 private:
     ImportTemplatePanel *_panel;
-    QListWidget *_list;
+    Ui::ImportTemplatePanel *ui;
     const QString _name = "Template";
     QAction *_actTest;
     QAction *_actValidate;
@@ -106,22 +102,15 @@ private:
 
 ImportTemplatePanel::ImportTemplatePanel(QWidget *parent) :
     PanelWindow(parent),
-    ui(new Ui::ImportTemplatePanel),
     impl(new ImportTemplatePanelImpl(this))
 {
-    ui->setupUi(this);
     impl->registerItemStateNotifyFunction(&ImportTemplatePanel::itemActionNotifyChange);
-    impl->setListReference(ui->lstMessages);
-    connect(ui->btnSend, &QPushButton::clicked, this , &ImportTemplatePanel::sendUpdateButtonHandler);
-    ui->chkNew->setCheckState(Qt::Checked);
-    ui->chkEdit->setCheckState(Qt::Unchecked);
-    ui->chkDelete->setCheckState(Qt::Unchecked);
-    ui->chkSave->setCheckState(Qt::Unchecked);
+
 }
 
 ImportTemplatePanel::~ImportTemplatePanel()
 {
-    delete ui;
+
     delete impl;
 }
 
@@ -157,17 +146,12 @@ ItemState ImportTemplatePanel::getCurrentState() const
 
 void ImportTemplatePanel::actionTestHandler()
 {
-    ui->lstMessages->addItem("Test Handler Activated");
+
 }
 
 void ImportTemplatePanel::actionValidateHandler()
 {
-    ui->lstMessages->addItem("Validate Handler Activated");
-}
 
-void ImportTemplatePanel::sendUpdateButtonHandler()
-{
-    sendCurrentSelectionState();
 }
 
 QString ImportTemplatePanel::panelName() const
@@ -187,15 +171,5 @@ bool ImportTemplatePanel::hasToolbarItems() const
 
 void ImportTemplatePanel::activate()
 {
-    sendCurrentSelectionState();
-}
 
-void ImportTemplatePanel::sendCurrentSelectionState()
-{
-    ItemState s;
-    s.setSaveEnabled(ui->chkSave->checkState() == Qt::Checked);
-    s.setEditEnabled(ui->chkEdit->checkState() == Qt::Checked);
-    s.setAddEnabled(ui->chkNew->checkState() == Qt::Checked);
-    s.setDeleteEnabled(ui->chkDelete->checkState() == Qt::Checked);
-    impl->setCurrentState(s);
 }

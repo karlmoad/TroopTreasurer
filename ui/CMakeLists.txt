@@ -13,7 +13,8 @@ set(SOURCES mainwindow.cpp mainwindow.ui
             applicationsettingsdialog.cpp applicationsettingsdialog.ui
             databasesettingspane.cpp databasesettingspane.ui
             mainsettingspane.cpp mainsettingspane.ui
-            applicationsettings.cpp)
+            applicationsettings.cpp
+            importtemplatetestdialog.cpp importtemplatetestdialog.ui)
 
 set(HEADERS mainwindow.h
         panelwindow.h
@@ -25,7 +26,8 @@ set(HEADERS mainwindow.h
         mainsettingspane.h
         applicationsettings.h
         applicationsettingspane.h
-        applicationconstants.h)
+        applicationconstants.h
+        importtemplatetestdialog.h)
 
 format_source_paths("/src" SOURCES)
 format_source_paths("/include/ui" HEADERS)

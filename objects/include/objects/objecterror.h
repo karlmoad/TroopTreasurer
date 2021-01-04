@@ -15,7 +15,9 @@
 
 enum class ObjectErrorCode
 {
-    ERROR_READ_FILE = 1000
+    ERROR_READ_FILE = 1000,
+    ERROR_WRITE_FILE = 1100,
+    EXPRESSION_PARSING=2000,
 };
 
 class ObjectError : public QException
