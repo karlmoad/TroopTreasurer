@@ -38,6 +38,7 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const override;
     const QMap<QString, QString>& getMap() const;
     void loadMapping(QMap<QString,QString> map);
+    void enableEditing(bool enabled);
 
 private:
     class TemplateMappingModelImpl;

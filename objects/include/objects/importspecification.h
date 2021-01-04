@@ -19,6 +19,9 @@ public:
     ImportSpecification(const QJsonObject& json);
     ~ImportSpecification();
 
+    QString getName() const;
+    QString getTarget() const;
+
     QList<QString> getFields() const;
     QString getFieldExpression(const QString& id) const;
     void setField(const QString& id, const QString& expression);

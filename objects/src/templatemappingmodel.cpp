@@ -4,12 +4,14 @@ struct TemplateMappingModel::TemplateMappingModelImpl
 {
     QJsonObject _schema;
     QMap<QString,QString> _map;
+    bool _editEnabled;
 };
 
 // Model
 TemplateMappingModel::TemplateMappingModel(QObject *parent) : QAbstractTableModel(parent)
 {
     impl = new TemplateMappingModelImpl();
+    impl->_editEnabled = false;
 }
 
 TemplateMappingModel::~TemplateMappingModel()
@@ -104,7 +106,7 @@ bool TemplateMappingModel::setData(const QModelIndex &index, const QVariant &val
 Qt::ItemFlags TemplateMappingModel::flags(const QModelIndex &index) const
 {
     //only the mapping logic field is editable
-    if(index.column() == 1)
+    if(index.column() == 1 && impl->_editEnabled)
         return Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemNeverHasChildren;
     else
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemNeverHasChildren;
@@ -120,6 +122,11 @@ void TemplateMappingModel::loadMapping(QMap<QString, QString> map)
     beginResetModel();
     impl->_map = map;
     endResetModel();
+}
+
+void TemplateMappingModel::enableEditing(bool enabled)
+{
+    impl->_editEnabled = enabled;
 }
 
 //Delegate

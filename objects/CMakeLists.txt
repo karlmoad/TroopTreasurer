@@ -15,7 +15,8 @@ set(SOURCES settingsmanager.cpp
             utility.cpp
             expressionfactory.cpp
             importspecification.cpp
-            importspecificationruntime.cpp)
+            importspecificationruntime.cpp
+            datatablemodel.cpp)
 
 set(HEADERS settingsmanager.h
             objecterror.h
@@ -31,7 +32,8 @@ set(HEADERS settingsmanager.h
             valueexpression.h
             expressionfactory.h
             importspecification.h
-            importspecificationruntime.h)
+            importspecificationruntime.h
+            datatablemodel.h)
 
 format_source_paths("/src" SOURCES)
 format_source_paths("/include/objects" HEADERS)

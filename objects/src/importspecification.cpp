@@ -63,6 +63,24 @@ public:
         return _spec;
     }
 
+    QString name() const
+    {
+        if(_spec.contains("name"))
+        {
+            return _spec["name"].toString();
+        }
+        return QString();
+    }
+
+    QString target() const
+    {
+        if(_spec.contains("target"))
+        {
+            return _spec["target"].toString();
+        }
+        return QString();
+    }
+
 private:
     QJsonObject _spec;
 };
@@ -105,6 +123,16 @@ void ImportSpecification::removeField(const QString &id)
 QJsonObject ImportSpecification::toJson() const
 {
     return impl->json();
+}
+
+QString ImportSpecification::getName() const
+{
+    return impl->name();
+}
+
+QString ImportSpecification::getTarget() const
+{
+    return impl->target();
 }
 
 

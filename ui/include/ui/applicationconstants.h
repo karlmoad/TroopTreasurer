@@ -15,6 +15,7 @@ namespace APP
 {
     static const QString ApplicationID = "TroopTreasurer.koad.io";
     static const QString ApplicationSettingsFile = "settings.json";
+    static const QString ApplicationImportTemplatesFile = "templates.json";
     static const QString ApplicationConfigMetadataFile = ":/resources/files/config_meta.json";
 }
 
