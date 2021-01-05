@@ -8,12 +8,6 @@
 #include <QtWidgets>
 #include "panelwindow.h"
 
-enum class Panel
-{
-    FUNDS_MANAGEMENT=0,
-    IMPORT_TEMPLATE_EDITOR
-};
-
 class PanelFactory
 {
 public:

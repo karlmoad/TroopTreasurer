@@ -11,6 +11,7 @@
 #include "ui_importtemplatepanel.h"
 #include "ui/applicationconstants.h"
 #include "ui/newimporttemplatedialog.h"
+#include "ui/panelfactory.h"
 #include <QDebug>
 
 class ImportTemplatePanel::ImportTemplatePanelImpl
@@ -20,17 +21,6 @@ public:
     {
         this->_panel = panel;
         ui->setupUi(_panel);
-        _actTest = new QAction(QIcon(":/resources/bug.png"), "Test Template", panel);
-        _actValidate = new QAction(QIcon(":/resources/page_white_gear.png"), "Validate Template", panel);
-        _actLoadSampleData = new QAction(QIcon(":/resources/folder_table.png"),"Load sample data",panel);
-        _actLoadSampleData->setStatusTip("Load sample data file");
-        _actTest->setStatusTip("Test the template function");
-        _actValidate->setStatusTip("Validate template definition");
-        _menuItems.append(_actValidate);
-        _menuItems.append(_actTest);
-        _toolbarItems.append(_actLoadSampleData);
-        _toolbarItems.append(_actValidate);
-        _toolbarItems.append(_actTest);
 
         _model = new TemplateMappingModel(_panel);
         _delegate = new TemplateMappingDelegate(_panel);
@@ -52,9 +42,7 @@ public:
             int itemIdx = ui->cboTemplate->itemData(idx,Qt::UserRole).toInt();
             loadSpecification(itemIdx);
         });
-        connect(_actTest, &QAction::triggered, _panel, &ImportTemplatePanel::actionTestHandler);
-        connect(_actValidate, &QAction::triggered, _panel, &ImportTemplatePanel::actionValidateHandler);
-        connect(_actLoadSampleData, &QAction::triggered, _panel, &ImportTemplatePanel::actionLoadSampleHandler);
+
     }
 
     ~ImportTemplatePanelImpl()
@@ -67,14 +55,57 @@ public:
         return this->_name;
     }
 
-    const QList<QAction *>& menuItems() const
+    void regPanel(QMenu *menu, QToolBar *toolbar)
     {
-        return this->_menuItems;
+        qDebug() << "Reg panel menu name: " << menu->title();
+
+        _actTest = menu->addAction(QIcon(":/resources/bug.png"), "Test Template");
+        _actValidate = menu->addAction(QIcon(":/resources/page_white_gear.png"), "Validate Template");
+        _actLoadSampleData = menu->addAction(QIcon(":/resources/folder_table.png"),"Load sample data");
+        _actLoadSampleData->setStatusTip("Load sample data file");
+        _actTest->setStatusTip("Test the template function");
+        _actValidate->setStatusTip("Validate template definition");
+        _actLoadSampleData->setVisible(false);
+        _actTest->setVisible(false);
+        _actValidate->setVisible(false);
+
+        connect(_actTest, &QAction::triggered, _panel, &ImportTemplatePanel::actionTestHandler);
+        connect(_actValidate, &QAction::triggered, _panel, &ImportTemplatePanel::actionValidateHandler);
+        connect(_actLoadSampleData, &QAction::triggered, _panel, &ImportTemplatePanel::actionLoadSampleHandler);
+
+        menu->addAction(_actLoadSampleData);
+        menu->addAction(_actTest);
+        menu->addAction(_actValidate);
+
+        toolbar->addAction(_actLoadSampleData);
+        toolbar->addAction(_actTest);
+        toolbar->addAction(_actValidate);
     }
 
-    const QList<QAction *>& toolbarItems() const
+    void unregPanel(QMenu *menu, QToolBar *toolbar)
     {
-        return this->_toolbarItems;
+        _actLoadSampleData->setVisible(false);
+        _actTest->setVisible(false);
+        _actValidate->setVisible(false);
+
+        disconnect(_actTest, nullptr, _panel, nullptr);
+        disconnect(_actValidate, nullptr, _panel, nullptr);
+        disconnect(_actLoadSampleData, nullptr, _panel, nullptr);
+
+        menu->removeAction(_actLoadSampleData);
+        menu->removeAction(_actTest);
+        menu->removeAction(_actValidate);
+
+        toolbar->removeAction(_actLoadSampleData);
+        toolbar->removeAction(_actTest);
+        toolbar->removeAction(_actValidate);
+    }
+
+    void activatePanel(bool active)
+    {
+        _actLoadSampleData->setVisible(active);
+        _actTest->setVisible(active);
+        _actValidate->setVisible(active);
     }
 
     void itemActionHandler(ItemAction action)
@@ -260,21 +291,6 @@ ImportTemplatePanel::~ImportTemplatePanel()
     delete impl;
 }
 
-const QString &ImportTemplatePanel::panelMenuText() const
-{
-    return impl->name();
-}
-
-const QList<QAction *>& ImportTemplatePanel::menuItems() const
-{
-    return impl->menuItems();
-}
-
-const QList<QAction *>& ImportTemplatePanel::toolbarItems() const
-{
-    return impl->toolbarItems();
-}
-
 void ImportTemplatePanel::itemActionHandler(ItemAction action)
 {
     impl->itemActionHandler(action);
@@ -305,21 +321,6 @@ QString ImportTemplatePanel::panelName() const
     return QString("Import Template Editor");
 }
 
-bool ImportTemplatePanel::hasMenu() const
-{
-    return true;
-}
-
-bool ImportTemplatePanel::hasToolbarItems() const
-{
-    return true;
-}
-
-void ImportTemplatePanel::activate()
-{
-
-}
-
 void ImportTemplatePanel::actionLoadSampleHandler()
 {
     QStringList paths = QStandardPaths::standardLocations(QStandardPaths::DownloadLocation);
@@ -328,4 +329,29 @@ void ImportTemplatePanel::actionLoadSampleHandler()
     {
         impl->loadSampleData(filename);
     }
+}
+
+Panel ImportTemplatePanel::panelId() const
+{
+    return Panel::IMPORT_TEMPLATE_EDITOR;
+}
+
+void ImportTemplatePanel::registerPanel(QMenu *menu, QToolBar *toolbar)
+{
+    impl->regPanel(menu,toolbar);
+}
+
+void ImportTemplatePanel::unregisterPanel(QMenu *menu, QToolBar *toolbar)
+{
+    impl->unregPanel(menu, toolbar);
+}
+
+void ImportTemplatePanel::activate()
+{
+    impl->activatePanel(true);
+}
+
+void ImportTemplatePanel::deactivate()
+{
+    impl->activatePanel(false);
 }

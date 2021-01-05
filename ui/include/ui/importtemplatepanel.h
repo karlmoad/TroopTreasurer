@@ -28,19 +28,18 @@ public:
 
     virtual ItemState getCurrentState() const override;
 
-    virtual const QString &panelMenuText() const override;
-
-    virtual bool hasMenu() const override;
-
     virtual void activate() override;
 
-    virtual bool hasToolbarItems() const override;
+    virtual void registerPanel(QMenu *menu, QToolBar *toolbar) override;
 
-    virtual const QList<QAction *>& menuItems() const override;
+    virtual void unregisterPanel(QMenu *menu, QToolBar *toolbar) override;
 
-    virtual const QList<QAction *>& toolbarItems() const override;
+    virtual void deactivate() override;
+
 
     virtual QString panelName() const override;
+
+    virtual Panel panelId() const override;
 
     Q_SLOT virtual void itemActionHandler(ItemAction action) override;
 
