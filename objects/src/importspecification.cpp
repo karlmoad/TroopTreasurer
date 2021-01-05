@@ -141,19 +141,26 @@ QList<ImportSpecification> ImportSpecificationFactory::Load(const QString &filen
     QList<ImportSpecification> out;
     QFile file(filename);
 
-    if(file.exists() && file.open(QIODevice::ReadOnly))
+    if(file.exists())
     {
-        QJsonObject data = QJsonDocument::fromJson(file.readAll()).object();
-        file.close();
-        QJsonArray specs = data["templates"].toArray();
-        for(int i = 0; i<specs.count(); i++)
+        if (file.open(QIODevice::ReadOnly))
         {
-            out.append(ImportSpecification(specs[i].toObject()));
+            QJsonObject data = QJsonDocument::fromJson(file.readAll()).object();
+            file.close();
+            QJsonArray specs = data["templates"].toArray();
+            for (int i = 0; i < specs.count(); i++)
+            {
+                out.append(ImportSpecification(specs[i].toObject()));
+            }
+        } else
+        {
+            ObjectError err("Unable to read master template file", static_cast<int>(ObjectErrorCode::ERROR_READ_FILE));
+            err.raise();
         }
     }
     else
     {
-        ObjectError err("Unable to read master template file", static_cast<int>(ObjectErrorCode::ERROR_READ_FILE));
+        ObjectError err("No master template file found", static_cast<int>(ObjectErrorCode::ERROR_NO_FILE));
         err.raise();
     }
 

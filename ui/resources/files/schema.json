@@ -1,6 +1,6 @@
 {
   "TT" : {
-    "display": "Troop Track Transaction File",
+    "display": "Troop Data Transaction",
     "table": "TROOP_TRACK_DATA",
     "import": true,
     "dupcheck": false,
@@ -25,7 +25,7 @@
     ]
   },
   "BANK": {
-    "display": "Mars Bank Transaction File",
+    "display": "Bank Transaction File",
     "table": "BANK_DATA",
     "import": true,
     "dupcheck": true,

@@ -1,11 +1,16 @@
 #include <QString>
+#include <QStandardPaths>
+#include <QFileDialog>
 #include "objects/importspecification.h"
 #include "objects/importspecificationruntime.h"
 #include "objects/utility.h"
 #include "objects/templatemappingmodel.h"
+#include "objects/csvmodel.h"
+#include "objects/objecterror.h"
 #include "ui/importtemplatepanel.h"
 #include "ui_importtemplatepanel.h"
 #include "ui/applicationconstants.h"
+#include "ui/newimporttemplatedialog.h"
 #include <QDebug>
 
 class ImportTemplatePanel::ImportTemplatePanelImpl
@@ -17,23 +22,39 @@ public:
         ui->setupUi(_panel);
         _actTest = new QAction(QIcon(":/resources/bug.png"), "Test Template", panel);
         _actValidate = new QAction(QIcon(":/resources/page_white_gear.png"), "Validate Template", panel);
+        _actLoadSampleData = new QAction(QIcon(":/resources/folder_table.png"),"Load sample data",panel);
+        _actLoadSampleData->setStatusTip("Load sample data file");
         _actTest->setStatusTip("Test the template function");
         _actValidate->setStatusTip("Validate template definition");
         _menuItems.append(_actValidate);
         _menuItems.append(_actTest);
+        _toolbarItems.append(_actLoadSampleData);
         _toolbarItems.append(_actValidate);
         _toolbarItems.append(_actTest);
 
         _model = new TemplateMappingModel(_panel);
         _delegate = new TemplateMappingDelegate(_panel);
+        _sample = new CSVModel(_panel);
         ui->tableTemplate->setModel(_model);
         ui->tableTemplate->setItemDelegate(_delegate);
+        ui->tableData->setModel(_sample);
+
+        //set initial state
+        ItemState initialState;
+        initialState.setDeleteEnabled(false);
+        initialState.setAddEnabled(true);
+        initialState.setEditEnabled(true);
+        initialState.setSaveEnabled(true);
+        setCurrentState(initialState);
 
         loadTemplates();
         connect(ui->cboTemplate, qOverload<int>(&QComboBox::currentIndexChanged), [this](int idx) {
             int itemIdx = ui->cboTemplate->itemData(idx,Qt::UserRole).toInt();
             loadSpecification(itemIdx);
         });
+        connect(_actTest, &QAction::triggered, _panel, &ImportTemplatePanel::actionTestHandler);
+        connect(_actValidate, &QAction::triggered, _panel, &ImportTemplatePanel::actionValidateHandler);
+        connect(_actLoadSampleData, &QAction::triggered, _panel, &ImportTemplatePanel::actionLoadSampleHandler);
     }
 
     ~ImportTemplatePanelImpl()
@@ -61,8 +82,18 @@ public:
         switch(action)
         {
             case ItemAction::ADD:
-
+            {
+                QString name, target;
+                NewImportTemplateDialog *dialog = new NewImportTemplateDialog(name, target, nullptr);
+                dialog->setModal(true);
+                int r = dialog->exec();
+                delete dialog;
+                if(r == QDialog::Accepted)
+                {
+                    newTemplate(name,target);
+                }
                 break;
+            }
             case ItemAction::EDIT:
             {
                 int idx = ui->cboTemplate->currentData().toInt();
@@ -120,16 +151,30 @@ public:
         notifyStateChange(state);
     }
 
+    void loadSampleData(const QString& filepath)
+    {
+        QFile file = QFile(filepath);
+        if(!file.open(QIODevice::ReadOnly))
+        {
+            ObjectError err("Unable to open file: " + file.errorString(), static_cast<int>(ObjectErrorCode::ERROR_READ_FILE));
+            return;
+        }
+        _sample->load(&file, ',', true);
+        file.close();
+    }
+
 private:
     ImportTemplatePanel *_panel;
     Ui::ImportTemplatePanel *ui;
     const QString _name = "Template";
     QAction *_actTest;
     QAction *_actValidate;
+    QAction *_actLoadSampleData;
     QList<QAction *> _menuItems;
     QList<QAction *> _toolbarItems;
     QList<ImportSpecification> _specs;
     TemplateMappingModel *_model;
+    CSVModel *_sample;
     TemplateMappingDelegate *_delegate;
     ItemState _currentState;
 
@@ -148,12 +193,33 @@ private:
     void loadTemplates()
     {
         ui->cboTemplate->addItem("(Select A File Type)",-1);
-        _specs = ImportSpecificationFactory::Load(Utility::GetUserPreferencesFilePath(APP::ApplicationImportTemplatesFile));
-        for(int i=0; i<_specs.count(); i++)
+        try
         {
-            ui->cboTemplate->addItem(_specs[i].getName(), i);
+            _specs = ImportSpecificationFactory::Load(
+                    Utility::GetUserPreferencesFilePath(APP::ApplicationImportTemplatesFile));
+
+            for(int i=0; i<_specs.count(); i++)
+            {
+                ui->cboTemplate->addItem(_specs[i].getName(), i);
+            }
         }
+        catch(ObjectError err)
+        {
+            if(err.errorCode() != (int)ObjectErrorCode::ERROR_NO_FILE)
+            {
+                QMessageBox::critical(_panel,"File Error" ,"Error opening template definition file");
+            }
+        }
+
         ui->cboTemplate->setCurrentIndex(0);
+    }
+
+    void newTemplate(const QString& name, const QString& target)
+    {
+        ImportSpecification spec(name,target);
+        _specs.append(spec);
+        ui->cboTemplate->addItem(name, _specs.length()-1);
+        ui->cboTemplate->setCurrentIndex(ui->cboTemplate->count()-1);
     }
 
     void loadSpecification(int idx)
@@ -252,4 +318,14 @@ bool ImportTemplatePanel::hasToolbarItems() const
 void ImportTemplatePanel::activate()
 {
 
+}
+
+void ImportTemplatePanel::actionLoadSampleHandler()
+{
+    QStringList paths = QStandardPaths::standardLocations(QStandardPaths::DownloadLocation);
+    QString filename = QFileDialog::getOpenFileName(this,tr("Import CSV file"), (paths.size() > 0 ? paths[0]: ""),tr("Comma Separated Values File (*.csv);;All Files (*)"));
+    if(!filename.isEmpty())
+    {
+        impl->loadSampleData(filename);
+    }
 }

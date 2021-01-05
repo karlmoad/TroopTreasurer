@@ -17,6 +17,7 @@ enum class ObjectErrorCode
 {
     ERROR_READ_FILE = 1000,
     ERROR_WRITE_FILE = 1100,
+    ERROR_NO_FILE = 1200,
     EXPRESSION_PARSING=2000,
 };
 

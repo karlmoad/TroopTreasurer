@@ -48,6 +48,8 @@ public:
 
     Q_SLOT void actionValidateHandler();
 
+    Q_SLOT void actionLoadSampleHandler();
+
 private:
     class ImportTemplatePanelImpl;
     ImportTemplatePanelImpl *impl;
