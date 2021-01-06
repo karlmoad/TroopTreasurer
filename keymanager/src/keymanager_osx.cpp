@@ -13,9 +13,7 @@ KeyManager::KeyManager(): impl(new KeyManagerImpl())
 {}
 
 KeyManager::~KeyManager()
-{
-    delete impl;
-}
+{}
 
 bool KeyManager::getValue(const QString &key, QString &value)
 {

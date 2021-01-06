@@ -14,6 +14,7 @@
 #define KOAD_IO_KEYMANAGER_H
 
 #include <QString>
+#include <memory>
 
 enum class KeyManagerErrorCodes
 {
@@ -54,7 +55,7 @@ public:
 
 protected:
     class KeyManagerImpl;
-    KeyManagerImpl *impl;
+    std::shared_ptr<KeyManagerImpl> impl;
 };
 
 #endif
