@@ -93,9 +93,7 @@ DatabaseSettingsPane::DatabaseSettingsPane(QWidget *parent) :
 {}
 
 DatabaseSettingsPane::~DatabaseSettingsPane()
-{
-    delete impl;
-}
+{}
 
 ApplicationSettingsType DatabaseSettingsPane::settingsType()
 {

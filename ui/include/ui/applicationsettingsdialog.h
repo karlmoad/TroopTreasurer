@@ -2,6 +2,7 @@
 #define APPLICATIONSETTINGSDIALOG_H
 
 #include <QDialog>
+#include <memory>
 #include "mainsettingspane.h"
 #include "applicationsettings.h"
 
@@ -20,7 +21,7 @@ public slots:
 
 private:
     class ApplicationSettingsDialogImpl;
-    ApplicationSettingsDialogImpl *impl;
+    std::shared_ptr<ApplicationSettingsDialogImpl> impl;
 };
 
 #endif // APPLICATIONSETTINGSDIALOG_H

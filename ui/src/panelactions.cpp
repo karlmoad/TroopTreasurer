@@ -126,9 +126,7 @@ PanelActions::PanelActions(QMenuBar *menubar, QToolBar *toolbar, const QJsonObje
 {}
 
 PanelActions::~PanelActions()
-{
-    delete impl;
-}
+{}
 
 Panel PanelActions::getPanel()
 {

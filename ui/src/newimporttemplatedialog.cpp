@@ -56,9 +56,7 @@ NewImportTemplateDialog::NewImportTemplateDialog(QString& name, QString& target,
 {}
 
 NewImportTemplateDialog::~NewImportTemplateDialog()
-{
-    delete impl;
-}
+{}
 
 void NewImportTemplateDialog::okHandler()
 {

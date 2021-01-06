@@ -2,6 +2,7 @@
 #define NEWIMPORTTEMPLATEDIALOG_H
 
 #include <QDialog>
+#include <memory>
 
 class NewImportTemplateDialog : public QDialog
 {
@@ -16,7 +17,7 @@ public:
 
 private:
     class NewImportTemplateDialogImpl;
-    NewImportTemplateDialogImpl *impl;
+    std::shared_ptr<NewImportTemplateDialogImpl> impl;
 
 };
 

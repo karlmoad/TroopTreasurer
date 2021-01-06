@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QListWidgetItem>
+#include <memory>
 #include "applicationsettings.h"
 
 class MainSettingsPane : public QWidget
@@ -20,7 +21,7 @@ signals:
 
 private:
     class MainSettingsPaneImpl;
-    MainSettingsPaneImpl *impl;
+    std::shared_ptr<MainSettingsPaneImpl> impl;
 
 };
 

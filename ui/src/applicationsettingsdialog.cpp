@@ -134,9 +134,7 @@ ApplicationSettingsDialog::ApplicationSettingsDialog(QWidget *parent) :
 }
 
 ApplicationSettingsDialog::~ApplicationSettingsDialog()
-{
-    delete impl;
-}
+{}
 
 void ApplicationSettingsDialog::onSaveClickHandler()
 {

@@ -22,6 +22,7 @@
 
 #include <QMainWindow>
 #include <QtWidgets>
+#include <memory>
 #include "itemstate.h"
 
 class MainWindow : public QMainWindow
@@ -47,7 +48,7 @@ protected:
 
 private:
     class MainWindowImpl;
-    MainWindowImpl *impl;
+    std::shared_ptr<MainWindowImpl> impl;
 };
 
 #endif // MAINWINDOW_H

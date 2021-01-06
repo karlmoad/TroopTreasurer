@@ -16,6 +16,7 @@
 #define IMPORTTEMPLATEPANEL_H
 
 #include <QWidget>
+#include <memory>
 #include "itemstate.h"
 #include "panelwindow.h"
 
@@ -47,7 +48,7 @@ public:
 
 private:
     class ImportTemplatePanelImpl;
-    ImportTemplatePanelImpl *impl;
+    std::shared_ptr<ImportTemplatePanelImpl> impl;
 
 
 private:

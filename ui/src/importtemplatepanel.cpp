@@ -272,10 +272,7 @@ ImportTemplatePanel::ImportTemplatePanel(QWidget *parent) :
 }
 
 ImportTemplatePanel::~ImportTemplatePanel()
-{
-
-    delete impl;
-}
+{}
 
 void ImportTemplatePanel::itemActionHandler(ItemAction action)
 {

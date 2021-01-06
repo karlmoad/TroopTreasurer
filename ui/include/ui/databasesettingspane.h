@@ -17,6 +17,7 @@
 #include <QJsonObject>
 #include <QSqlDatabase>
 #include <QSqlError>
+#include <memory>
 #include "applicationsettingspane.h"
 #include "applicationsettings.h"
 
@@ -40,7 +41,7 @@ public:
 
 private:
     class DatabaseSettingsPaneImpl;
-    DatabaseSettingsPaneImpl *impl;
+    std::shared_ptr<DatabaseSettingsPaneImpl> impl;
 };
 
 #endif // DATABASESETTINGSPANE_H

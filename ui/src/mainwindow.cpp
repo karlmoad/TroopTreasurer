@@ -305,15 +305,13 @@ private:
     SettingsManager *settingsManager;
 };
 
-MainWindow::MainWindow(QWidget *parent):QMainWindow(parent), impl(new MainWindowImpl(this))
+MainWindow::MainWindow(QWidget *parent):QMainWindow(parent), impl(std::shared_ptr<MainWindowImpl>(new MainWindowImpl(this)))
 {
     impl->init();
 }
 
 MainWindow::~MainWindow()
-{
-    delete impl;
-}
+{}
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {

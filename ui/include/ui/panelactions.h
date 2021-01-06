@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QtWidgets>
+#include <memory>
 #include "ui/panelwindow.h"
 
 class PanelActions: public QObject
@@ -20,7 +21,7 @@ public:
     static QList<PanelActions*> LoadPanelActionDefinitions(QMenuBar *menubar, QToolBar *toolbar, QObject *parent=nullptr);
 private:
     class PanelActionsImpl;
-    PanelActionsImpl *impl;
+    std::shared_ptr<PanelActionsImpl> impl;
 };
 
 #endif //TROOPTREASURER_ACTIONDEFINITION_H

@@ -45,9 +45,7 @@ MainSettingsPane::MainSettingsPane(QWidget *parent) :
 }
 
 MainSettingsPane::~MainSettingsPane()
-{
-    delete impl;
-}
+{}
 
 void MainSettingsPane::paneListItemClicked(QListWidgetItem *item)
 {
