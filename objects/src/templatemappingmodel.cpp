@@ -8,16 +8,13 @@ struct TemplateMappingModel::TemplateMappingModelImpl
 };
 
 // Model
-TemplateMappingModel::TemplateMappingModel(QObject *parent) : QAbstractTableModel(parent)
+TemplateMappingModel::TemplateMappingModel(QObject *parent) : QAbstractTableModel(parent), impl(new TemplateMappingModelImpl)
 {
-    impl = new TemplateMappingModelImpl();
     impl->_editEnabled = false;
 }
 
 TemplateMappingModel::~TemplateMappingModel()
-{
-    delete impl;
-}
+{}
 
 int TemplateMappingModel::rowCount(const QModelIndex &parent) const
 {

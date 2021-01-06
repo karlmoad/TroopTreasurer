@@ -85,20 +85,14 @@ private:
     QJsonObject _spec;
 };
 
-ImportSpecification::ImportSpecification(const QString &name, const QString &target)
-{
-    impl = new ImportSpecificationImpl(name, target);
-}
+ImportSpecification::ImportSpecification(const QString &name, const QString &target): impl(new ImportSpecificationImpl(name,target))
+{}
 
-ImportSpecification::ImportSpecification(const QJsonObject &json)
-{
-    impl = new ImportSpecificationImpl(json);
-}
+ImportSpecification::ImportSpecification(const QJsonObject &json): impl(new ImportSpecificationImpl(json))
+{}
 
 ImportSpecification::~ImportSpecification()
-{
-    delete impl;
-}
+{}
 
 QList<QString> ImportSpecification::getFields() const
 {

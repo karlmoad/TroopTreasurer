@@ -9,15 +9,11 @@ struct DataTableModel::DataTableModelImpl
     QVector<QMap<QString, QVariant>> _data;
 };
 
-DataTableModel::DataTableModel(QObject *parent) : QAbstractTableModel(parent)
-{
-    impl = new DataTableModelImpl();
-}
+DataTableModel::DataTableModel(QObject *parent) : QAbstractTableModel(parent), impl(new DataTableModelImpl)
+{}
 
 DataTableModel::~DataTableModel()
-{
-    delete impl;
-}
+{}
 
 int DataTableModel::rowCount(const QModelIndex &parent) const
 {

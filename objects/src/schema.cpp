@@ -91,9 +91,7 @@ Schema::Schema()
 }
 
 Schema::~Schema()
-{
-    delete impl;
-}
+{}
 
 QString Schema::getName() const
 {
@@ -142,7 +140,7 @@ QMap <QString, Schema> Schema::load(const QString &filepath)
         for(QString key: schemaKeys)
         {
             Schema s;
-            s.impl = new SchemaImpl(key, schemas[key].toObject());
+            s.impl = std::shared_ptr<SchemaImpl>(new SchemaImpl(key, schemas[key].toObject()));
             out.insert(key, s);
         }
 

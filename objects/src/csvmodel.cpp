@@ -130,9 +130,7 @@ CSVModel::CSVModel(QObject *parent) : QAbstractTableModel(parent), impl(new CSVM
 }
 
 CSVModel::~CSVModel()
-{
-    delete impl;
-}
+{}
 
 int CSVModel::rowCount(const QModelIndex &parent) const
 {

@@ -9,6 +9,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonValue>
+#include <memory>
 #include "objecterror.h"
 
 
@@ -30,7 +31,7 @@ public:
 
 private:
     class ImportSpecificationImpl;
-    ImportSpecificationImpl *impl;
+    std::shared_ptr<ImportSpecificationImpl> impl;
 };
 
 class ImportSpecificationFactory

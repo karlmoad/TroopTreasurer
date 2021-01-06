@@ -5,6 +5,7 @@
 #include <QList>
 #include <QMap>
 #include <QString>
+#include <memory>
 #include <QDebug>
 
 class DataTableModel: public QAbstractTableModel
@@ -23,7 +24,7 @@ public:
 
 protected:
     class DataTableModelImpl;
-    DataTableModelImpl *impl;
+    std::shared_ptr<DataTableModelImpl> impl;
 
 };
 

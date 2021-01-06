@@ -8,6 +8,7 @@
 #include <QJsonArray>
 #include <QJsonValue>
 #include <QJsonDocument>
+#include <memory>
 
 class Schema
 {
@@ -26,7 +27,7 @@ public:
     static QMap<QString, Schema> load(const QString& filepath);
 private:
     class SchemaImpl;
-    SchemaImpl *impl;
+    std::shared_ptr<SchemaImpl> impl;
 };
 
 

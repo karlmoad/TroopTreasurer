@@ -12,6 +12,7 @@
 #include <QRegularExpressionMatch>
 #include <QRegularExpressionMatchIterator>
 #include <QDebug>
+#include <memory>
 #include "expression.h"
 #include "argument.h"
 #include "expressionfactory.h"
@@ -28,9 +29,7 @@ public:
 
 private:
     class ImportSpecificationRuntimeImpl;
-    ImportSpecificationRuntimeImpl *impl;
-
-
+    std::shared_ptr<ImportSpecificationRuntimeImpl> impl;
 };
 
 

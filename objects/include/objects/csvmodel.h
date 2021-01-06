@@ -17,6 +17,7 @@
 #include <QList>
 #include <QString>
 #include <QDebug>
+#include <memory>
 #include "objects/objecterror.h"
 
 class CSVModel: public QAbstractTableModel
@@ -36,7 +37,7 @@ public:
 
 private:
     class CSVModelImpl;
-    CSVModelImpl *impl;
+    std::shared_ptr<CSVModelImpl> impl;
 
 };
 

@@ -64,15 +64,11 @@ private:
 };
 
 ImportSpecificationRuntime::ImportSpecificationRuntime(const ImportSpecification &spec,
-                                                       const QList<QString> &sourceColumns)
-{
-    impl = new ImportSpecificationRuntimeImpl(spec,sourceColumns);
-}
+                                                       const QList<QString> &sourceColumns): impl(new ImportSpecificationRuntimeImpl(spec,sourceColumns))
+{}
 
 ImportSpecificationRuntime::~ImportSpecificationRuntime()
-{
-    delete impl;
-}
+{}
 
 QMap<QString, QVariant> ImportSpecificationRuntime::process(const QList<QString> &record)
 {

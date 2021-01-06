@@ -22,6 +22,7 @@
 #include <QJsonArray>
 #include <QJsonValue>
 #include <QList>
+#include <memory>
 
 class TemplateMappingModel: public QAbstractTableModel
 {
@@ -42,7 +43,7 @@ public:
 
 private:
     class TemplateMappingModelImpl;
-    TemplateMappingModelImpl *impl;
+    std::shared_ptr<TemplateMappingModelImpl> impl;
 };
 
 class TemplateMappingDelegate: public QItemDelegate
