@@ -9,17 +9,18 @@ class PanelActions: public QObject
 {
     Q_OBJECT
 public:
-    explicit PanelActions(QObject *parent= nullptr);
+    explicit PanelActions(QMenuBar *menubar, QToolBar *toolbar, const QJsonObject& definition, QObject *parent=nullptr);
     virtual ~PanelActions();
 
     Panel getPanel();
+    QList<int> getActionIdentifiers();
     QAction* getAction(int id);
     void setVisibility(bool visible);
 
-    static QList<ActionDefinition*> LoadPanelActionDefinitions(QMenuBar *menubar, QToolBar *toolbar, QObject *parent=nullptr);
+    static QList<PanelActions*> LoadPanelActionDefinitions(QMenuBar *menubar, QToolBar *toolbar, QObject *parent=nullptr);
 private:
     class PanelActionsImpl;
     PanelActionsImpl *impl;
-}
+};
 
 #endif //TROOPTREASURER_ACTIONDEFINITION_H

@@ -3,9 +3,9 @@
     { "id": 1,
       "menu": "Template",
       "items":[
-        {"id": 1, "icon": ":/resources/<file>.png", "title": "Open Sample Data", "menu": true, "toolbar": true},
-        {"id": 2, "icon": ":/resources/<file>.png", "title": "Validate Template", "menu": true, "toolbar": true},
-        {"id": 3, "icon": ":/resources/<file>.png", "title": "Test Template", "menu": true, "toolbar": true}
+        {"id": 1, "icon": ":/resources/folder_table.png", "title": "Open Sample Data", "menu": true, "toolbar": true},
+        {"id": 2, "icon": ":/resources/page_white_gear.png", "title": "Validate Template", "menu": true, "toolbar": true},
+        {"id": 3, "icon": ":/resources/bug.png", "title": "Test Template", "menu": true, "toolbar": true}
       ]
     }
   ]

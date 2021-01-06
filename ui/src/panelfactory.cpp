@@ -18,7 +18,7 @@ PanelWindow *PanelFactory::CreateNewPanel(Panel panel, QWidget *parent)
 {
     switch(panel)
     {
-        case Panel::FUNDS_MANAGEMENT:
+        case Panel::UNDEFINED:
             return nullptr;
         case Panel::IMPORT_TEMPLATE_EDITOR:
             return (PanelWindow*)new ImportTemplatePanel(parent);

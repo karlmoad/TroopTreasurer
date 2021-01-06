@@ -10,6 +10,7 @@
 #include <QJsonValue>
 #include "ui/panelfactory.h"
 #include "ui/panelwindow.h"
+#include "ui/panelactions.h"
 #include "ui/applicationsettingsdialog.h"
 #include "ui/applicationconstants.h"
 #include "objects/settingsmanager.h"
@@ -103,7 +104,6 @@ private:
         });
         defaultActions.append(actSave);
 
-
         mnuFileImportSubmenu = mnuFile->addMenu("Import");
         actImportEditTemplates = new QAction("Edit Templates", this->window);
         actImportEditTemplates->setStatusTip("Edit a data import template");
@@ -176,36 +176,11 @@ private:
         connect(ui->tabMain, &QTabWidget::currentChanged, window, &MainWindow::ActivePanelChanged);
         connect(ui->tabMain, &QTabWidget::tabCloseRequested, window, &MainWindow::PanelCloseHandler);
 
-        loadMainMenuPanelEntries();
-    }
-
-    void loadMainMenuPanelEntries()
-    {
-        //create and register panel main menu entries
-        QFile file(":/resources/files/panels.json");
-        if(file.open(QFile::ReadOnly | QFile::Text)){
-            QByteArray raw = file.readAll();
-            file.close();
-            QJsonObject panelConfig = QJsonDocument::fromJson(raw).object();
-            QJsonArray panels = panelConfig["panels"].toArray();
-            for(int i=0; i<panels.count(); i++)
-            {
-                QJsonObject panel = panels[i].toObject();
-                registerMainMenuPanelEntry(panel["id"].toInt(), panel["menu"].toString());
-            }
-        }
-        else
+        QList<PanelActions*> actions = PanelActions::LoadPanelActionDefinitions(window->menuBar(), mainToolbar, window);
+        for(PanelActions *action: actions)
         {
-            ObjectError err("Unable to open and read main panel registration file", static_cast<int>(ObjectErrorCode::ERROR_READ_FILE));
-            err.raise();
+            panelActionRegistry.insert(action->getPanel(), action);
         }
-    }
-
-    void registerMainMenuPanelEntry(int panelId, const QString& display)
-    {
-        QMenu* pmnu = window->menuBar()->addMenu(display);
-        pmnu->setHidden(true);
-        mainMenuRegistry.insert(panelId, pmnu);
     }
 
     void loadSettings()
@@ -218,11 +193,11 @@ private:
         initNewPanel(Panel::IMPORT_TEMPLATE_EDITOR);
     }
 
-    QMenu* getMenu(Panel panel)
+    PanelActions* getPanelActions(Panel panel)
     {
-        if(mainMenuRegistry.contains(static_cast<int>(panel)))
+        if(panelActionRegistry.contains(panel))
         {
-            return mainMenuRegistry[static_cast<int>(panel)];
+            return panelActionRegistry[panel];
         }
         return nullptr;
     }
@@ -246,26 +221,14 @@ private:
         activatePanel(p,tabidx);
     }
 
-    void setPanelMenuVisibility(PanelWindow *panel, bool visible)
-    {
-        if(panel)
-        {
-            qDebug() << "Panel: " << panel->panelName() << " Visible: " << visible;
-            QMenu *menu = getMenu(panel->panelId());
-            if (menu)
-            {
-                menu->setVisible(visible);
-            }
-        }
-    }
-
     void activatePanel(PanelWindow *panel, int index)
     {
         qDebug() << "Activate panel called";
         connect(panel, &PanelWindow::itemActionStateChange, window, &MainWindow::ContextItemStateChangeHandler);
         connect(window, &MainWindow::ContextItemActionTriggered, panel, &PanelWindow::itemActionHandler);
-        setPanelMenuVisibility(panel,true);
-        panel->activate();
+        PanelActions* actions = getPanelActions(panel->panelId());
+        panel->activate(actions);
+        actions->setVisibility(true);
     }
 
     void deactivatePanel(PanelWindow *panel, int index)
@@ -273,16 +236,15 @@ private:
         qDebug() << "Deactivate panel called";
         disconnect(panel, nullptr, window, nullptr);
         disconnect(window, nullptr, panel, nullptr);
-        setPanelMenuVisibility(panel,false);
-        panel->deactivate();
+        PanelActions* actions = getPanelActions(panel->panelId());
+        panel->deactivate(actions);
+        actions->setVisibility(false);
     }
 
     void unregisterPanel(PanelWindow *panel, int index)
     {
         qDebug() << "Unregister panel called";
         if(panel == nullptr) return;
-        QMenu *menu = getMenu(panel->panelId());
-        panel->unregisterPanel(menu, mainToolbar);
         index2Panel.remove(index);
     }
 
@@ -290,8 +252,6 @@ private:
     {
         qDebug() << "Register panel called";
         index2Panel[index]=panel;
-        QMenu *menu = getMenu(panel->panelId());
-        panel->registerPanel(menu, mainToolbar);
     }
 
     void defaultState()
@@ -310,9 +270,9 @@ private:
             }
         }
 
-        for(int panelId: mainMenuRegistry.keys())
+        for(Panel p: panelActionRegistry.keys())
         {
-            mainMenuRegistry[panelId]->setVisible(false);
+            panelActionRegistry[p]->setVisibility(false);
         }
     }
 
@@ -340,7 +300,7 @@ private:
     QAction *actFundsManagement;
     QMap<Panel, QList<int>> panel2Index;
     QMap<int, PanelWindow*> index2Panel;
-    QMap<int, QMenu*> mainMenuRegistry;
+    QMap<Panel,PanelActions*> panelActionRegistry;
     QList<QAction*> defaultActions;
     SettingsManager *settingsManager;
 };

@@ -12,6 +12,7 @@
 #include "ui/applicationconstants.h"
 #include "ui/newimporttemplatedialog.h"
 #include "ui/panelfactory.h"
+#include "ui/panelactions.h"
 #include <QDebug>
 
 class ImportTemplatePanel::ImportTemplatePanelImpl
@@ -55,57 +56,47 @@ public:
         return this->_name;
     }
 
-    void regPanel(QMenu *menu, QToolBar *toolbar)
+    void regPanel(PanelActions *actions)
     {
-        qDebug() << "Reg panel menu name: " << menu->title();
+        qDebug() << "importtemplatepanel impl reg called";
 
-        _actTest = menu->addAction(QIcon(":/resources/bug.png"), "Test Template");
-        _actValidate = menu->addAction(QIcon(":/resources/page_white_gear.png"), "Validate Template");
-        _actLoadSampleData = menu->addAction(QIcon(":/resources/folder_table.png"),"Load sample data");
-        _actLoadSampleData->setStatusTip("Load sample data file");
-        _actTest->setStatusTip("Test the template function");
-        _actValidate->setStatusTip("Validate template definition");
-        _actLoadSampleData->setVisible(false);
-        _actTest->setVisible(false);
-        _actValidate->setVisible(false);
+        QAction *actTest = nullptr;
+        QAction *actValidate = nullptr;
+        QAction *actLoadSampleData = nullptr;
 
-        connect(_actTest, &QAction::triggered, _panel, &ImportTemplatePanel::actionTestHandler);
-        connect(_actValidate, &QAction::triggered, _panel, &ImportTemplatePanel::actionValidateHandler);
-        connect(_actLoadSampleData, &QAction::triggered, _panel, &ImportTemplatePanel::actionLoadSampleHandler);
+        actTest = actions->getAction(3);
+        actValidate = actions->getAction(2);
+        actLoadSampleData = actions->getAction(1);
 
-        menu->addAction(_actLoadSampleData);
-        menu->addAction(_actTest);
-        menu->addAction(_actValidate);
+        if(actTest)
+            connect(actTest, &QAction::triggered, _panel, &ImportTemplatePanel::actionTestHandler);
 
-        toolbar->addAction(_actLoadSampleData);
-        toolbar->addAction(_actTest);
-        toolbar->addAction(_actValidate);
+        if(actValidate)
+            connect(actValidate, &QAction::triggered, _panel, &ImportTemplatePanel::actionValidateHandler);
+
+        if(actLoadSampleData)
+            connect(actLoadSampleData, &QAction::triggered, _panel, &ImportTemplatePanel::actionLoadSampleHandler);
     }
 
-    void unregPanel(QMenu *menu, QToolBar *toolbar)
+    void unregPanel(PanelActions *actions)
     {
-        _actLoadSampleData->setVisible(false);
-        _actTest->setVisible(false);
-        _actValidate->setVisible(false);
+        qDebug() << "importtemplatepanel impl unreg called";
 
-        disconnect(_actTest, nullptr, _panel, nullptr);
-        disconnect(_actValidate, nullptr, _panel, nullptr);
-        disconnect(_actLoadSampleData, nullptr, _panel, nullptr);
-
-        menu->removeAction(_actLoadSampleData);
-        menu->removeAction(_actTest);
-        menu->removeAction(_actValidate);
-
-        toolbar->removeAction(_actLoadSampleData);
-        toolbar->removeAction(_actTest);
-        toolbar->removeAction(_actValidate);
+        for(int i: actions->getActionIdentifiers())
+        {
+            disconnect(actions->getAction(i), nullptr, _panel, nullptr);
+        }
     }
 
-    void activatePanel(bool active)
+    void activatePanel(PanelActions *actions, bool active)
     {
-        _actLoadSampleData->setVisible(active);
-        _actTest->setVisible(active);
-        _actValidate->setVisible(active);
+        if(active)
+        {
+            regPanel(actions);
+            emit _panel->itemActionStateChange(_currentState);
+        }
+        else
+            unregPanel(actions);
     }
 
     void itemActionHandler(ItemAction action)
@@ -198,11 +189,6 @@ private:
     ImportTemplatePanel *_panel;
     Ui::ImportTemplatePanel *ui;
     const QString _name = "Template";
-    QAction *_actTest;
-    QAction *_actValidate;
-    QAction *_actLoadSampleData;
-    QList<QAction *> _menuItems;
-    QList<QAction *> _toolbarItems;
     QList<ImportSpecification> _specs;
     TemplateMappingModel *_model;
     CSVModel *_sample;
@@ -336,22 +322,12 @@ Panel ImportTemplatePanel::panelId() const
     return Panel::IMPORT_TEMPLATE_EDITOR;
 }
 
-void ImportTemplatePanel::registerPanel(QMenu *menu, QToolBar *toolbar)
+void ImportTemplatePanel::activate(PanelActions *actions)
 {
-    impl->regPanel(menu,toolbar);
+    impl->activatePanel(actions, true);
 }
 
-void ImportTemplatePanel::unregisterPanel(QMenu *menu, QToolBar *toolbar)
+void ImportTemplatePanel::deactivate(PanelActions *actions)
 {
-    impl->unregPanel(menu, toolbar);
-}
-
-void ImportTemplatePanel::activate()
-{
-    impl->activatePanel(true);
-}
-
-void ImportTemplatePanel::deactivate()
-{
-    impl->activatePanel(false);
+    impl->activatePanel(actions, false);
 }

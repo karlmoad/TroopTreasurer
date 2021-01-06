@@ -28,13 +28,9 @@ public:
 
     virtual ItemState getCurrentState() const override;
 
-    virtual void activate() override;
+    virtual void activate(PanelActions *actions) override;
 
-    virtual void registerPanel(QMenu *menu, QToolBar *toolbar) override;
-
-    virtual void unregisterPanel(QMenu *menu, QToolBar *toolbar) override;
-
-    virtual void deactivate() override;
+    virtual void deactivate(PanelActions *actions) override;
 
 
     virtual QString panelName() const override;

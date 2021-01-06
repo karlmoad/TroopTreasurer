@@ -23,9 +23,11 @@
 #include <QToolBar>
 #include "itemstate.h"
 
+class PanelActions;
+
 enum class Panel
 {
-    FUNDS_MANAGEMENT=0,
+    UNDEFINED=0,
     IMPORT_TEMPLATE_EDITOR=1,
 };
 
@@ -37,11 +39,9 @@ public:
     virtual ~PanelWindow();
     virtual QString panelName() const = 0;
     virtual Panel panelId() const = 0;
-    virtual void registerPanel(QMenu *menu, QToolBar *toolbar) = 0;
-    virtual void unregisterPanel(QMenu *menu, QToolBar *toolbar) =0;
     virtual ItemState getCurrentState() const = 0;
-    virtual void activate()=0;
-    virtual void deactivate()=0;
+    virtual void activate(PanelActions *actions)=0;
+    virtual void deactivate(PanelActions *actions)=0;
 
 signals:
     void itemActionStateChange(ItemState state);
