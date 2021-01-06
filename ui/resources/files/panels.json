@@ -1,5 +1,12 @@
 {
   "panels": [
-    {"id": 1, "menu": "Template"}
+    { "id": 1,
+      "menu": "Template",
+      "items":[
+        {"id": 1, "icon": ":/resources/<file>.png", "title": "Open Sample Data", "menu": true, "toolbar": true},
+        {"id": 2, "icon": ":/resources/<file>.png", "title": "Validate Template", "menu": true, "toolbar": true},
+        {"id": 3, "icon": ":/resources/<file>.png", "title": "Test Template", "menu": true, "toolbar": true}
+      ]
+    }
   ]
 }
