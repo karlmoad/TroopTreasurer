@@ -9,10 +9,11 @@
 class PanelActions::PanelActionsImpl
 {
 public:
-    PanelActionsImpl(QMenuBar *menubar, QToolBar *toolbar,const QJsonObject& definition, PanelActions *clazz): _clazz(clazz), _def(definition)
+    PanelActionsImpl(const QJsonObject& definition, QMainWindow *window): _window(window), _def(definition)
     {
         _menu = nullptr;
-        initialize(menubar,toolbar);
+        _toolbar = nullptr;
+        initialize();
     }
 
     ~PanelActionsImpl()
@@ -37,36 +38,73 @@ public:
         return nullptr;
     }
 
+    bool hasMenu() const
+    {
+        return _hasMenu;
+    }
+
+    bool hasToolbar() const
+    {
+        return _hasToolbar;
+    }
+
+    QMenu* menu() const
+    {
+        return _menu;
+    }
+
+    QToolBar* toolbar() const
+    {
+        return _toolbar;
+    }
+
     void setVisibility(bool visible)
     {
         if(_menu)
         {
-            _menu->setVisible(visible);
+            if(visible)
+            {
+                _menu->setTitle(_displayText);
+                _menu->setEnabled(true);
+                _menu->addActions(_menuItems);
+            }
+            else
+            {
+                _menu->setTitle(QString());
+                _menu->setEnabled(false);
+                _menu->clear();
+            }
         }
 
-        for(int i : _actions.keys())
+        if(_toolbar)
         {
-            _actions[i]->setVisible(visible);
+            _toolbar->setVisible(visible);
         }
     }
 
 private:
-    void initialize(QMenuBar *menubar, QToolBar *toolbar)
+    void initialize()
     {
         // All actions and/or menus are created and set into a non visible state
-        bool hasMenu = false;
         if(_def.isEmpty()) return;
-
         _panel = static_cast<Panel>(_def["id"].toInt(0));
 
         if(_panel== Panel::UNDEFINED) return; // something is wrong with config, if panel id 0 then it is undefined so stop here
 
+        _hasMenu=_def["menu"].toBool(false);
+        _hasToolbar=_def["toolbar"].toBool(false);
+        _displayText=_def["display"].toString(QString());
+
         //create a main menu entry if configured
-        if(_def.contains("menu"))
+        if(_hasMenu)
         {
-            hasMenu = true;
-            _menu = menubar->addMenu(_def["menu"].toString());
-            _menu->setVisible(false);
+            _menu = _window->menuBar()->addMenu(_displayText);
+        }
+
+        if(_hasToolbar)
+        {
+            _toolbar = _window->addToolBar(_displayText);
+            _toolbar->setVisible(false);
         }
 
         if(_def.contains("items"))
@@ -85,44 +123,46 @@ private:
 
                 if(iicon.length() > 0)
                 {
-                    action = new QAction(QIcon(iicon),ititle,_clazz);
+                    action = new QAction(QIcon(iicon),ititle,_window);
                 }
                 else
                 {
-                    action = new QAction(ititle,_clazz);
+                    action = new QAction(ititle,_window);
                 }
 
                 if(action)
                 {
-                    action->setVisible(false);
-                    if (hasMenu && _menu && imenu)
+                    if (_hasMenu && _menu && imenu)
                     {
-                        _menu->addAction(action);
+                        _menuItems.append(action);
                     }
 
-                    if (toolbar && itbar)
+                    if (_toolbar && _toolbar && itbar)
                     {
-                        toolbar->addAction(action);
+                        _toolbarItems.append(action);
+                        _toolbar->addAction(action);
                     }
-
                     _actions.insert(iid, action);
                 }
             }
         }
-
     }
 
 private:
     QMenu *_menu;
+    QToolBar *_toolbar;
+    QList<QAction*> _menuItems;
+    QList<QAction*> _toolbarItems;
     QMap<int, QAction*> _actions;
     Panel _panel;
-    PanelActions *_clazz;
+    QMainWindow *_window;
     QJsonObject _def;
+    QString _displayText;
+    bool _hasMenu;
+    bool _hasToolbar;
 };
 
-PanelActions::PanelActions(QMenuBar *menubar, QToolBar *toolbar, const QJsonObject& definition, QObject *parent) :
-                                                                                            QObject(parent),
-                                                                                            impl(new PanelActionsImpl(menubar,toolbar,definition,this))
+PanelActions::PanelActions(const QJsonObject& definition, QMainWindow *window) :impl(new PanelActionsImpl(definition,window))
 {}
 
 PanelActions::~PanelActions()
@@ -143,7 +183,7 @@ void PanelActions::setVisibility(bool visible)
     impl->setVisibility(visible);
 }
 
-QList<PanelActions *> PanelActions::LoadPanelActionDefinitions(QMenuBar *menubar, QToolBar *toolbar, QObject *parent)
+QList<PanelActions *> PanelActions::LoadPanelActionDefinitions(QMainWindow *window)
 {
     QList<PanelActions*> out;
 
@@ -157,7 +197,7 @@ QList<PanelActions *> PanelActions::LoadPanelActionDefinitions(QMenuBar *menubar
         for(int i=0; i<panels.count(); i++)
         {
             QJsonObject panel = panels[i].toObject();
-            PanelActions *pa = new PanelActions(menubar,toolbar,panel,parent);
+            PanelActions *pa = new PanelActions(panel,window);
             out.append(pa);
         }
     }
@@ -172,4 +212,24 @@ QList<PanelActions *> PanelActions::LoadPanelActionDefinitions(QMenuBar *menubar
 QList<int> PanelActions::getActionIdentifiers()
 {
     return impl->actionIdentifiers();
+}
+
+bool PanelActions::hasMenu() const
+{
+    return impl->hasMenu();
+}
+
+QMenu *PanelActions::getMenu() const
+{
+    return impl->menu();
+}
+
+bool PanelActions::hasToolbar() const
+{
+    return impl->hasToolbar();
+}
+
+QToolBar *PanelActions::getToolbar() const
+{
+    return impl->toolbar();
 }

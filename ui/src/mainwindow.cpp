@@ -65,7 +65,7 @@ public:
         if(index >=0)
         {
             PanelWindow *p = index2Panel[index];
-            if (p)
+            if(p)
             {
                 activatePanel(p, index);
             }
@@ -85,7 +85,6 @@ private:
     {
         mnuFile = window->menuBar()->addMenu("&File");
         mnuEdit = window->menuBar()->addMenu("&Edit");
-        mnuAbout = window->menuBar()->addMenu("&About");
 
         //File menu
         mnuFileOpenSubmenu = mnuFile->addMenu("Open");
@@ -102,7 +101,6 @@ private:
         connect(actSave, &QAction::triggered, [this](){
             emit window->ContextItemActionTriggered(ItemAction::SAVE);
         });
-        defaultActions.append(actSave);
 
         mnuFileImportSubmenu = mnuFile->addMenu("Import");
         actImportEditTemplates = new QAction("Edit Templates", this->window);
@@ -110,25 +108,19 @@ private:
         connect(actImportEditTemplates, &QAction::triggered, [this](){
             OpenImportTemplateEditorPanel();
         });
-        defaultActions.append(actImportEditTemplates);
 
         actImportData = new QAction("Import Data", window);
         actImportData->setStatusTip("Import a data file");
         mnuFileImportSubmenu->addAction(actImportEditTemplates);
         mnuFileImportSubmenu->addAction(actImportData);
 
-        defaultActions.append(actImportData);
-
         actSettings = new QAction("Settings",window);
         mnuFile->addAction(actSettings);
-        defaultActions.append(actSettings);
         connect(actSettings, &QAction::triggered, window, &MainWindow::SettingsHandler);
 
         mnuFile->addSeparator();
         actQuit = new QAction("&Quit", window);
         mnuFile->addAction(actQuit);
-
-        defaultActions.append(actQuit);
 
         actAddItem = new QAction(QIcon(":/resources/page_white_add.png"),"Add item", window);
         actAddItem->setStatusTip("Add new item to current context");
@@ -138,7 +130,6 @@ private:
         connect(actAddItem, &QAction::triggered, [this](){
             emit window->ContextItemActionTriggered(ItemAction::ADD);
         });
-        defaultActions.append(actAddItem);
 
         actEditItem = new QAction(QIcon(":/resources/page_white_edit.png"),"Edit item", window);
         actEditItem->setStatusTip("Edit the current context selected item");
@@ -148,7 +139,6 @@ private:
         connect(actEditItem, &QAction::triggered, [this](){
             emit window->ContextItemActionTriggered(ItemAction::EDIT);
         });
-        defaultActions.append(actEditItem);
 
         actDeleteItem = new QAction(QIcon(":/resources/page_white_delete.png"),"Delete item",window);
         actDeleteItem->setStatusTip("Delete the current context selected item");
@@ -158,29 +148,25 @@ private:
         connect(actDeleteItem, &QAction::triggered, [this](){
             emit window->ContextItemActionTriggered(ItemAction::DELETE);
         });
-        defaultActions.append(actDeleteItem);
-
-        actSep = mainToolbar->addSeparator();
-        defaultActions.append(actSep);
-
-        actAbout = new QAction("About", window);
-        actAbout->setStatusTip("About this program");
-        mnuAbout->addAction(actAbout);
-        defaultActions.append(actAbout);
-
-        connect(actAbout, &QAction::triggered, [this](){
-            qDebug() << "About clicked";
-        });
 
         //wire panels container control events
         connect(ui->tabMain, &QTabWidget::currentChanged, window, &MainWindow::ActivePanelChanged);
         connect(ui->tabMain, &QTabWidget::tabCloseRequested, window, &MainWindow::PanelCloseHandler);
 
-        QList<PanelActions*> actions = PanelActions::LoadPanelActionDefinitions(window->menuBar(), mainToolbar, window);
+        QList<PanelActions*> actions = PanelActions::LoadPanelActionDefinitions(window);
         for(PanelActions *action: actions)
         {
             panelActionRegistry.insert(action->getPanel(), action);
         }
+
+        mnuAbout = window->menuBar()->addMenu("&About");
+        actAbout = new QAction("About", window);
+        actAbout->setStatusTip("About this program");
+        mnuAbout->addAction(actAbout);
+
+        connect(actAbout, &QAction::triggered, [this](){
+            qDebug() << "About clicked";
+        });
     }
 
     void loadSettings()
@@ -262,13 +248,6 @@ private:
         actDeleteItem->setEnabled(false);
 
         QList<QAction *> actions = mainToolbar->findChildren<QAction *>(QString(), Qt::FindDirectChildrenOnly);
-        for (int i = 0; i < actions.count(); i++)
-        {
-            if (!defaultActions.contains(actions[i]))
-            {
-                mainToolbar->removeAction(actions[i]);
-            }
-        }
 
         for(Panel p: panelActionRegistry.keys())
         {
@@ -279,7 +258,6 @@ private:
 private:
     MainWindow *window;
     Ui::MainWindow *ui;
-
     QToolBar *mainToolbar;
     QMenu *mnuFile;
     QMenu *mnuAbout;
@@ -301,7 +279,6 @@ private:
     QMap<Panel, QList<int>> panel2Index;
     QMap<int, PanelWindow*> index2Panel;
     QMap<Panel,PanelActions*> panelActionRegistry;
-    QList<QAction*> defaultActions;
     SettingsManager *settingsManager;
 };
 

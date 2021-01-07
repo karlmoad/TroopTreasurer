@@ -6,19 +6,25 @@
 #include <memory>
 #include "ui/panelwindow.h"
 
-class PanelActions: public QObject
+class PanelActions
 {
-    Q_OBJECT
 public:
-    explicit PanelActions(QMenuBar *menubar, QToolBar *toolbar, const QJsonObject& definition, QObject *parent=nullptr);
+    explicit PanelActions(const QJsonObject& definition, QMainWindow *mainwindow);
     virtual ~PanelActions();
 
     Panel getPanel();
     QList<int> getActionIdentifiers();
     QAction* getAction(int id);
+
+    bool hasMenu() const;
+    QMenu* getMenu() const;
+
+    bool hasToolbar() const;
+    QToolBar* getToolbar() const;
+
     void setVisibility(bool visible);
 
-    static QList<PanelActions*> LoadPanelActionDefinitions(QMenuBar *menubar, QToolBar *toolbar, QObject *parent=nullptr);
+    static QList<PanelActions*> LoadPanelActionDefinitions(QMainWindow *window);
 private:
     class PanelActionsImpl;
     std::shared_ptr<PanelActionsImpl> impl;
