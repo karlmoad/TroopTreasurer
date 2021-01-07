@@ -58,8 +58,6 @@ public:
 
     void regPanel(PanelActions *actions)
     {
-        qDebug() << "importtemplatepanel impl reg called";
-
         QAction *actTest = nullptr;
         QAction *actValidate = nullptr;
         QAction *actLoadSampleData = nullptr;
@@ -80,8 +78,6 @@ public:
 
     void unregPanel(PanelActions *actions)
     {
-        qDebug() << "importtemplatepanel impl unreg called";
-
         for(int i: actions->getActionIdentifiers())
         {
             disconnect(actions->getAction(i), nullptr, _panel, nullptr);

@@ -29,6 +29,7 @@ public:
     ~MainWindowImpl()
     {
         SettingsManager::free();
+        qDeleteAll(panelActionRegistry);
         delete ui;
     }
 
@@ -209,7 +210,6 @@ private:
 
     void activatePanel(PanelWindow *panel, int index)
     {
-        qDebug() << "Activate panel called";
         connect(panel, &PanelWindow::itemActionStateChange, window, &MainWindow::ContextItemStateChangeHandler);
         connect(window, &MainWindow::ContextItemActionTriggered, panel, &PanelWindow::itemActionHandler);
         PanelActions* actions = getPanelActions(panel->panelId());
@@ -219,7 +219,6 @@ private:
 
     void deactivatePanel(PanelWindow *panel, int index)
     {
-        qDebug() << "Deactivate panel called";
         disconnect(panel, nullptr, window, nullptr);
         disconnect(window, nullptr, panel, nullptr);
         PanelActions* actions = getPanelActions(panel->panelId());
@@ -229,14 +228,12 @@ private:
 
     void unregisterPanel(PanelWindow *panel, int index)
     {
-        qDebug() << "Unregister panel called";
         if(panel == nullptr) return;
         index2Panel.remove(index);
     }
 
     void registerPanel(PanelWindow *panel, int index)
     {
-        qDebug() << "Register panel called";
         index2Panel[index]=panel;
     }
 
