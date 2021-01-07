@@ -62,18 +62,7 @@ public:
     {
         if(_menu)
         {
-            if(visible)
-            {
-                _menu->setTitle(_displayText);
-                _menu->setEnabled(true);
-                _menu->addActions(_menuItems);
-            }
-            else
-            {
-                _menu->setTitle(QString());
-                _menu->setEnabled(false);
-                _menu->clear();
-            }
+            _menu->menuAction()->setVisible(visible);
         }
 
         if(_toolbar)
@@ -99,6 +88,7 @@ private:
         if(_hasMenu)
         {
             _menu = _window->menuBar()->addMenu(_displayText);
+            _menu->menuAction()->setVisible(false);
         }
 
         if(_hasToolbar)
@@ -134,12 +124,11 @@ private:
                 {
                     if (_hasMenu && _menu && imenu)
                     {
-                        _menuItems.append(action);
+                        _menu->addAction(action);
                     }
 
                     if (_toolbar && _toolbar && itbar)
                     {
-                        _toolbarItems.append(action);
                         _toolbar->addAction(action);
                     }
                     _actions.insert(iid, action);
@@ -151,8 +140,6 @@ private:
 private:
     QMenu *_menu;
     QToolBar *_toolbar;
-    QList<QAction*> _menuItems;
-    QList<QAction*> _toolbarItems;
     QMap<int, QAction*> _actions;
     Panel _panel;
     QMainWindow *_window;
