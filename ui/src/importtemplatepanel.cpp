@@ -7,6 +7,7 @@
 #include "objects/templatemappingmodel.h"
 #include "objects/csvmodel.h"
 #include "objects/objecterror.h"
+#include "objects/schema.h"
 #include "ui/importtemplatepanel.h"
 #include "ui_importtemplatepanel.h"
 #include "ui/applicationconstants.h"
@@ -101,13 +102,15 @@ public:
         {
             case ItemAction::ADD:
             {
-                QString name, target;
-                NewImportTemplateDialog *dialog = new NewImportTemplateDialog(name, target, nullptr);
+                QString name;
+                Schema target;
+                NewImportTemplateDialog *dialog = new NewImportTemplateDialog(&name, &target, nullptr);
                 dialog->setModal(true);
                 int r = dialog->exec();
                 delete dialog;
                 if(r == QDialog::Accepted)
                 {
+                    qDebug() << "Name: " << name << " Target: " << target.getName();
                     newTemplate(name,target);
                 }
                 break;
@@ -227,12 +230,14 @@ private:
         ui->cboTemplate->setCurrentIndex(0);
     }
 
-    void newTemplate(const QString& name, const QString& target)
+    void newTemplate(const QString& name, const Schema& target)
     {
-        ImportSpecification spec(name,target);
+        ImportSpecification spec = ImportSpecification::initializeNew(name,target);
         _specs.append(spec);
         ui->cboTemplate->addItem(name, _specs.length()-1);
         ui->cboTemplate->setCurrentIndex(ui->cboTemplate->count()-1);
+        loadSpecification(_specs.length()-1);
+        _model->enableEditing(true);
     }
 
     void loadSpecification(int idx)
