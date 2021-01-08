@@ -6,7 +6,7 @@
 class NewImportTemplateDialog::NewImportTemplateDialogImpl
 {
 public:
-    NewImportTemplateDialogImpl(QString& name, QString& target, NewImportTemplateDialog *form)
+    NewImportTemplateDialogImpl(QString *name, Schema *target, NewImportTemplateDialog *form)
     {
         ui = new Ui::NewImportTemplateDialog();
         ui->setupUi(form);
@@ -26,8 +26,12 @@ public:
     {
         if(ui->cboTarget->currentIndex() > 0 && ui->txtName->text().trimmed().length() > 0)
         {
-            _name = ui->txtName->text();
-            _target = ui->cboTarget->currentData().toString();
+            *_name = ui->txtName->text();
+            QString key = ui->cboTarget->currentData().toString();
+            if(_schemas.contains(key))
+            {
+                *_target = _schemas[key];
+            }
             return true;
         }
         else
@@ -36,21 +40,22 @@ public:
 
 private:
     Ui::NewImportTemplateDialog *ui;
-    QString _name;
-    QString _target;
+    QString *_name;
+    Schema *_target;
+    QMap<QString, Schema> _schemas;
 
     void init()
     {
         ui->cboTarget->addItem("(Select a Target Schema)","");
-        QMap<QString, Schema> schemas = Schema::load(":/resources/files/schema.json");
-        for(QString key: schemas.keys())
+        _schemas = Schema::load(":/resources/files/schema.json");
+        for(QString key: _schemas.keys())
         {
-            ui->cboTarget->addItem(schemas[key].getDisplay(), key);
+            ui->cboTarget->addItem(_schemas[key].getDisplay(), key);
         }
     }
 };
 
-NewImportTemplateDialog::NewImportTemplateDialog(QString& name, QString& target, QWidget *parent) :
+NewImportTemplateDialog::NewImportTemplateDialog(QString *name, Schema *target, QWidget *parent) :
     QDialog(parent),
     impl(new NewImportTemplateDialogImpl(name, target, this))
 {}

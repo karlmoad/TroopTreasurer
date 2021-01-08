@@ -6,16 +6,23 @@ class Schema::SchemaImpl
 {
 public:
     SchemaImpl(const QString& key, const QJsonObject& json): _name(key), _schemaDefinition(json)
-    {}
+    {
+        _schemaDefinition["ref"] = _name;
+    }
 
     QString name() const
     {
         return _name;
     }
 
+    QJsonObject json()
+    {
+        return _schemaDefinition;
+    }
+
     QString display() const
     {
-        if(_schemaDefinition.isEmpty() && _schemaDefinition.contains("display"))
+        if(!_schemaDefinition.isEmpty() && _schemaDefinition.contains("display"))
         {
            return _schemaDefinition["display"].toString();
         }
@@ -27,7 +34,7 @@ public:
 
     QString table() const
     {
-        if(_schemaDefinition.isEmpty() && _schemaDefinition.contains("table"))
+        if(!_schemaDefinition.isEmpty() && _schemaDefinition.contains("table"))
         {
             return _schemaDefinition["table"].toString();
         }
@@ -39,7 +46,7 @@ public:
 
     bool importSupported() const
     {
-        if(_schemaDefinition.isEmpty() && _schemaDefinition.contains("import"))
+        if(!_schemaDefinition.isEmpty() && _schemaDefinition.contains("import"))
         {
             return _schemaDefinition["import"].toBool(false);
         }
@@ -48,7 +55,7 @@ public:
 
     bool dupCheckSupported() const
     {
-        if(_schemaDefinition.isEmpty() && _schemaDefinition.contains("dupcheck"))
+        if(!_schemaDefinition.isEmpty() && _schemaDefinition.contains("dupcheck"))
         {
             return _schemaDefinition["dupcheck"].toBool(false);
         }
@@ -57,7 +64,7 @@ public:
 
     bool truncateSupported() const
     {
-        if(_schemaDefinition.isEmpty() && _schemaDefinition.contains("truncate"))
+        if(!_schemaDefinition.isEmpty() && _schemaDefinition.contains("truncate"))
         {
             return _schemaDefinition["truncate"].toBool(false);
         }
@@ -67,7 +74,7 @@ public:
     QMap <QString, QJsonObject> fields() const
     {
         QMap<QString,QJsonObject> fields;
-        if(_schemaDefinition.isEmpty() && _schemaDefinition.contains("fields"))
+        if(!_schemaDefinition.isEmpty() && _schemaDefinition.contains("fields"))
         {
             QJsonArray flds = _schemaDefinition["fields"].toArray();
             for(int i =0; i<flds.count(); i++)
@@ -123,6 +130,11 @@ bool Schema::isTruncateSupported() const
     return impl->truncateSupported();
 }
 
+QJsonObject Schema::toJson() const
+{
+    return impl->json();
+}
+
 QMap <QString, QJsonObject> Schema::getFields() const
 {
     return impl->fields();
@@ -151,4 +163,51 @@ QMap <QString, Schema> Schema::load(const QString &filepath)
         err.raise();
     }
     return out;
+}
+
+Schema Schema::loadSchema(const QString &schemaId, const QString &filepath)
+{
+    Schema out;
+    QFile file(filepath);
+    if(file.open(QFile::ReadOnly | QFile::Text))
+    {
+        QByteArray raw = file.readAll();
+        file.close();
+        QJsonObject schemas = QJsonDocument::fromJson(raw).object();
+
+        if (schemas.contains(schemaId))
+        {
+            out.impl = std::shared_ptr<SchemaImpl>(new SchemaImpl(schemaId,schemas[schemaId].toObject()));
+        }
+        else
+        {
+            ObjectError err("Unable to find schema with that identifier", static_cast<int>(ObjectErrorCode::GENERAL_OBJECT_ERROR));
+            err.raise();
+        }
+    }
+    else
+    {
+        ObjectError err("Unable to open and read schema definition file", static_cast<int>(ObjectErrorCode::ERROR_READ_FILE));
+        err.raise();
+    }
+    return out;
+}
+
+
+
+Schema Schema::fromJson(const QJsonObject& json)
+{
+    Schema s;
+
+    if(json.contains("ref"))
+    {
+        s.impl = std::shared_ptr<SchemaImpl>(new SchemaImpl(json["ref"].toString(), json));
+    }
+    else
+    {
+        ObjectError err("Improperly referenced schema definition", static_cast<int>(ObjectErrorCode::GENERAL_OBJECT_ERROR));
+        err.raise();
+    }
+
+    return s;
 }

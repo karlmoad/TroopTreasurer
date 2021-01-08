@@ -123,7 +123,7 @@ private:
         actQuit = new QAction("&Quit", window);
         mnuFile->addAction(actQuit);
 
-        actAddItem = new QAction(QIcon(":/resources/page_white_add.png"),"Add item", window);
+        actAddItem = new QAction(QIcon(":/resources/page_white_add.png"),"Add", window);
         actAddItem->setStatusTip("Add new item to current context");
         actAddItem->setEnabled(false);
         mnuEdit->addAction(actAddItem);
@@ -132,7 +132,7 @@ private:
             emit window->ContextItemActionTriggered(ItemAction::ADD);
         });
 
-        actEditItem = new QAction(QIcon(":/resources/page_white_edit.png"),"Edit item", window);
+        actEditItem = new QAction(QIcon(":/resources/page_white_edit.png"),"Edit", window);
         actEditItem->setStatusTip("Edit the current context selected item");
         actEditItem->setEnabled(false);
         mnuEdit->addAction(actEditItem);
@@ -141,7 +141,7 @@ private:
             emit window->ContextItemActionTriggered(ItemAction::EDIT);
         });
 
-        actDeleteItem = new QAction(QIcon(":/resources/page_white_delete.png"),"Delete item",window);
+        actDeleteItem = new QAction(QIcon(":/resources/page_white_delete.png"),"Delete",window);
         actDeleteItem->setStatusTip("Delete the current context selected item");
         actDeleteItem->setEnabled(false);
         mnuEdit->addAction(actDeleteItem);

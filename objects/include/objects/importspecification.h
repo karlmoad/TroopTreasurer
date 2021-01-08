@@ -10,14 +10,14 @@
 #include <QJsonArray>
 #include <QJsonValue>
 #include <memory>
+#include "schema.h"
 #include "objecterror.h"
 
 
 class ImportSpecification
 {
 public:
-    ImportSpecification(const QString& name, const QString& target);
-    ImportSpecification(const QJsonObject& json);
+    explicit ImportSpecification(const QJsonObject& json);
     ~ImportSpecification();
 
     QString getName() const;
@@ -28,6 +28,8 @@ public:
     void setField(const QString& id, const QString& expression);
     void removeField(const QString& id);
     QJsonObject toJson() const;
+
+    static ImportSpecification initializeNew(const QString& name, const Schema& schema);
 
 private:
     class ImportSpecificationImpl;

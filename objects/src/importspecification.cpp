@@ -3,12 +3,6 @@
 class ImportSpecification::ImportSpecificationImpl
 {
 public:
-    explicit ImportSpecificationImpl(const QString &name, const QString &target)
-    {
-        _spec.insert("name",name);
-        _spec.insert("target",target);
-    }
-
     explicit ImportSpecificationImpl(const QJsonObject& json)
     {
         _spec = json;
@@ -34,7 +28,12 @@ public:
 
     void setMapFieldExpression(const QString& name, const QString& expression)
     {
-        QJsonObject map = _spec["map"].toObject();
+        QJsonObject map;
+
+        if(_spec.contains("map"))
+        {
+            map = _spec["map"].toObject();
+        }
 
         if(map.contains(name))
         {
@@ -85,14 +84,10 @@ private:
     QJsonObject _spec;
 };
 
-ImportSpecification::ImportSpecification(const QString &name, const QString &target): impl(new ImportSpecificationImpl(name,target))
-{}
-
 ImportSpecification::ImportSpecification(const QJsonObject &json): impl(new ImportSpecificationImpl(json))
 {}
 
-ImportSpecification::~ImportSpecification()
-{}
+ImportSpecification::~ImportSpecification(){}
 
 QList<QString> ImportSpecification::getFields() const
 {
@@ -129,6 +124,22 @@ QString ImportSpecification::getTarget() const
     return impl->target();
 }
 
+ImportSpecification ImportSpecification::initializeNew(const QString &name, const Schema &schema)
+{
+    QJsonObject json;
+    json["name"] = name;
+    json["target"] = schema.getName();
+
+    ImportSpecification spec(json);
+
+    //Initialize fields to empty base don schema available fields
+    for(QString field :schema.getFields().keys())
+    {
+        spec.setField(field,QString());
+    }
+
+    return spec;
+}
 
 QList<ImportSpecification> ImportSpecificationFactory::Load(const QString &filename)
 {

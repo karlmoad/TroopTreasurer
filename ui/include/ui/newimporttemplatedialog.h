@@ -3,13 +3,14 @@
 
 #include <QDialog>
 #include <memory>
+#include "objects/schema.h"
 
 class NewImportTemplateDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit NewImportTemplateDialog(QString& name, QString& target, QWidget *parent = nullptr);
+    explicit NewImportTemplateDialog(QString *name, Schema *target, QWidget *parent = nullptr);
     ~NewImportTemplateDialog();
 
     Q_SLOT void okHandler();

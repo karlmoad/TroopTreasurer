@@ -23,8 +23,11 @@ public:
     bool isDupCheckSupported() const;
     bool isTruncateSupported() const;
     QMap<QString, QJsonObject> getFields() const;
+    QJsonObject toJson() const;
 
     static QMap<QString, Schema> load(const QString& filepath);
+    static Schema loadSchema(const QString& schemaId, const QString& filepath);
+    static Schema fromJson(const QJsonObject& json);
 private:
     class SchemaImpl;
     std::shared_ptr<SchemaImpl> impl;

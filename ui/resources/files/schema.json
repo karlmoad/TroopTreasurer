@@ -1,6 +1,6 @@
 {
   "TT" : {
-    "display": "Troop Data Transaction",
+    "display": "Account Transaction File",
     "table": "TROOP_TRACK_DATA",
     "import": true,
     "dupcheck": false,
