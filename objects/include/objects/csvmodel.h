@@ -31,8 +31,6 @@ public:
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
     virtual int columnCount(const QModelIndex &parent) const override;
-    QList<QString> getColumnHeaders();
-    QList<QString> getRow(int i);
     void load(QFile *file,QChar sep=',', bool includesHeader=true);
 
 private:

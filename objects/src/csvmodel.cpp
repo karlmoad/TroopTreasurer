@@ -166,7 +166,7 @@ QVariant CSVModel::headerData(int section, Qt::Orientation orientation, int role
             {
                 if (impl->_headers.size()-1 >= section)
                 {
-                    return impl->_headers.at(section);
+                    return QString("[%1] %2").arg(QString::number(section),impl->_headers.at(section));
                 } else
                 {
                     return QString::number(section);
@@ -190,20 +190,6 @@ Qt::ItemFlags CSVModel::flags(const QModelIndex &index) const
 int CSVModel::columnCount(const QModelIndex &parent) const
 {
     return impl->_colCount;
-}
-
-QList<QString> CSVModel::getColumnHeaders()
-{
-    return impl->_headers.toList();
-}
-
-QList<QString> CSVModel::getRow(int i)
-{
-    if(i < impl->_data.size())
-    {
-        return impl->_data.at(i).toList();
-    }
-    return QList<QString>();
 }
 
 void CSVModel::load(QFile *file, QChar sep, bool includesHeader)

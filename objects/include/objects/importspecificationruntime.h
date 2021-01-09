@@ -12,6 +12,7 @@
 #include <QRegularExpressionMatch>
 #include <QRegularExpressionMatchIterator>
 #include <QDebug>
+#include <QAbstractTableModel>
 #include <memory>
 #include "expression.h"
 #include "argument.h"
@@ -22,10 +23,12 @@
 class ImportSpecificationRuntime
 {
 public:
-    explicit ImportSpecificationRuntime(const ImportSpecification& spec, const QList<QString>& sourceColumns);
+    explicit ImportSpecificationRuntime(const ImportSpecification& spec);
     virtual ~ImportSpecificationRuntime();
 
-    QMap<QString,QVariant> process(const QList<QString> &record);
+    bool compile();
+    void setModel(QAbstractTableModel *model);
+    QJsonObject process(int row);
 
 private:
     class ImportSpecificationRuntimeImpl;
