@@ -36,11 +36,15 @@ private:
     std::shared_ptr<ImportSpecificationImpl> impl;
 };
 
-class ImportSpecificationFactory
+class ImportSpecificationController
 {
 public:
     static QList<ImportSpecification> Load(const QString& filename);
-    static void Save(const QList<ImportSpecification>& specs, const QString& filename);
+    static void Save(const ImportSpecification &spec, const QString& filename);
+    static void Delete(const ImportSpecification &spec, const QString& filename);
+private:
+    static QJsonObject open(const QString& filename);
+    static void write(const QJsonObject& json, const QString& filename);
 };
 
 

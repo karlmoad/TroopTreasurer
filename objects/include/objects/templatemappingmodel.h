@@ -40,6 +40,8 @@ public:
     const QMap<QString, QString>& getMap() const;
     void loadMapping(QMap<QString,QString> map);
     void enableEditing(bool enabled);
+    bool isEditingEnabled() const;
+    void clear();
 
 private:
     class TemplateMappingModelImpl;

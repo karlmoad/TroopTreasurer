@@ -35,14 +35,29 @@ public:
         ItemState initialState;
         initialState.setDeleteEnabled(false);
         initialState.setAddEnabled(true);
-        initialState.setEditEnabled(true);
-        initialState.setSaveEnabled(true);
+        initialState.setEditEnabled(false);
+        initialState.setSaveEnabled(false);
         setCurrentState(initialState);
 
         loadTemplates();
         connect(ui->cboTemplate, qOverload<int>(&QComboBox::currentIndexChanged), [this](int idx) {
-            int itemIdx = ui->cboTemplate->itemData(idx,Qt::UserRole).toInt();
-            loadSpecification(itemIdx);
+            ItemState state = _currentState;
+            if(ui->cboTemplate->currentIndex() != 0)
+            {
+                int itemIdx = ui->cboTemplate->itemData(idx, Qt::UserRole).toInt();
+                loadSpecification(itemIdx);
+                state.setEditEnabled(true);
+                state.setDeleteEnabled(true);
+                state.setSaveEnabled(true);
+            }
+            else
+            {
+                _model->clear();
+                state.setEditEnabled(false);
+                state.setDeleteEnabled(false);
+                state.setSaveEnabled(false);
+            }
+            setCurrentState(state);
         });
 
     }
@@ -126,29 +141,47 @@ public:
             }
             case ItemAction::SAVE:
             {
-                _model->enableEditing(false);
-                int idx = ui->cboTemplate->currentData().toInt();
-                if(idx != -1 && idx >= 0 && idx < _specs.length())
+                if(_model->isEditingEnabled())
                 {
-                    QMap<QString,QString> map = _model->getMap();
+                    _model->enableEditing(false);
+                }
+                int idx = ui->cboTemplate->currentData().toInt();
+                //sync current spec back to spec list;
+
+                if (_specs.length() > 0 && idx != -1 && idx >= 0 && idx < _specs.length())
+                {
+                    QMap<QString, QString> map = _model->getMap();
                     ImportSpecification spec = _specs.at(idx);
-                    for(QString key: map.keys())
+                    for (QString key: map.keys())
                     {
-                        spec.setField(key,map[key]);
+                        spec.setField(key, map[key]);
                     }
-
+                    ImportSpecificationController::Save(spec, Utility::GetUserPreferencesFilePath(APP::ApplicationImportTemplatesFile));
                     _specs[idx] = spec;
-
-                    ImportSpecificationFactory::Save(_specs,Utility::GetUserPreferencesFilePath(APP::ApplicationImportTemplatesFile));
                 }
                 break;
             }
             case ItemAction::DELETE:
             {
-                int idx = ui->cboTemplate->currentData().toInt();
-                if(idx != -1 && idx >= 0 && idx < _specs.length())
+                if(ui->cboTemplate->currentIndex() != 0)
                 {
-                    _specs.removeAt(idx);
+                    QMessageBox msgBox;
+                    msgBox.setText("Are you sure you would like to delete this template");
+                    msgBox.setInformativeText("Delete Template?");
+                    msgBox.setStandardButtons(QMessageBox::No | QMessageBox::Yes);
+                    msgBox.setDefaultButton(QMessageBox::No);
+                    int ret = msgBox.exec();
+
+                    if(ret == QMessageBox::Yes)
+                    {
+                        int idx = ui->cboTemplate->currentData().toInt();
+                        if (idx != -1 && idx >= 0 && idx < _specs.length())
+                        {
+                            ImportSpecification spec = _specs.takeAt(idx);
+                            ImportSpecificationController::Delete(spec,Utility::GetUserPreferencesFilePath(APP::ApplicationImportTemplatesFile));
+                            initTemplateSelectionList();
+                        }
+                    }
                 }
                 break;
             }
@@ -207,14 +240,14 @@ private:
         }
     }
 
-    void loadTemplates()
+    void initTemplateSelectionList()
     {
+        ui->cboTemplate->clear();
+        _model->clear();
+
         ui->cboTemplate->addItem("(Select A File Type)",-1);
         try
         {
-            _specs = ImportSpecificationFactory::Load(
-                    Utility::GetUserPreferencesFilePath(APP::ApplicationImportTemplatesFile));
-
             for(int i=0; i<_specs.count(); i++)
             {
                 ui->cboTemplate->addItem(_specs[i].getName(), i);
@@ -229,6 +262,24 @@ private:
         }
 
         ui->cboTemplate->setCurrentIndex(0);
+
+    }
+
+    void loadTemplates()
+    {
+        try
+        {
+            _specs = ImportSpecificationController::Load(
+                    Utility::GetUserPreferencesFilePath(APP::ApplicationImportTemplatesFile));
+            initTemplateSelectionList();
+        }
+        catch(ObjectError err)
+        {
+            if(err.errorCode() != (int)ObjectErrorCode::ERROR_NO_FILE)
+            {
+                QMessageBox::critical(_panel,"File Error" ,"Error opening template definition file");
+            }
+        }
     }
 
     void newTemplate(const QString& name, const Schema& target)

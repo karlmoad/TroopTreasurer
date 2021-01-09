@@ -141,7 +141,7 @@ ImportSpecification ImportSpecification::initializeNew(const QString &name, cons
     return spec;
 }
 
-QList<ImportSpecification> ImportSpecificationFactory::Load(const QString &filename)
+QList<ImportSpecification> ImportSpecificationController::Load(const QString &filename)
 {
     QList<ImportSpecification> out;
     QFile file(filename);
@@ -169,26 +169,108 @@ QList<ImportSpecification> ImportSpecificationFactory::Load(const QString &filen
         err.raise();
     }
 
-    return QList<ImportSpecification>();
+    return out;
 }
 
-void ImportSpecificationFactory::Save(const QList<ImportSpecification> &specs, const QString &filename)
+void ImportSpecificationController::Save(const ImportSpecification &spec, const QString &filename)
 {
-    QJsonObject jdata;
-    QJsonArray jspecs;
+    QJsonObject json = ImportSpecificationController::open(filename);
 
-    for(int i =0; i<specs.count(); i++)
+    //find if spec currently exists or not, add/amend
+    if(json.isEmpty()) return;
+
+    bool bFound = false;
+    int fIndex = -1;
+    QJsonArray specs = json["templates"].toArray();
+    for (int i = 0; i < specs.count(); i++)
     {
-        jspecs.append(specs[i].toJson());
+        QJsonObject temp = specs[i].toObject();
+        if(!temp.isEmpty() && temp.contains("name") && spec.getName().compare(temp["name"].toString(), Qt::CaseSensitive)==0)
+        {
+            bFound = true;
+            fIndex = i;
+            break;
+        }
     }
 
-    jdata["templates"] = jspecs;
-
-
-    QFile file(filename);
-    if(file.open(QFile::ReadWrite | QFile::Text))
+    if(bFound && fIndex > -1)
     {
-        file.write(QJsonDocument(jdata).toJson());
+        specs[fIndex] = spec.toJson();
+    }
+    else
+    {
+        specs.append(spec.toJson());
+    }
+
+    // save definition structure back to disk
+    json["templates"] = specs;
+
+    ImportSpecificationController::write(json, filename);
+}
+
+void ImportSpecificationController::Delete(const ImportSpecification &spec, const QString &filename)
+{
+    QJsonObject json = ImportSpecificationController::open(filename);
+
+    //find if spec currently exists or not, add/amend
+    if(json.isEmpty()) return;
+
+    bool bFound = false;
+    int fIndex = -1;
+    QJsonArray specs = json["templates"].toArray();
+    for (int i = 0; i < specs.count(); i++)
+    {
+        QJsonObject temp = specs[i].toObject();
+        if(!temp.isEmpty() && temp.contains("name") && spec.getName().compare(temp["name"].toString(), Qt::CaseSensitive)==0)
+        {
+            bFound = true;
+            fIndex = i;
+            break;
+        }
+    }
+
+    if(bFound && fIndex > -1)
+    {
+        specs.removeAt(fIndex);
+    }
+
+    // save definition structure back to disk
+    json["templates"] = specs;
+
+    ImportSpecificationController::write(json, filename);
+}
+
+QJsonObject ImportSpecificationController::open(const QString &filename)
+{
+    //get the current templates definition file contents into json object
+    QFile file(filename);
+    QJsonObject out;
+    if(file.exists())
+    {
+        if (file.open(QIODevice::ReadOnly))
+        {
+            out = QJsonDocument::fromJson(file.readAll()).object();
+            file.close();
+        } else
+        {
+            ObjectError err("Unable to read master template file", static_cast<int>(ObjectErrorCode::ERROR_READ_FILE));
+            err.raise();
+        }
+    }
+    else
+    {
+        ObjectError err("No master template file found", static_cast<int>(ObjectErrorCode::ERROR_NO_FILE));
+        err.raise();
+    }
+    return out;
+}
+
+void ImportSpecificationController::write(const QJsonObject &json, const QString &filename)
+{
+    QFile file(filename);
+    if(file.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text))
+    {
+        file.write(QJsonDocument(json).toJson());
         file.close();
     }
     else

@@ -126,6 +126,18 @@ void TemplateMappingModel::enableEditing(bool enabled)
     impl->_editEnabled = enabled;
 }
 
+bool TemplateMappingModel::isEditingEnabled() const
+{
+    return impl->_editEnabled;
+}
+
+void TemplateMappingModel::clear()
+{
+    beginResetModel();
+    impl->_map.clear();
+    endResetModel();
+}
+
 //Delegate
 
 TemplateMappingDelegate::TemplateMappingDelegate(QObject *parent) : QItemDelegate(parent)
