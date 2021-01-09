@@ -126,6 +126,7 @@ public:
             }
             case ItemAction::SAVE:
             {
+                _model->enableEditing(false);
                 int idx = ui->cboTemplate->currentData().toInt();
                 if(idx != -1 && idx >= 0 && idx < _specs.length())
                 {
