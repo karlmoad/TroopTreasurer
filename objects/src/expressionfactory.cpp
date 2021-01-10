@@ -44,7 +44,7 @@ Expression *ExpressionFactory::CreateValueOfExpression(QVariant value)
     return new ValueOf(value);
 }
 
-Expression *ExpressionFactory::CompileExpression(const QString &buffer, const QList<QString>& sourceColumns)
+Expression *ExpressionFactory::CompileExpression(const QString &buffer)
 {
     enum State{Normal, Scope};
 
@@ -94,7 +94,6 @@ Expression *ExpressionFactory::CompileExpression(const QString &buffer, const QL
                 }
                 else
                 {
-
                     //enqueue each of the params for next cycle
                     for (int x = 0; x < seps.size(); x++)
                     {
@@ -117,7 +116,7 @@ Expression *ExpressionFactory::CompileExpression(const QString &buffer, const QL
             Expression *funcRef = ExpressionFactory::FindExpression(func, argz);
             while(!paramBuffer.isEmpty())
             {
-                Expression* ref = ExpressionFactory::CompileExpression(paramBuffer.dequeue(), sourceColumns);
+                Expression* ref = ExpressionFactory::CompileExpression(paramBuffer.dequeue());
                 Argument *arg = new Argument(ref);
                 funcRef->addArgument(arg);
             }
@@ -125,12 +124,9 @@ Expression *ExpressionFactory::CompileExpression(const QString &buffer, const QL
         }
         else if(c=='@')
         {
-            QString field = buffer.mid(1);
-            int idx = -1;
-            if(sourceColumns.contains(field))
-            {
-                idx = sourceColumns.indexOf(field,0);
-            }
+            bool ok;
+            int idx = buffer.mid(1).trimmed().toInt(&ok,10);
+            if(!ok) idx = -1;
             return ExpressionFactory::CreateRecordValueExpression(idx);
         }
         else if(c=='\'')

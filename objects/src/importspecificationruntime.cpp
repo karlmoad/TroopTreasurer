@@ -3,35 +3,68 @@
 class ImportSpecificationRuntime::ImportSpecificationRuntimeImpl
 {
 public:
-    explicit ImportSpecificationRuntimeImpl(const ImportSpecification &spec,
-                                            const QList<QString> &sourceColumns)
-    {
-        _sourceColumns = sourceColumns;
-        processSpec(spec);
-    }
+    explicit ImportSpecificationRuntimeImpl(const ImportSpecification &spec): _spec(spec)
+    {}
 
     ~ImportSpecificationRuntimeImpl()
     {
         qDeleteAll(_map);
     }
 
-    QMap<QString,QVariant> process(const QList<QString> &record)
+    bool compile()
     {
-        QMap<QString, QVariant> out;
+        bool compiled = false;
+        try
+        {
+            processSpec(_spec);
+            compiled = true;
+        }
+        catch(ObjectError err)
+        {
+            compiled= false;
+            err.raise();
+        }
 
+        return compiled;
+    }
+
+    void setModel(QAbstractTableModel *model)
+    {
+        _model = model;
+        _columnCount = _model->columnCount();
+        _rowCount = _model->rowCount();
+    }
+
+    QJsonObject process(int row)
+    {
+        QJsonObject out;
+        QList<QString> record;
+
+        //get record from model
+        for(int i=0;i<_columnCount;i++)
+        {
+            QModelIndex idx = _model->index(row, i);
+            record.append(_model->data(idx).toString());
+        }
+
+        //process against expressions to produce output
         for(QString key : _map.keys())
         {
-            out[key] = _map[key]->execute(record);
+            out[key] = _map[key]->execute(record).toJsonValue();
         }
         return out;
     }
 
 private:
 
+    ImportSpecification _spec;
     QList<QString> _sourceColumns;
     QMap<QString,Expression*> _map;
     bool _errorState;
     QString _errorStr;
+    QAbstractTableModel *_model;
+    int _columnCount;
+    int _rowCount;
 
     const QRegularExpression functionRe = QRegularExpression("(?<=\\$)([A-Za-z0-9]*)(?=\\(.*\\))");
     const QRegularExpression fieldRe = QRegularExpression("(?<=\\@\\()([A-Za-z0-9\\s]*)(?=\\))");
@@ -49,7 +82,7 @@ private:
     {
         try
         {
-            Expression *e = ExpressionFactory::CompileExpression(op, _sourceColumns);
+            Expression *e = ExpressionFactory::CompileExpression(op);
             if (e != nullptr)
             {
                 this->_map[key] = e;
@@ -57,20 +90,29 @@ private:
         }
         catch(ObjectError ex)
         {
-            qDebug() << "Error Compiling Expression for Key: " << key;
-            throw ex;
+            ObjectError err(QString("Error compiling expression for key: [%1], %2").arg(key,ex.what()),ex.errorCode());
+            err.raise();
         }
     }
 };
 
-ImportSpecificationRuntime::ImportSpecificationRuntime(const ImportSpecification &spec,
-                                                       const QList<QString> &sourceColumns): impl(new ImportSpecificationRuntimeImpl(spec,sourceColumns))
+ImportSpecificationRuntime::ImportSpecificationRuntime(const ImportSpecification& spec): impl(new ImportSpecificationRuntimeImpl(spec))
 {}
 
 ImportSpecificationRuntime::~ImportSpecificationRuntime()
 {}
 
-QMap<QString, QVariant> ImportSpecificationRuntime::process(const QList<QString> &record)
+bool ImportSpecificationRuntime::compile()
 {
-    return impl->process(record);
+    return impl->compile();
+}
+
+void ImportSpecificationRuntime::setModel(QAbstractTableModel *model)
+{
+    impl->setModel(model);
+}
+
+QJsonObject ImportSpecificationRuntime::process(int row)
+{
+    return impl->process(row);
 }

@@ -16,7 +16,7 @@
 class ExpressionFactory
 {
 public:
-    static Expression* CompileExpression(const QString& expression, const QList<QString>& sourceColumns);
+    static Expression* CompileExpression(const QString& expression);
 
 private:
     const static QMap<QString,int> _funcMap;
