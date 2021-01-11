@@ -1,4 +1,5 @@
 #include "objects/importspecificationruntime.h"
+#include <QDebug>
 
 class ImportSpecificationRuntime::ImportSpecificationRuntimeImpl
 {

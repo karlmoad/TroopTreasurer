@@ -55,6 +55,7 @@ public:
         }
         _output->setHeaderMap(headers);
 
+        runtime.compile();
         runtime.setModel(_input);
 
         QList<QJsonObject> results;
