@@ -26,6 +26,7 @@ public:
     QList<QString> getFields() const;
     QString getFieldExpression(const QString& id) const;
     void setField(const QString& id, const QString& expression);
+    void clearFields();
     void removeField(const QString& id);
     QJsonObject toJson() const;
 

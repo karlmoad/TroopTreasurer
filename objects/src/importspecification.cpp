@@ -47,6 +47,11 @@ public:
         _spec["map"] = map;
     }
 
+    void clearFields()
+    {
+        _spec["map"] = QJsonObject();
+    }
+
     void remMapFieldExpression(const QString& name)
     {
         QJsonObject map = _spec["map"].toObject();
@@ -139,6 +144,11 @@ ImportSpecification ImportSpecification::initializeNew(const QString &name, cons
     }
 
     return spec;
+}
+
+void ImportSpecification::clearFields()
+{
+    impl->clearFields();
 }
 
 QList<ImportSpecification> ImportSpecificationController::Load(const QString &filename)

@@ -13,6 +13,10 @@ public:
 
     bool compile()
     {
+        //remove any previous mappings
+        qDeleteAll(_map);
+        _map.clear();
+
         bool compiled = false;
         try
         {

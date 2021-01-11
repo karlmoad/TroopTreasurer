@@ -218,6 +218,38 @@ public:
         file.close();
     }
 
+    void validateTemplate()
+    {
+        int idx = ui->cboTemplate->currentData().toInt();
+        //sync current spec back to spec list;
+
+        if (_specs.length() > 0 && idx != -1 && idx >= 0 && idx < _specs.length())
+        {
+            QMap<QString, QString> map = _model->getMap();
+            ImportSpecification spec = _specs.at(idx);
+            spec.clearFields();
+            for (QString key: map.keys())
+            {
+                spec.setField(key, map[key]);
+            }
+
+            ImportSpecificationRuntime *runtime = new ImportSpecificationRuntime(spec);
+            try
+            {
+                if(runtime->compile())
+                    QMessageBox::information(_panel, "Success", "Template compilation success", QMessageBox::Ok);
+                else
+                    QMessageBox::critical(_panel, "Error", "Unable to compile template");
+            }
+            catch(ObjectError err)
+            {
+                QMessageBox::critical(_panel, "Error Unable to compile", err.what());
+            }
+            delete runtime;
+        }
+
+    }
+
 private:
     ImportTemplatePanel *_panel;
     Ui::ImportTemplatePanel *ui;
@@ -227,7 +259,6 @@ private:
     CSVModel *_sample;
     TemplateMappingDelegate *_delegate;
     ItemState _currentState;
-
     int _currentSpec;
 
     void(ImportTemplatePanel::*_notifyItemStateFunc)(ItemState) = nullptr;
@@ -349,7 +380,7 @@ void ImportTemplatePanel::actionTestHandler()
 
 void ImportTemplatePanel::actionValidateHandler()
 {
-
+    impl->validateTemplate();
 }
 
 QString ImportTemplatePanel::panelName() const
