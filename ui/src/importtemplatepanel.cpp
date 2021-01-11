@@ -125,7 +125,6 @@ public:
                 delete dialog;
                 if(r == QDialog::Accepted)
                 {
-                    qDebug() << "Name: " << name << " Target: " << target.getName();
                     newTemplate(name,target);
                 }
                 break;
@@ -152,6 +151,7 @@ public:
                 {
                     QMap<QString, QString> map = _model->getMap();
                     ImportSpecification spec = _specs.at(idx);
+                    spec.clearFields();
                     for (QString key: map.keys())
                     {
                         spec.setField(key, map[key]);
@@ -269,6 +269,7 @@ public:
 
             ImportTemplateTestDialog *dialog = new ImportTemplateTestDialog(_sample, &spec, _panel);
             dialog->setModal(true);
+            dialog->load();
             dialog->exec();
         }
         else

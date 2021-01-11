@@ -46,6 +46,15 @@ public:
         _ui->tableData->setModel(_input);
 
         ImportSpecificationRuntime runtime(*_spec);
+        QList<QString> fields = _spec->getFields();
+
+        QMap<QString, QString> headers;
+        for(QString field: fields)
+        {
+            headers[field]=field;
+        }
+        _output->setHeaderMap(headers);
+
         runtime.setModel(_input);
 
         QList<QJsonObject> results;
