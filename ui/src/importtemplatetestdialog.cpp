@@ -12,8 +12,9 @@
 class ImportTemplateTestDialog::ImportTemplateTestDialogImpl
 {
 public:
-    ImportTemplateTestDialogImpl(ImportTemplateTestDialog *dialog): _dialog(dialog), _spec(nullptr)
+    ImportTemplateTestDialogImpl(ImportTemplateTestDialog *dialog): _dialog(dialog), _spec(nullptr), _ui(new Ui::importtemplatetestdialog)
     {
+        _ui->setupUi(_dialog);
         _output = new JsonTableModel(_dialog);
         _ui->tableResults->setModel(_output);
     }
@@ -72,7 +73,7 @@ ImportTemplateTestDialog::ImportTemplateTestDialog(QAbstractTableModel *model, I
     impl->setSpec(spec);
 }
 
-ImportTemplateTestDialog::ImportTemplateTestDialog(QWidget *parent): QWidget(parent), impl(new ImportTemplateTestDialogImpl(this)){}
+ImportTemplateTestDialog::ImportTemplateTestDialog(QWidget *parent): QDialog(parent), impl(new ImportTemplateTestDialogImpl(this)){}
 
 ImportTemplateTestDialog::~ImportTemplateTestDialog(){}
 

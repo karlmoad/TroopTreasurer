@@ -10,7 +10,7 @@
 #include <QAbstractTableModel>
 #include "objects/importspecification.h"
 
-class ImportTemplateTestDialog : public QWidget
+class ImportTemplateTestDialog : public QDialog
 {
 Q_OBJECT
 

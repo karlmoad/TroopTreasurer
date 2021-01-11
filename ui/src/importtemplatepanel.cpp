@@ -267,11 +267,9 @@ public:
                 spec.setField(key, map[key]);
             }
 
-            ImportTemplateTestDialog *testDialog = new ImportTemplateTestDialog(_sample, &spec, nullptr);
-            testDialog->setWindowModality(Qt::WindowModal);
-            testDialog->show();
-
-            delete testDialog;
+            ImportTemplateTestDialog *dialog = new ImportTemplateTestDialog(_sample, &spec, _panel);
+            dialog->setModal(true);
+            dialog->exec();
         }
         else
         {
@@ -404,7 +402,7 @@ ItemState ImportTemplatePanel::getCurrentState() const
 
 void ImportTemplatePanel::actionTestHandler()
 {
-
+    impl->testSpecification();
 }
 
 void ImportTemplatePanel::actionValidateHandler()
