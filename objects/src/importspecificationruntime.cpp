@@ -42,19 +42,21 @@ public:
     QJsonObject process(int row)
     {
         QJsonObject out;
-        QList<QString> record;
-
-        //get record from model
-        for(int i=0;i<_columnCount;i++)
+        if(row < _model->rowCount())
         {
-            QModelIndex idx = _model->index(row, i);
-            record.append(_model->data(idx).toString());
-        }
+            QList<QString> record;
+            //get record from model
+            for (int i = 0; i < _columnCount; i++)
+            {
+                QModelIndex idx = _model->index(row, i);
+                record.append(_model->data(idx).toString());
+            }
 
-        //process against expressions to produce output
-        for(QString key : _map.keys())
-        {
-            out[key] = _map[key]->execute(record).toJsonValue();
+            //process against expressions to produce output
+            for (QString key : _map.keys())
+            {
+                out[key] = _map[key]->execute(record).toJsonValue();
+            }
         }
         return out;
     }

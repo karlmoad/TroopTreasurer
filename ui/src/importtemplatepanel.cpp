@@ -12,7 +12,7 @@
 #include "ui_importtemplatepanel.h"
 #include "ui/applicationconstants.h"
 #include "ui/newimporttemplatedialog.h"
-#include "ui/panelfactory.h"
+#include "ui/importtemplatetestdialog.h"
 #include "ui/panelactions.h"
 #include <QDebug>
 
@@ -233,10 +233,10 @@ public:
                 spec.setField(key, map[key]);
             }
 
-            ImportSpecificationRuntime *runtime = new ImportSpecificationRuntime(spec);
+            ImportSpecificationRuntime runtime(spec);
             try
             {
-                if(runtime->compile())
+                if(runtime.compile())
                     QMessageBox::information(_panel, "Success", "Template compilation success", QMessageBox::Ok);
                 else
                     QMessageBox::critical(_panel, "Error", "Unable to compile template");
@@ -245,9 +245,38 @@ public:
             {
                 QMessageBox::critical(_panel, "Error Unable to compile", err.what());
             }
-            delete runtime;
         }
+        else
+        {
+            QMessageBox::information(_panel, "Success", "A template must be selected first", QMessageBox::Ok);
+        }
+    }
 
+    void testSpecification()
+    {
+        int idx = ui->cboTemplate->currentData().toInt();
+        //sync current spec back to spec list;
+
+        if (_specs.length() > 0 && idx != -1 && idx >= 0 && idx < _specs.length())
+        {
+            QMap<QString, QString> map = _model->getMap();
+            ImportSpecification spec = _specs.at(idx);
+            spec.clearFields();
+            for (QString key: map.keys())
+            {
+                spec.setField(key, map[key]);
+            }
+
+            ImportTemplateTestDialog *testDialog = new ImportTemplateTestDialog(_sample, &spec, nullptr);
+            testDialog->setWindowModality(Qt::WindowModal);
+            testDialog->show();
+
+            delete testDialog;
+        }
+        else
+        {
+            QMessageBox::information(_panel, "Success", "A template must be selected first", QMessageBox::Ok);
+        }
     }
 
 private:

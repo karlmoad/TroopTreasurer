@@ -5,26 +5,28 @@
 #ifndef TROOPTREASURER_IMPORTTEMPLATETESTDIALOG_H
 #define TROOPTREASURER_IMPORTTEMPLATETESTDIALOG_H
 
-#include <QWidget>
+#include <QtWidgets>
+#include <memory>
+#include <QAbstractTableModel>
+#include "objects/importspecification.h"
 
-QT_BEGIN_NAMESPACE
-namespace Ui
-{
-    class importtemplatetestdialog;
-}
-QT_END_NAMESPACE
-
-class importtemplatetestdialog : public QWidget
+class ImportTemplateTestDialog : public QWidget
 {
 Q_OBJECT
 
 public:
-    explicit importtemplatetestdialog(QWidget *parent = nullptr);
+    explicit ImportTemplateTestDialog(QAbstractTableModel *model, ImportSpecification *spec, QWidget *parent=nullptr);
+    explicit ImportTemplateTestDialog(QWidget *parent = nullptr);
+    ~ImportTemplateTestDialog() override;
 
-    ~importtemplatetestdialog() override;
+    void setModel(QAbstractTableModel *model);
+    void setSpecification(ImportSpecification *spec);
+
+    void load();
 
 private:
-    Ui::importtemplatetestdialog *ui;
+    class ImportTemplateTestDialogImpl;
+    std::shared_ptr<ImportTemplateTestDialogImpl> impl;
 };
 
 #endif //TROOPTREASURER_IMPORTTEMPLATETESTDIALOG_H
