@@ -24,6 +24,7 @@ public:
         ui->setupUi(window);
         window->setUnifiedTitleAndToolBarOnMac(true);
         loadSettings();
+        window->setWindowTitle("Troop Treasurer");
     }
 
     ~MainWindowImpl()
@@ -191,21 +192,33 @@ private:
 
     void initNewPanel(Panel panel)
     {
-        PanelWindow *p = PanelFactory::CreateNewPanel(panel,window);
-        int tabidx = ui->tabMain->addTab(p,p->panelName());
-
-        //add panel to index
-        if(panel2Index.contains(panel))
+        bool exists = panel2Index.contains(panel);
+        if(!exists || (exists && PanelFactory::PanelSupportsMultipleInstances(panel)))
         {
-            panel2Index[panel].append(tabidx);
+            PanelWindow *p = PanelFactory::CreateNewPanel(panel, window);
+            int tabidx = ui->tabMain->addTab(p, p->panelName());
+
+            //add panel to index
+            if (panel2Index.contains(panel))
+            {
+                panel2Index[panel].append(tabidx);
+            } else
+            {
+                panel2Index.insert(panel, QList<int>({tabidx}));
+            }
+            registerPanel(p, tabidx);
+            ui->tabMain->setCurrentIndex(tabidx);
+            activatePanel(p, tabidx);
         }
         else
         {
-            panel2Index.insert(panel, QList<int>({tabidx}));
+            if(exists)
+            {
+                //if a panel oif this type exists but a multiples are not allowed set focus to the first item
+                //index in the panel registry
+                ui->tabMain->setCurrentIndex(panel2Index[panel][0]);
+            }
         }
-        registerPanel(p,tabidx);
-        ui->tabMain->setCurrentIndex(tabidx);
-        activatePanel(p,tabidx);
     }
 
     void activatePanel(PanelWindow *panel, int index)
