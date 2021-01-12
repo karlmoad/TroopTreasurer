@@ -1,7 +1,7 @@
 #include "ui/importdatadialog.h"
 #include "ui_importdatadialog.h"
 #include "objects/importspecification.h"
-#include "objects/importspecificationruntime.h"
+#include "objects/dataimportcontroller.h"
 #include "objects/schema.h"
 #include "objects/utility.h"
 #include "objects/csvmodel.h"
@@ -59,6 +59,35 @@ public:
         _schemas = Schema::load(":/resources/files/schema.json");
     }
 
+    void progressNotification(int index, QJsonObject data)
+    {
+        if(data.contains("stage"))
+        {
+            if(data["stage"].toString().compare("initialization")==0 || data["stage"].toString().compare("truncate")==0)
+            {
+                QMessageBox::critical(_dialog, "Error", data["message"].toString());
+            }
+            else
+            {
+                if(data.contains("status") && !data["status"].toBool(false))
+                {
+                    _messages.append(data);
+                }
+            }
+        }
+        _ui->barProgress->setValue(index+1);
+    }
+
+    void completionNotification(int processed, int successful, int duplicates, int errors)
+    {
+        _ui->barProgress->setValue(_ui->barProgress->maximum());
+        _ui->listReport->addItem(QString("Processed: %1").arg(QString::number(processed)));
+        _ui->listReport->addItem(QString("Successful: %1").arg(QString::number(processed)));
+        _ui->listReport->addItem(QString("Duplicates: %1").arg(QString::number(processed)));
+        _ui->listReport->addItem(QString("Errors: %1").arg(QString::number(processed)));
+        _ui->lblProgress->setText("Completed");
+    }
+
     void initStartState()
     {
         _ui->paneStack->setCurrentIndex(0);
@@ -67,7 +96,7 @@ public:
         _ui->chkDupCheck->setEnabled(false);
         _ui->chkTruncate->setEnabled(false);
         _ui->barProgress->setMinimum(0);
-        _ui->barProgress->setMinimum(10);
+        _ui->barProgress->setMaximum(10);
         _ui->barProgress->setValue(0);
         _ui->lblProgress->setText("Preparing...");
     }
@@ -82,6 +111,8 @@ public:
         }
         _input->load(&file, ',', true);
         file.close();
+
+        _ui->barProgress->setMaximum(_input->rowCount(QModelIndex()));
 
         initTemplates();
         initSchemas();
@@ -119,7 +150,44 @@ public:
 
     void execute()
     {
-        qDebug() << "Get ready for a surprise";
+        //clear out old processing messages
+        _messages.clear();
+
+        ImportSpecification spec = _specs.at(_currentSpec);
+        Schema schema = _schemas[_currentSchema];
+
+        bool trunc = _ui->chkTruncate->checkState() == Qt::Checked;
+        bool dups = _ui->chkDupCheck->checkState() == Qt::Checked;
+
+        if(trunc)
+        {
+            QMessageBox::StandardButton resp = QMessageBox::question(_dialog, "Confirm",
+                                                                     "Are you sure you wish to truncate existing data?");
+            if(resp == QMessageBox::No)
+            {
+                trunc = false;
+            }
+
+        }
+
+        try
+        {
+            auto controller = std::shared_ptr<DataImportController>(DataImportController::Builder().setSchema(schema)
+                    .setSpecification(&spec)
+                    .setModel(_input)
+                    .setOptionTruncate(trunc)
+                    .setOptionDuplicateCheck(dups)
+                    .build());
+
+            connect(controller.get(), &DataImportController::notifyProgress, _dialog , &ImportDataDialog::progressNotificationHandler);
+            connect(controller.get(), &DataImportController::notifyCompletion, _dialog, &ImportDataDialog::completionNotificationHandler);
+
+            controller->start();
+        }
+        catch(ObjectError err)
+        {
+            QMessageBox::critical(_dialog, "Error", "Error unable to process file: " + QString(err.what()));
+        }
     }
 
     void evaluateTemplateAndSchema(int index)
@@ -156,6 +224,8 @@ public:
                         }
                         else
                         {
+                            _currentSpec = idx;
+                            _currentSchema = schema.getName();
                             _ui->btnNext->setEnabled(true);
                             _ui->chkTruncate->setEnabled(schema.isTruncateSupported());
                             _ui->chkDupCheck->setEnabled(schema.isDupCheckSupported());
@@ -172,6 +242,9 @@ private:
     CSVModel *_input;
     QList<ImportSpecification> _specs;
     QMap<QString, Schema> _schemas;
+    QList<QJsonObject> _messages;
+    int _currentSpec;
+    QString _currentSchema;
 };
 
 ImportDataDialog::ImportDataDialog(const QString& filename, QWidget *parent) :
@@ -207,4 +280,14 @@ void ImportDataDialog::cancelHandler()
 void ImportDataDialog::templateSelected(int index)
 {
     impl->evaluateTemplateAndSchema(index);
+}
+
+void ImportDataDialog::progressNotificationHandler(int index, QJsonObject data)
+{
+    impl->progressNotification(index,data);
+}
+
+void ImportDataDialog::completionNotificationHandler(int processed, int successful, int duplicates, int errors)
+{
+    impl->completionNotification(processed, successful, duplicates, errors);
 }

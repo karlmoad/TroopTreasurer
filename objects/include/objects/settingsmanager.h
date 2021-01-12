@@ -19,20 +19,24 @@
 #include <QFile>
 #include <QDir>
 #include <QString>
-
+#include <QSqlDatabase>
+#include <QSqlError>
 
 class SettingsManager
 {
 public:
     SettingsManager(const QString& settingPath,const QString& settingsFile,const QString& configMetaPath);
     ~SettingsManager();
-    static SettingsManager *getInstance();
-    static SettingsManager *initialize(const QString& settingPath,const QString& settingsFile,const QString& configMetaPath);
-    static void free();
     QJsonObject getConfigurationSectionMetadata(const QString& key);
     QJsonObject getSettingsSegment(QString const &key);
     void setSettingsSegment(QJsonObject data, const QString& key);
     bool saveSettings(QString *message);
+    bool initializeDatabaseConnection();
+
+public:
+    static SettingsManager *getInstance();
+    static SettingsManager *initialize(const QString& settingPath,const QString& settingsFile,const QString& configMetaPath);
+    static void free();
 
 private:
     class SettingsManagerImpl;

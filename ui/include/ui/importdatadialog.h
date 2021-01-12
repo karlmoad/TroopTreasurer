@@ -18,6 +18,8 @@ public slots:
     void executeHandler();
     void cancelHandler();
     void templateSelected(int index);
+    void progressNotificationHandler(int index, QJsonObject data);
+    void completionNotificationHandler(int processed, int successful, int duplicates, int errors);
 
 private:
     class ImportDataDialogImpl;

@@ -18,7 +18,9 @@ set(SOURCES settingsmanager.cpp
             importspecificationruntime.cpp
             datatablemodel.cpp
             schema.cpp
-            jsontablemodel.cpp)
+            jsontablemodel.cpp
+            dataimportcontroller.cpp
+            datatype.cpp)
 
 set(HEADERS settingsmanager.h
             objecterror.h
@@ -37,14 +39,16 @@ set(HEADERS settingsmanager.h
             importspecificationruntime.h
             datatablemodel.h
             schema.h
-            jsontablemodel.h)
+            jsontablemodel.h
+            dataimportcontroller.h
+            datatype.h)
 
 format_source_paths("/src" SOURCES)
 format_source_paths("/include/objects" HEADERS)
 
-find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Core Widgets Sql Network REQUIRED)
 
 add_library(objects)
 target_sources(objects PRIVATE ${SOURCES} PUBLIC ${HEADERS})
 target_include_directories(objects PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src)
-target_link_libraries(objects Qt5::Core Qt5::Widgets keymanager)
+target_link_libraries(objects Qt5::Core Qt5::Widgets Qt5::Sql Qt5::Network keymanager)

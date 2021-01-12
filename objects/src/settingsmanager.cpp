@@ -147,6 +147,40 @@ public:
         return QJsonObject();
     }
 
+    bool initDB()
+    {
+        QJsonObject settings = getSettingsSegment("database");
+        if(settings.isEmpty()) return false;
+
+        QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL","DATABASE");
+        db.setDatabaseName(settings["schema"].toString(""));
+        db.setHostName(settings["host"].toString(""));
+        db.setPort(settings["port"].toInt(3306));
+        db.setUserName(settings["user"].toString(""));
+        db.setPassword(settings["password"].toString(""));
+        QString opts;
+        opts.append(QString("SSL_CA=%1;").arg(settings["ca_crt"].toString("")));
+        opts.append(QString("SSL_CERT=%1;").arg(settings["svr_crt"].toString("")));
+        opts.append(QString("SSL_KEY=%1;").arg(settings["svr_key"].toString("")));
+        db.setConnectOptions(opts);
+
+        if(!db.open())
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    void closeDB()
+    {
+        QSqlDatabase db = QSqlDatabase::database("DATABASE");
+        if(db.open())
+        {
+            db.close();
+        }
+    }
+
 private:
     QJsonObject _configMeta;
     QJsonObject _settings;
@@ -180,6 +214,7 @@ SettingsManager *SettingsManager::initialize(const QString& settingPath,const QS
 
 void SettingsManager::free()
 {
+    _instance->impl->closeDB();
     delete SettingsManager::_instance;
 }
 
@@ -201,6 +236,11 @@ void SettingsManager::setSettingsSegment(QJsonObject data, const QString &key)
 bool SettingsManager::saveSettings(QString *message)
 {
     return impl->save(message);
+}
+
+bool SettingsManager::initializeDatabaseConnection()
+{
+    return impl->initDB();
 }
 
 

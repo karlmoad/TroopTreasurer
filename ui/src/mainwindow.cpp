@@ -25,6 +25,7 @@ public:
         ui->setupUi(window);
         window->setUnifiedTitleAndToolBarOnMac(true);
         loadSettings();
+        initDatabase();
         window->setWindowTitle("Troop Treasurer");
     }
 
@@ -185,6 +186,14 @@ private:
     void loadSettings()
     {
         settingsManager = SettingsManager::initialize(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation),APP::ApplicationSettingsFile,APP::ApplicationConfigMetadataFile);
+    }
+
+    void initDatabase()
+    {
+        if(!settingsManager->initializeDatabaseConnection())
+        {
+            QMessageBox::critical(window, "Database Error", "Database could not be opened");
+        }
     }
 
     void OpenImportTemplateEditorPanel()
