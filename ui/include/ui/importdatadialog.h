@@ -9,7 +9,7 @@ class ImportDataDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ImportDataDialog(QWidget *parent = nullptr);
+    explicit ImportDataDialog(const QString& filename, QWidget *parent = nullptr);
     ~ImportDataDialog();
 
 public slots:
@@ -17,6 +17,7 @@ public slots:
     void nextHandler();
     void executeHandler();
     void cancelHandler();
+    void templateSelected(int index);
 
 private:
     class ImportDataDialogImpl;

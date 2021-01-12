@@ -117,9 +117,14 @@ private:
         mnuFileImportSubmenu->addAction(actImportEditTemplates);
         mnuFileImportSubmenu->addAction(actImportData);
         connect(actImportData, &QAction::triggered, [this](){
-            ImportDataDialog *importDialog = new ImportDataDialog(window);
-            importDialog->setModal(true);
-            importDialog->exec();
+            QStringList paths = QStandardPaths::standardLocations(QStandardPaths::DownloadLocation);
+            QString filename = QFileDialog::getOpenFileName(window,tr("Import CSV file"), (paths.size() > 0 ? paths[0]: ""),tr("Comma Separated Values File (*.csv);;All Files (*)"));
+            if(!filename.isEmpty())
+            {
+                ImportDataDialog *importDialog = new ImportDataDialog(filename, window);
+                importDialog->setModal(true);
+                importDialog->exec();
+            }
         });
 
         actSettings = new QAction("Settings",window);
