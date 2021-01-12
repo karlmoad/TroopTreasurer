@@ -135,12 +135,14 @@ public:
             }
             case 1:
             {
+                _ui->lblProgress->setText("Preparing...");
                 _ui->btnNext->setEnabled(false);
                 _ui->btnRun->setEnabled(true);
                 break;
             }
             default:
             {
+                _ui->lblProgress->setText("Ready.");
                 _ui->btnNext->setEnabled(false);
                 _ui->btnRun->setEnabled(false);
                 break;
@@ -156,7 +158,8 @@ public:
     void execute()
     {
         _ui->btnRun->setEnabled(false);
-        _ui->lblProgress->setText("Running...");
+        _ui->btnCancel->setEnabled(false);
+        _ui->lblProgress->setText("Executing ...");
         //clear out old processing messages
         _messages.clear();
 
@@ -172,7 +175,9 @@ public:
                                                                      "Are you sure you wish to truncate existing data?");
             if(resp == QMessageBox::No)
             {
-                trunc = false;
+                _ui->btnCancel->setEnabled(true);
+                _ui->paneStack->setCurrentIndex(0);
+                return;
             }
 
         }
@@ -198,8 +203,10 @@ public:
             QMessageBox::critical(_dialog, "Error", "Error unable to process file: " + QString(err.what()));
         }
 
+
         if(controller != nullptr)
         {
+            _ui->lblProgress->setText("Running...");
             connect(controller, &DataImportController::notifyProgress, _dialog,
                     &ImportDataDialog::progressNotificationHandler);
             connect(controller, &DataImportController::notifyCompletion, _dialog,
