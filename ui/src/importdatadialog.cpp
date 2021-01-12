@@ -84,8 +84,6 @@ public:
     void completionNotification(int processed, int successful, int duplicates, int errors)
     {
         _ui->barProgress->setValue(_ui->barProgress->maximum());
-
-
         _ui->listReport->addItem(new QListWidgetItem(QIcon(":/resources/information.png"),QString("Processed: %1").arg(QString::number(processed))));
         _ui->listReport->addItem(new QListWidgetItem(QIcon(":/resources/star.png"),QString("Successful: %1").arg(QString::number(successful))));
         _ui->listReport->addItem(new QListWidgetItem(QIcon(":/resources/error.png"),QString("Duplicates: %1").arg(QString::number(duplicates))));
