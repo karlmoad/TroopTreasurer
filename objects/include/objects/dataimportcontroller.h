@@ -19,12 +19,15 @@ public:
     DataImportController(DataImportController&&) = delete;
     DataImportController& operator=(const DataImportController&) = delete;
     DataImportController& operator=(DataImportController&&) = delete;
+    enum class State{RUNNING, STOPPED, FINISHED};
 
+public slots:
     void start();
 
 signals:
     void notifyProgress(int idx, const QJsonObject& data);
     void notifyCompletion(int processed, int successful, int duplicates, int errors);
+    void finished();
 
 public:
     class Builder
@@ -36,7 +39,7 @@ public:
         Builder(Builder&&) = delete;
         Builder& operator=(const Builder&) = delete;
         Builder& operator=(Builder&&) = delete;
-
+        Builder& setDatabaseSettings(const QJsonObject& settings);
         Builder& setModel(QAbstractTableModel *input);
         Builder& setSpecification(ImportSpecification *spec);
         Builder& setSchema(const Schema& schema);

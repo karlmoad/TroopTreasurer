@@ -5,9 +5,12 @@
 #include "objects/schema.h"
 #include "objects/utility.h"
 #include "objects/csvmodel.h"
+#include "objects/settingsmanager.h"
 #include "ui/applicationconstants.h"
+#include "ui/applicationsettings.h"
 #include <QDebug>
 #include <QMessageBox>
+#include <QThread>
 
 class ImportDataDialog::ImportDataDialogImpl
 {
@@ -82,9 +85,9 @@ public:
     {
         _ui->barProgress->setValue(_ui->barProgress->maximum());
         _ui->listReport->addItem(QString("Processed: %1").arg(QString::number(processed)));
-        _ui->listReport->addItem(QString("Successful: %1").arg(QString::number(processed)));
-        _ui->listReport->addItem(QString("Duplicates: %1").arg(QString::number(processed)));
-        _ui->listReport->addItem(QString("Errors: %1").arg(QString::number(processed)));
+        _ui->listReport->addItem(QString("Successful: %1").arg(QString::number(successful)));
+        _ui->listReport->addItem(QString("Duplicates: %1").arg(QString::number(duplicates)));
+        _ui->listReport->addItem(QString("Errors: %1").arg(QString::number(errors)));
         _ui->lblProgress->setText("Completed");
     }
 
@@ -150,6 +153,7 @@ public:
 
     void execute()
     {
+        _ui->btnRun->setEnabled(false);
         //clear out old processing messages
         _messages.clear();
 
@@ -170,9 +174,13 @@ public:
 
         }
 
+        QJsonObject dbSettings = SettingsManager::getInstance()->getSettingsSegment(ApplicationSettingsUtility::ApplicationSettingTypeToString(ApplicationSettingsType::DATABASE));
+
         try
         {
-            auto controller = std::shared_ptr<DataImportController>(DataImportController::Builder().setSchema(schema)
+            auto controller = std::shared_ptr<DataImportController>(DataImportController::Builder()
+                    .setSchema(schema)
+                    .setDatabaseSettings(dbSettings)
                     .setSpecification(&spec)
                     .setModel(_input)
                     .setOptionTruncate(trunc)
@@ -181,8 +189,18 @@ public:
 
             connect(controller.get(), &DataImportController::notifyProgress, _dialog , &ImportDataDialog::progressNotificationHandler);
             connect(controller.get(), &DataImportController::notifyCompletion, _dialog, &ImportDataDialog::completionNotificationHandler);
+            connect(controller.get(), &DataImportController::finished, [this](){
+                _ui->btnCancel->setEnabled(true);
+            });
 
-            controller->start();
+            //setup thread worker
+            QThread *thread = new QThread();
+            controller->moveToThread(thread);
+            connect(thread, &QThread::started, controller.get(), &DataImportController::start);
+            connect(controller.get(), &DataImportController::finished, thread, &QThread::quit);
+            //connect(controller.get(), &DataImportController::finished, controller.get(), &DataImportController::deleteLater);
+            connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+            thread->start();
         }
         catch(ObjectError err)
         {

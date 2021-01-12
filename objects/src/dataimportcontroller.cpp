@@ -10,6 +10,7 @@
 #include <QSqlField>
 #include <QSqlRecord>
 #include <QSqlResult>
+#include <QCoreApplication>
 
 class DataImportController::DataImportControllerImpl
 {
@@ -48,6 +49,12 @@ public:
         _trunc = option;
     }
 
+    void setDatabaseSettings(const QJsonObject& settings)
+    {
+        _dbSettings = settings;
+    }
+
+
     void prep()
     {
         _runtime = new ImportSpecificationRuntime(*_spec);
@@ -62,10 +69,33 @@ public:
         int processed = 0;
         int success = 0;
 
+        QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL","IMPORTTHREAD");
+        db.setDatabaseName(_dbSettings["schema"].toString(""));
+        db.setHostName(_dbSettings["host"].toString(""));
+        db.setPort(_dbSettings["port"].toInt(3306));
+        db.setUserName(_dbSettings["user"].toString(""));
+        db.setPassword(_dbSettings["password"].toString(""));
+        QString opts;
+        opts.append(QString("SSL_CA=%1;").arg(_dbSettings["ca_crt"].toString("")));
+        opts.append(QString("SSL_CERT=%1;").arg(_dbSettings["svr_crt"].toString("")));
+        opts.append(QString("SSL_KEY=%1;").arg(_dbSettings["svr_key"].toString("")));
+        db.setConnectOptions(opts);
+
+        if(!db.open())
+        {
+            QJsonObject msg;
+            msg["stage"] = "initialization";
+            msg["message"] = "database connection not established: " + db.lastError().text();
+            msg["status"] = false;
+            emit _controller->notifyProgress(-1,msg);
+            emit _controller->notifyCompletion(0,0,0,0);
+            emit _controller->finished();
+            return;
+        }
+
         int rowCount = _input->rowCount();
         if(rowCount > 0) // if row count is 0 not much value doing anything else
         {
-            QSqlDatabase db = QSqlDatabase::database("DATABASE", true);
             if (!db.isValid())
             {
                 ObjectError err("Unable to acquire database connection",
@@ -130,6 +160,9 @@ public:
             }
             emit _controller->notifyCompletion(processed,success,dups,errors);
         }
+        db.close();
+        QSqlDatabase::removeDatabase("IMPORTTHREAD");
+        emit _controller->finished();
     }
 
 private:
@@ -277,6 +310,7 @@ private:
     ImportSpecification *_spec;
     Schema _schema;
     QAbstractTableModel *_input;
+    QJsonObject _dbSettings;
     bool _dup;
     bool _trunc;
 };
@@ -329,4 +363,10 @@ DataImportController *DataImportController::Builder::build()
 {
     _instance->impl->prep();
     return _instance;
+}
+
+DataImportController::Builder &DataImportController::Builder::setDatabaseSettings(const QJsonObject &settings)
+{
+    _instance->impl->setDatabaseSettings(settings);
+    return *this;
 }
