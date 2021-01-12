@@ -175,36 +175,45 @@ public:
         }
 
         QJsonObject dbSettings = SettingsManager::getInstance()->getSettingsSegment(ApplicationSettingsUtility::ApplicationSettingTypeToString(ApplicationSettingsType::DATABASE));
+        DataImportController *controller= nullptr;
 
         try
         {
-            auto controller = std::shared_ptr<DataImportController>(DataImportController::Builder()
+            controller = DataImportController::Builder()
                     .setSchema(schema)
                     .setDatabaseSettings(dbSettings)
                     .setSpecification(&spec)
                     .setModel(_input)
                     .setOptionTruncate(trunc)
                     .setOptionDuplicateCheck(dups)
-                    .build());
+                    .build();
 
-            connect(controller.get(), &DataImportController::notifyProgress, _dialog , &ImportDataDialog::progressNotificationHandler);
-            connect(controller.get(), &DataImportController::notifyCompletion, _dialog, &ImportDataDialog::completionNotificationHandler);
-            connect(controller.get(), &DataImportController::finished, [this](){
+
+        }
+        catch(ObjectError err)
+        {
+            QMessageBox::critical(_dialog, "Error", "Error unable to process file: " + QString(err.what()));
+        }
+
+        if(controller != nullptr)
+        {
+            connect(controller, &DataImportController::notifyProgress, _dialog,
+                    &ImportDataDialog::progressNotificationHandler);
+            connect(controller, &DataImportController::notifyCompletion, _dialog,
+                    &ImportDataDialog::completionNotificationHandler);
+            connect(controller, &DataImportController::finished, [this]()
+            {
                 _ui->btnCancel->setEnabled(true);
             });
 
             //setup thread worker
             QThread *thread = new QThread();
             controller->moveToThread(thread);
-            connect(thread, &QThread::started, controller.get(), &DataImportController::start);
-            connect(controller.get(), &DataImportController::finished, thread, &QThread::quit);
-            //connect(controller.get(), &DataImportController::finished, controller.get(), &DataImportController::deleteLater);
+            connect(thread, &QThread::started, controller, &DataImportController::start);
+            connect(controller, &DataImportController::finished, thread, &QThread::quit);
+            connect(controller, &DataImportController::finished, controller, &DataImportController::deleteLater);
             connect(thread, &QThread::finished, thread, &QThread::deleteLater);
             thread->start();
-        }
-        catch(ObjectError err)
-        {
-            QMessageBox::critical(_dialog, "Error", "Error unable to process file: " + QString(err.what()));
         }
     }
 
