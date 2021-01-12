@@ -13,6 +13,7 @@
 #include "ui/panelactions.h"
 #include "ui/applicationsettingsdialog.h"
 #include "ui/applicationconstants.h"
+#include "ui/importdatadialog.h"
 #include "objects/settingsmanager.h"
 #include "objects/objecterror.h"
 
@@ -115,6 +116,11 @@ private:
         actImportData->setStatusTip("Import a data file");
         mnuFileImportSubmenu->addAction(actImportEditTemplates);
         mnuFileImportSubmenu->addAction(actImportData);
+        connect(actImportData, &QAction::triggered, [this](){
+            ImportDataDialog *importDialog = new ImportDataDialog(window);
+            importDialog->setModal(true);
+            importDialog->exec();
+        });
 
         actSettings = new QAction("Settings",window);
         mnuFile->addAction(actSettings);
