@@ -20,7 +20,8 @@ set(SOURCES settingsmanager.cpp
             schema.cpp
             jsontablemodel.cpp
             dataimportcontroller.cpp
-            datatype.cpp)
+            datatype.cpp
+            payment.cpp)
 
 set(HEADERS settingsmanager.h
             objecterror.h
@@ -41,7 +42,10 @@ set(HEADERS settingsmanager.h
             schema.h
             jsontablemodel.h
             dataimportcontroller.h
-            datatype.h)
+            datatype.h
+            transactions.h
+            payment.h
+            dates.h)
 
 format_source_paths("/src" SOURCES)
 format_source_paths("/include/objects" HEADERS)
