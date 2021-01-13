@@ -29,6 +29,8 @@ enum class Panel
 {
     UNDEFINED=0,
     IMPORT_TEMPLATE_EDITOR=1,
+    PAYMENTS=2,
+    DEPOSITS=3,
 };
 
 class PanelWindow: public QWidget

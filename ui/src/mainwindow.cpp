@@ -89,6 +89,8 @@ private:
     {
         mnuFile = window->menuBar()->addMenu("&File");
         mnuEdit = window->menuBar()->addMenu("&Edit");
+        mnuAccounts = window->menuBar()->addMenu("Accounts");
+        mnuFunds = window->menuBar()->addMenu("Bank");
 
         //File menu
         mnuFileOpenSubmenu = mnuFile->addMenu("Open");
@@ -110,7 +112,7 @@ private:
         actImportEditTemplates = new QAction("Edit Templates", this->window);
         actImportEditTemplates->setStatusTip("Edit a data import template");
         connect(actImportEditTemplates, &QAction::triggered, [this](){
-            OpenImportTemplateEditorPanel();
+            initNewPanel(Panel::IMPORT_TEMPLATE_EDITOR);
         });
 
         actImportData = new QAction("Import Data", window);
@@ -163,6 +165,18 @@ private:
             emit window->ContextItemActionTriggered(ItemAction::DELETE);
         });
 
+        //Bank menu
+        actPayments = new QAction("Payments",window);
+        actPayments->setStatusTip("Manage payments");
+        mnuFunds->addAction(actPayments);
+        connect(actPayments, &QAction::triggered, [this](){
+            initNewPanel(Panel::PAYMENTS);
+        });
+
+        actDeposits = new QAction("Deposits",window);
+        actDeposits->setStatusTip("Manage deposits");
+        mnuFunds->addAction(actDeposits);
+
         //wire panels container control events
         connect(ui->tabMain, &QTabWidget::currentChanged, window, &MainWindow::ActivePanelChanged);
         connect(ui->tabMain, &QTabWidget::tabCloseRequested, window, &MainWindow::PanelCloseHandler);
@@ -194,11 +208,6 @@ private:
         {
             QMessageBox::critical(window, "Database Error", "Database could not be opened");
         }
-    }
-
-    void OpenImportTemplateEditorPanel()
-    {
-        initNewPanel(Panel::IMPORT_TEMPLATE_EDITOR);
     }
 
     PanelActions* getPanelActions(Panel panel)
@@ -292,6 +301,8 @@ private:
     QMenu *mnuFile;
     QMenu *mnuAbout;
     QMenu *mnuEdit;
+    QMenu *mnuAccounts;
+    QMenu *mnuFunds;
     QMenu *mnuFileOpenSubmenu;
     QMenu *mnuFileImportSubmenu;
     QAction *actSave;
@@ -305,6 +316,8 @@ private:
     QAction *actAddItem;
     QAction *actDeleteItem;
     QAction *actSep;
+    QAction *actPayments;
+    QAction *actDeposits;
     QAction *actFundsManagement;
     QMap<Panel, QList<int>> panel2Index;
     QMap<int, PanelWindow*> index2Panel;

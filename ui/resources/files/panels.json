@@ -9,6 +9,24 @@
         {"id": 2, "icon": ":/resources/page_white_gear.png", "title": "Validate Template", "menu": true, "toolbar": true},
         {"id": 3, "icon": ":/resources/bug.png", "title": "Test Template", "menu": true, "toolbar": true}
       ]
+    },
+    { "id": 2,
+      "toolbar": true,
+      "menu": true,
+      "display": "Payments",
+      "items":[
+        {"id": 1, "icon": ":/resources/accept.png", "title": "Finalize payment", "menu": true, "toolbar": true}
+      ]
+    },
+    { "id": 3,
+      "toolbar": true,
+      "menu": true,
+      "display": "Deposits",
+      "items":[
+        {"id": 1, "icon": ":/resources/add.png", "title": "Create Deposit", "menu": true, "toolbar": true},
+        {"id": 2, "icon": ":/resources/printer.png", "title": "Generate deposit slip", "menu": true, "toolbar": true},
+        {"id": 3, "icon": ":/resources/accept.png", "title": "Finalize deposit", "menu": true, "toolbar": true}
+      ]
     }
   ]
 }

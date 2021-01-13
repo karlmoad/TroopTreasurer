@@ -4,6 +4,7 @@
 
 #include "ui/panelfactory.h"
 #include "ui/importtemplatepanel.h"
+#include "ui/paymentspanel.h"
 
 bool PanelFactory::PanelSupportsMultipleInstances(Panel panel)
 {
@@ -18,10 +19,10 @@ PanelWindow *PanelFactory::CreateNewPanel(Panel panel, QWidget *parent)
 {
     switch(panel)
     {
-        case Panel::UNDEFINED:
-            return nullptr;
         case Panel::IMPORT_TEMPLATE_EDITOR:
             return (PanelWindow*)new ImportTemplatePanel(parent);
+        case Panel::PAYMENTS:
+            return (PanelWindow*)new PaymentsPanel(parent);
         default:
             return nullptr;
     }
