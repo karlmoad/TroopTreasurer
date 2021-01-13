@@ -2,6 +2,7 @@
 #define IMPORTDATADIALOG_H
 
 #include <QDialog>
+#include <QPoint>
 #include <memory>
 
 class ImportDataDialog : public QDialog
@@ -20,6 +21,7 @@ public slots:
     void templateSelected(int index);
     void progressNotificationHandler(int index, QJsonObject data);
     void completionNotificationHandler(int processed, int successful, int duplicates, int errors);
+    void showDetailResults();
 
 private:
     class ImportDataDialogImpl;

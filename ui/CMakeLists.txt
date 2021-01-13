@@ -17,7 +17,8 @@ set(SOURCES mainwindow.cpp mainwindow.ui
             importtemplatetestdialog.cpp importtemplatetestdialog.ui
             newimporttemplatedialog.cpp newimporttemplatedialog.ui
             panelactions.cpp
-            importdatadialog.cpp importdatadialog.ui)
+            importdatadialog.cpp importdatadialog.ui
+            informationtabledialog.cpp informationtabledialog.ui)
 
 set(HEADERS mainwindow.h
         panelwindow.h
@@ -33,7 +34,8 @@ set(HEADERS mainwindow.h
         importtemplatetestdialog.h
         newimporttemplatedialog.h
         panelactions.h
-        importdatadialog.h)
+        importdatadialog.h
+        informationtabledialog.h)
 
 format_source_paths("/src" SOURCES)
 format_source_paths("/include/ui" HEADERS)

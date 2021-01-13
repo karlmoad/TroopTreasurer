@@ -8,9 +8,11 @@
 #include "objects/settingsmanager.h"
 #include "ui/applicationconstants.h"
 #include "ui/applicationsettings.h"
+#include "ui/informationtabledialog.h"
 #include <QDebug>
 #include <QMessageBox>
 #include <QThread>
+#include <QMenu>
 
 class ImportDataDialog::ImportDataDialogImpl
 {
@@ -19,12 +21,14 @@ public:
     {
         _ui->setupUi(_dialog);
         _input = new CSVModel(_dialog);
+        initStartState();
         connect(_ui->btnCancel, &QPushButton::clicked, _dialog,  &ImportDataDialog::cancelHandler);
         connect(_ui->btnNext, &QPushButton::clicked, _dialog, &ImportDataDialog::nextHandler);
         connect(_ui->btnRun, &QPushButton::clicked, _dialog, &ImportDataDialog::executeHandler);
         connect(_ui->paneStack,&QStackedWidget::currentChanged, _dialog, &ImportDataDialog::activePaneChangedHandler);
         connect(_ui->cboTemplate, qOverload<int>(&QComboBox::currentIndexChanged), _dialog, &ImportDataDialog::templateSelected);
-        initStartState();
+        connect(_ui->btnDetails,&QPushButton::clicked ,_dialog, &ImportDataDialog::showDetailResults);
+
     }
 
     ~ImportDataDialogImpl()
@@ -84,6 +88,7 @@ public:
     void completionNotification(int processed, int successful, int duplicates, int errors)
     {
         _ui->barProgress->setValue(_ui->barProgress->maximum());
+        _ui->btnDetails->setEnabled(true);
         _ui->listReport->addItem(new QListWidgetItem(QIcon(":/resources/information.png"),QString("Processed: %1").arg(QString::number(processed))));
         _ui->listReport->addItem(new QListWidgetItem(QIcon(":/resources/star.png"),QString("Successful: %1").arg(QString::number(successful))));
         _ui->listReport->addItem(new QListWidgetItem(QIcon(":/resources/error.png"),QString("Duplicates: %1").arg(QString::number(duplicates))));
@@ -102,6 +107,7 @@ public:
         _ui->barProgress->setMaximum(10);
         _ui->barProgress->setValue(0);
         _ui->lblProgress->setText("Preparing...");
+        _ui->btnDetails->setEnabled(false);
     }
 
     void setInputData(const QString& filename)
@@ -225,6 +231,23 @@ public:
         }
     }
 
+    void showDetailResults()
+    {
+        QMap<QString,QString> headers;
+        headers.insert("Stage","stage");
+        headers.insert("Status","status");
+        headers.insert("Record","record");
+        headers.insert("Message", "message");
+        headers.insert("Statement","statement");
+
+        InformationTableDialog *infodialog = new InformationTableDialog(_dialog);
+        infodialog->setDialogTitle("Data Import Results");
+        infodialog->setHeaderMap(headers);
+        infodialog->setData(_messages);
+        infodialog->exec();
+    }
+
+
     void evaluateTemplateAndSchema(int index)
     {
         if(index  > 0)
@@ -325,4 +348,9 @@ void ImportDataDialog::progressNotificationHandler(int index, QJsonObject data)
 void ImportDataDialog::completionNotificationHandler(int processed, int successful, int duplicates, int errors)
 {
     impl->completionNotification(processed, successful, duplicates, errors);
+}
+
+void ImportDataDialog::showDetailResults()
+{
+    impl->showDetailResults();
 }
