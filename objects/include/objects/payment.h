@@ -32,11 +32,13 @@ namespace Transactions
         void setAmount(double value);
 
         TransactionTypes::Type method() const;
-
         void setMethod(TransactionTypes::Type type);
 
         QString referenceValue() const;
         void setReferenceValue(const QString &value);
+
+        QString comments() const;
+        void setComments(const QString& value);
 
         bool finalized() const;
         void setFinalized(bool value);
@@ -54,9 +56,9 @@ namespace Transactions
 
         const QJsonObject &json() const;
 
-        static Payment loadFromDatabaseRecord(const QSqlRecord &record, QObject *owner);
-
     private:
+        friend class PaymentsModel;
+        explicit Payment(const QSqlRecord &record, QObject *owner = nullptr);
         class PaymentImpl;
 
         std::shared_ptr<PaymentImpl> impl;

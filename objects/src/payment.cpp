@@ -27,6 +27,11 @@ public:
         this->_base = copy._base;
     }
 
+    explicit PaymentImpl(const QSqlRecord &record)
+    {
+        load(record);
+    }
+
     QJsonValue getValue(const QString& key)
     {
         if(_base.contains(key))
@@ -41,10 +46,7 @@ public:
         _base[key]=value;
     }
 
-    explicit PaymentImpl(const QSqlRecord &record)
-    {
-        load(record);
-    }
+
     ~PaymentImpl()=default;
 
     const QJsonObject& json()
@@ -77,6 +79,8 @@ Transactions::Payment::Payment(const Transactions::Payment &copy)
 {
     this->impl = std::shared_ptr<PaymentImpl>(new PaymentImpl(copy.impl->json()));
 }
+
+Transactions::Payment::Payment(const QSqlRecord &record, QObject *owner): QObject(owner), impl(new PaymentImpl(record)){}
 
 Transactions::Payment::~Payment(){}
 
@@ -190,7 +194,14 @@ const QJsonObject &Transactions::Payment::json() const
     return impl->json();
 }
 
-Transactions::Payment Transactions::Payment::loadFromDatabaseRecord(const QSqlRecord &record, QObject *owner)
+QString Transactions::Payment::comments() const
 {
-    return Transactions::Payment();
+    return impl->getValue("comments").toString();
 }
+
+void Transactions::Payment::setComments(const QString &value)
+{
+    impl->setValue("comments",value);
+}
+
+
