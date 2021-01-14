@@ -470,13 +470,12 @@ void Transactions::PaymentsProxyModel::setTransactionTypeFilter(Transactions::Tr
 
 bool Transactions::PaymentsProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
-    PaymentsModel *model = dynamic_cast<PaymentsModel*>(sourceModel());
-    if(model)
+    PaymentsModel *pmodel = dynamic_cast<PaymentsModel*>(sourceModel());
+    if(pmodel)
     {
+        QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
 
-
-        std::shared_ptr<Payment> rec = sourceModel()->index(source_row, 0, source_parent).data(
-                PaymentsModel::Roles::ObjectRole).value<int>();
+        std::shared_ptr<Payment> rec = pmodel->getPayment(index);
 
         if (impl->_filterType != TransactionTypes::Type::UNKNOWN && rec->method() != impl->_filterType)
         {
