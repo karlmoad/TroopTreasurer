@@ -20,9 +20,11 @@ set(SOURCES mainwindow.cpp mainwindow.ui
             importdatadialog.cpp importdatadialog.ui
             informationtabledialog.cpp informationtabledialog.ui
             paymentspanel.cpp paymentspanel.ui
-            depositspanel.cpp depositspanel.ui)
+            depositspanel.cpp depositspanel.ui
+            paymenteditdialog.cpp paymenteditdialog.ui)
 
-set(HEADERS mainwindow.h
+set(HEADERS ui.h
+        mainwindow.h
         panelwindow.h
         itemstate.h
         importtemplatepanel.h
@@ -39,7 +41,8 @@ set(HEADERS mainwindow.h
         importdatadialog.h
         informationtabledialog.h
         paymentspanel.h
-        depositspanel.h)
+        depositspanel.h
+        paymenteditdialog.h)
 
 format_source_paths("/src" SOURCES)
 format_source_paths("/include/ui" HEADERS)

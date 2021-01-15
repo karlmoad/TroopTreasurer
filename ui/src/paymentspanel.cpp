@@ -3,6 +3,7 @@
 #include "ui/panelactions.h"
 #include "objects/paymentsmodel.h"
 #include "objects/objecterror.h"
+#include "ui/paymenteditdialog.h"
 
 class PaymentsPanel::PaymentsPanelImpl
 {
@@ -45,6 +46,18 @@ public:
         {
             case ItemAction::ADD:
             {
+                Transactions::Payment p(_panel);
+                PaymentEditDialog *dialog = new PaymentEditDialog(_panel);
+                dialog->setModal(true);
+                dialog->setRecord(&p);
+                dialog->setAction(UI::Action::ADD);
+                int r = dialog->exec();
+
+                if(r == QDialog::Accepted)
+                {
+                    qDebug() << "Date: " << p.date() << " Amount: " << p.amount();
+                    //_model->addPayment(p);
+                }
                 break;
             }
             case ItemAction::EDIT:
