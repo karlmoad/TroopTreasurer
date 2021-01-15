@@ -140,9 +140,7 @@ Transactions::PaymentsModel::PaymentsModel(QObject *parent) : QAbstractTableMode
 {}
 
 Transactions::PaymentsModel::~PaymentsModel()
-{
-
-}
+{}
 
 int Transactions::PaymentsModel::rowCount(const QModelIndex &parent) const
 {
