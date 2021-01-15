@@ -2,6 +2,8 @@
 #define PAYMENTSPANEL_H
 
 #include <QWidget>
+#include <QItemSelectionModel>
+#include <QItemSelection>
 #include <memory>
 #include "itemstate.h"
 #include "panelwindow.h"
@@ -25,6 +27,8 @@ public:
     Q_SLOT void finalizeHandler();
 
     Q_SLOT void changeQueueDepthUpdateHandler(int count);
+
+    Q_SLOT void selectionChangedHandler(const QItemSelection &selected, const QItemSelection &deselected);
 
 public:
     explicit PaymentsPanel(QWidget *parent = nullptr);

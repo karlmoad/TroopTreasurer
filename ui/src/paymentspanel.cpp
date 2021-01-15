@@ -26,6 +26,7 @@ public:
         _proxy->setActiveStatusFilter(true);
 
         connect(_model, &Transactions::PaymentsModel::pendingRecordChangesNotification, _panel, &PaymentsPanel::changeQueueDepthUpdateHandler);
+        connect(_ui->tablePayments->selectionModel(), &QItemSelectionModel::selectionChanged, _panel, &PaymentsPanel::selectionChangedHandler);
 
         try
         {
@@ -64,6 +65,27 @@ public:
             }
             case ItemAction::EDIT:
             {
+                QModelIndexList selected = _ui->tablePayments->selectionModel()->selectedRows();
+                if(selected.count() == 1)
+                {
+                    QModelIndex idx = _proxy->mapToSource(selected.at(0));
+                    std::shared_ptr<Transactions::Payment> p = _model->getPayment(idx);
+                    if(p)
+                    {
+                        PaymentEditDialog *dialog = new PaymentEditDialog(_panel);
+                        dialog->setModal(true);
+                        dialog->setRecord(p.get());
+                        dialog->setAction(UI::Action::EDIT);
+                        int r = dialog->exec();
+                        delete dialog;
+
+                        if (r == QDialog::Accepted)
+                        {
+                            _model->updateRecord(idx);
+                        }
+                        _ui->tablePayments->selectionModel()->clear();
+                    }
+                }
                 break;
             }
             case ItemAction::SAVE:
@@ -121,6 +143,24 @@ public:
         }
     }
 
+    void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+    {
+        if(!selected.isEmpty())
+        {
+            ItemState state = currentState();
+            state.setEditEnabled(true);
+            state.setDeleteEnabled(true);
+            setCurrentState(state);
+        }
+        else
+        {
+            ItemState state = currentState();
+            state.setEditEnabled(false);
+            state.setDeleteEnabled(false);
+            setCurrentState(state);
+        }
+    }
+
 private:
     PaymentsPanel *_panel;
     Ui::PaymentsPanel *_ui;
@@ -171,4 +211,9 @@ void PaymentsPanel::finalizeHandler()
 void PaymentsPanel::changeQueueDepthUpdateHandler(int count)
 {
     impl->updateChangeQueueDepth(count);
+}
+
+void PaymentsPanel::selectionChangedHandler(const QItemSelection &selected, const QItemSelection &deselected)
+{
+    impl->selectionChanged(selected,deselected);
 }
