@@ -14,12 +14,10 @@
 namespace Transactions
 {
 
-    class Payment : public QObject
+    class Payment
     {
-    Q_OBJECT
     public:
-        explicit Payment(QObject *owner = nullptr);
-        explicit Payment(const Payment &copy);
+        Payment();
         virtual ~Payment();
 
         QString key() const;
@@ -58,7 +56,7 @@ namespace Transactions
     private:
         friend class PaymentsModel;
         void setKey(QString const &key);
-        explicit Payment(const QSqlRecord &record, QObject *owner = nullptr);
+        explicit Payment(const QSqlRecord &record);
         class PaymentImpl;
         std::shared_ptr<PaymentImpl> impl;
     };

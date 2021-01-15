@@ -24,6 +24,8 @@ public:
 
     Q_SLOT void finalizeHandler();
 
+    Q_SLOT void changeQueueDepthUpdateHandler(int count);
+
 public:
     explicit PaymentsPanel(QWidget *parent = nullptr);
     ~PaymentsPanel();

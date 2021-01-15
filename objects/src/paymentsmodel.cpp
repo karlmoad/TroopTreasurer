@@ -42,7 +42,7 @@ public:
 
         while(q.next())
         {
-            _payments.append(std::shared_ptr<Payment>(new Payment(q.record(), parent)));
+            _payments.append(std::shared_ptr<Payment>(new Payment(q.record())));
         }
     }
 

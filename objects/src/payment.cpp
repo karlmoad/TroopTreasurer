@@ -22,11 +22,6 @@ public:
         _base = json;
     }
 
-    explicit PaymentImpl(const PaymentImpl& copy)
-    {
-        this->_base = copy._base;
-    }
-
     explicit PaymentImpl(const QSqlRecord &record)
     {
         load(record);
@@ -73,14 +68,9 @@ private:
     }
 };
 
-Transactions::Payment::Payment(QObject *owner) : QObject(owner), impl(new PaymentImpl()){}
+Transactions::Payment::Payment() : impl(new PaymentImpl){}
 
-Transactions::Payment::Payment(const Transactions::Payment &copy)
-{
-    this->impl = std::shared_ptr<PaymentImpl>(new PaymentImpl(copy.impl->json()));
-}
-
-Transactions::Payment::Payment(const QSqlRecord &record, QObject *owner): QObject(owner), impl(new PaymentImpl(record)){}
+Transactions::Payment::Payment(const QSqlRecord &record): impl(new PaymentImpl(record)){}
 
 Transactions::Payment::~Payment(){}
 

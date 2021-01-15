@@ -46,17 +46,17 @@ public:
         {
             case ItemAction::ADD:
             {
-                Transactions::Payment p(_panel);
+                Transactions::Payment p;
                 PaymentEditDialog *dialog = new PaymentEditDialog(_panel);
                 dialog->setModal(true);
                 dialog->setRecord(&p);
                 dialog->setAction(UI::Action::ADD);
                 int r = dialog->exec();
+                delete dialog;
 
                 if(r == QDialog::Accepted)
                 {
-                    qDebug() << "Date: " << p.date() << " Amount: " << p.amount();
-                    //_model->addPayment(p);
+                    _model->addPayment(p);
                 }
                 break;
             }
@@ -82,6 +82,7 @@ public:
         if(active)
         {
             connect(actions->getAction(1), &QAction::triggered, _panel, &PaymentsPanel::finalizeHandler);
+            emit _panel->itemActionStateChange(_currentState);
         }
         else
         {
@@ -99,11 +100,23 @@ public:
         return _currentState;
     }
 
-
     void setCurrentState(ItemState state)
     {
         _currentState = state;
         emit _panel->itemActionStateChange(_currentState);
+    }
+
+    void updateChangeQueueDepth(int count)
+    {
+        if(count > 0)
+        {
+            _ui->lblAlerts->setText(
+                    QString("(%1) Unsaved Change%2").arg(QString::number(count), (count > 1 ? "s" : "")));
+        }
+        else
+        {
+            _ui->lblAlerts->setText("");
+        }
     }
 
 private:
@@ -151,4 +164,9 @@ void PaymentsPanel::itemActionHandler(ItemAction action)
 void PaymentsPanel::finalizeHandler()
 {
     impl->finalize();
+}
+
+void PaymentsPanel::changeQueueDepthUpdateHandler(int count)
+{
+    impl->updateChangeQueueDepth(count);
 }

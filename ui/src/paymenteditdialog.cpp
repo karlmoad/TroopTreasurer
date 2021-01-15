@@ -21,30 +21,11 @@ public:
     void init()
     {
         QMap<Transactions::TransactionTypes::Type, QString> types = Transactions::TransactionTypes::map();
-        int i=0, s=0;
         for(Transactions::TransactionTypes::Type type : types.keys())
         {
             _ui->ctrlMethod->addItem(types[type], Transactions::TransactionTypes::typeToInt(type));
-            if(_record && _action == UI::Action::EDIT)
-            {
-                if(_record->method() == type)
-                {
-                    s = i;
-                    break;
-                }
-            }
-            i++;
         }
-        _ui->ctrlMethod->setCurrentIndex(s);
-
-        _ui->ctrlDate->setDate((_action == UI::Action::EDIT ? _record->date() : QDate::currentDate()));
-        _ui->ctrlAmount->setValue((_action == UI::Action::EDIT ? _record->amount() : 0.0));
-        _ui->ctrlRef->setText((_action == UI::Action::EDIT ? _record->referenceValue() : ""));
-        _ui->ctrlWho->setText((_action == UI::Action::EDIT ? _record->who() : ""));
-        _ui->ctrlWhat->setText((_action == UI::Action::EDIT ? _record->what() : ""));
-        _ui->txtComments->setPlainText((_action == UI::Action::EDIT ? _record->comments() : ""));
-        _ui->optReconciled->setCheckState((_action == UI::Action::EDIT && _record->reconciled() ? Qt::Checked : Qt::Unchecked));
-        _ui->optFinalized->setCheckState((_action == UI::Action::EDIT && _record->finalized() ? Qt::Checked : Qt::Unchecked));
+        _ui->ctrlMethod->setCurrentIndex(0);
     }
 
     void setAction(UI::Action action)
@@ -55,6 +36,7 @@ public:
     void setRecord(Transactions::Payment *record)
     {
         _record = record;
+        loadRecord();
     }
 
     bool validateAndSync()
@@ -82,6 +64,7 @@ public:
             _record->setReferenceValue(_ui->ctrlRef->text());
             _record->setWho(_ui->ctrlWho->text());
             _record->setWhat(_ui->ctrlWhat->text());
+            _record->setComments(_ui->txtComments->toPlainText());
             _record->setReconciled(_ui->optReconciled->isChecked());
             _record->setFinalized(_ui->optFinalized->isChecked());
         }
@@ -90,6 +73,29 @@ public:
             QMessageBox::critical(_dialog, "Errors", msg);
         }
         return valid;
+    }
+
+    void loadRecord()
+    {
+        if(_record && _action == UI::Action::EDIT)
+        {
+            for(int i = 0; i<_ui->ctrlMethod->count(); i++)
+            {
+                if(static_cast<int>(_record->method()) == _ui->ctrlMethod->itemData(i).toInt())
+                {
+                    _ui->ctrlMethod->setCurrentIndex(1);
+                    break;
+                }
+            }
+        }
+        _ui->ctrlDate->setDate((_action == UI::Action::EDIT ? _record->date() : QDate::currentDate()));
+        _ui->ctrlAmount->setValue((_action == UI::Action::EDIT ? _record->amount() : 0.0));
+        _ui->ctrlRef->setText((_action == UI::Action::EDIT ? _record->referenceValue() : ""));
+        _ui->ctrlWho->setText((_action == UI::Action::EDIT ? _record->who() : ""));
+        _ui->ctrlWhat->setText((_action == UI::Action::EDIT ? _record->what() : ""));
+        _ui->txtComments->setPlainText((_action == UI::Action::EDIT ? _record->comments() : ""));
+        _ui->optReconciled->setCheckState((_action == UI::Action::EDIT && _record->reconciled() ? Qt::Checked : Qt::Unchecked));
+        _ui->optFinalized->setCheckState((_action == UI::Action::EDIT && _record->finalized() ? Qt::Checked : Qt::Unchecked));
     }
 
 private:
