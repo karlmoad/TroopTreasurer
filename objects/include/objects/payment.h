@@ -22,7 +22,6 @@ namespace Transactions
         explicit Payment(const Payment &copy);
         virtual ~Payment();
 
-        void setKey(QString const &key);
         QString key() const;
 
         QDate date() const;
@@ -58,9 +57,9 @@ namespace Transactions
 
     private:
         friend class PaymentsModel;
+        void setKey(QString const &key);
         explicit Payment(const QSqlRecord &record, QObject *owner = nullptr);
         class PaymentImpl;
-
         std::shared_ptr<PaymentImpl> impl;
     };
 }

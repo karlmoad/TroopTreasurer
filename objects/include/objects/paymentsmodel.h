@@ -33,7 +33,7 @@ namespace Transactions
         //Payments object functions
         void load(const QDate &begin = DateLimits::MinDate, const QDate &end = DateLimits::MaxDate);
         std::shared_ptr<Payment> getPayment(const QModelIndex& index);
-        void addPayment();
+        void addPayment(const Payment& payment);
         void updateRecord(const QModelIndex& index);
         void deleteRecord(const QModelIndex& index);
         QList<QString> save();

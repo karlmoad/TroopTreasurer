@@ -8,13 +8,13 @@
 #include <QSqlResult>
 #include "objects/change.h"
 #include "objects/changequeue.h"
+#include <QDebug>
 
 namespace Transactions
 {
     namespace PaymentsSql
     {
-        static const QString SelectStmt = QString("SELECT * FROM PAYMENTS ORDER BY PAYMENT_DATE") +
-                                          QString("WHERE PAYMENT_DATE >= '%1' AND PAYMENT_DATE <= '%2' ORDER BY PAYMENT_DATE");
+        static const QString SelectStmt = QString("SELECT * FROM PAYMENTS WHERE PAYMENT_DATE >= '%1' AND PAYMENT_DATE <= '%2' ORDER BY PAYMENT_DATE");
         static const QString DeleteStmt = QString("DELETE FROM PAYMENTS WHERE PAYMENT_KEY='%1'");
         static const QString UpdateStmt = QString("UPDATE PAYMENTS SET %1 WHERE PAYMENT_KEY='%2'");
         static const QString InsertStmt = QString("INSERT INTO PAYMENTS (%1) VALUES (%2)");
@@ -35,7 +35,7 @@ public:
         QString sql = Transactions::PaymentsSql::SelectStmt.arg(begin.toString(DateFormats::DATABASE_FORMAT), end.toString(DateFormats::DATABASE_FORMAT));
         if(!q.exec(sql))
         {
-            ObjectError err(q.lastError().text(), static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
+            ObjectError err(q.lastError().databaseText(), static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
             err.raise();
             return;
         }
@@ -390,11 +390,11 @@ std::shared_ptr<Transactions::Payment> Transactions::PaymentsModel::getPayment(c
     return nullptr;
 }
 
-void Transactions::PaymentsModel::addPayment()
+void Transactions::PaymentsModel::addPayment(const Payment& payment)
 {
     int idx = rowCount(QModelIndex());
     beginInsertRows(QModelIndex(),idx,idx);
-    std::shared_ptr<Payment> np = std::shared_ptr<Payment>(new Payment(this));
+    std::shared_ptr<Payment> np = std::shared_ptr<Payment>(new Payment(payment));
     impl->_payments.append(np);
     Change<std::shared_ptr<Payment>> c;
     c.setReference(idx);

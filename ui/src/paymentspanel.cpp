@@ -2,6 +2,7 @@
 #include "ui_paymentspanel.h"
 #include "ui/panelactions.h"
 #include "objects/paymentsmodel.h"
+#include "objects/objecterror.h"
 
 class PaymentsPanel::PaymentsPanelImpl
 {
@@ -22,7 +23,15 @@ public:
         _ui->tablePayments->setModel(_proxy);
         _proxy->setFinalizedStatusFilter(true);
         _proxy->setActiveStatusFilter(true);
-        _model->load(DateLimits::MinDate, DateLimits::MaxDate);
+
+        try
+        {
+            _model->load(DateLimits::MinDate, DateLimits::MaxDate);
+        }
+        catch(ObjectError err)
+        {
+            QMessageBox::critical(_panel, "Error", QString("An error has occurred: \n %1").arg(err.what()));
+        }
     }
 
     ~PaymentsPanelImpl()
