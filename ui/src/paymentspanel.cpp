@@ -25,6 +25,8 @@ public:
         _proxy->setFinalizedStatusFilter(true);
         _proxy->setActiveStatusFilter(true);
 
+        connect(_model, &Transactions::PaymentsModel::pendingRecordChangesNotification, _panel, &PaymentsPanel::changeQueueDepthUpdateHandler);
+
         try
         {
             _model->load(DateLimits::MinDate, DateLimits::MaxDate);
