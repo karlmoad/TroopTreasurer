@@ -136,7 +136,7 @@ public:
     ChangeQueue<std::shared_ptr<Payment>> _changes;
 };
 
-Transactions::PaymentsModel::PaymentsModel(QObject *parent) : QAbstractTableModel(parent), impl(new PaymentsModelImpl(this))
+Transactions::PaymentsModel::PaymentsModel(QObject *parent) : QAbstractTableModel(parent), impl(new PaymentsModelImpl)
 {}
 
 Transactions::PaymentsModel::~PaymentsModel()
@@ -382,6 +382,7 @@ QList<QString> Transactions::PaymentsModel::save()
         }
     }
     emit pendingRecordChangesNotification(impl->_changes.depth());
+    return log;
 }
 
 std::shared_ptr<Transactions::Payment> Transactions::PaymentsModel::getPayment(const QModelIndex &index)
