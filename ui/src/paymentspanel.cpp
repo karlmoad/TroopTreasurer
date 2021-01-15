@@ -1,6 +1,7 @@
 #include "ui/paymentspanel.h"
 #include "ui_paymentspanel.h"
 #include "ui/panelactions.h"
+#include "objects/paymentsmodel.h"
 
 class PaymentsPanel::PaymentsPanelImpl
 {
@@ -14,6 +15,14 @@ public:
         initial.setEditEnabled(false);
         initial.setAddEnabled(true);
         setCurrentState(initial);
+
+        _model = new Transactions::PaymentsModel(_panel);
+        _proxy = new Transactions::PaymentsProxyModel(_panel);
+        _proxy->setSourceModel(_model);
+        _ui->tablePayments->setModel(_proxy);
+        _proxy->setFinalizedStatusFilter(true);
+        _proxy->setActiveStatusFilter(true);
+        _model->load(DateLimits::MinDate, DateLimits::MaxDate);
     }
 
     ~PaymentsPanelImpl()
@@ -78,6 +87,8 @@ public:
 private:
     PaymentsPanel *_panel;
     Ui::PaymentsPanel *_ui;
+    Transactions::PaymentsModel *_model;
+    Transactions::PaymentsProxyModel *_proxy;
     ItemState _currentState;
 };
 
