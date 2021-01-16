@@ -55,13 +55,19 @@ bool ChangeQueue<T>::push(Change<T> change)
 template<class T>
 Change<T> ChangeQueue<T>::pop()
 {
-    if(_queue.empty())
+    QMutableListIterator<Change<T>> i(_queue);
+    if(i.hasNext())
+    {
+        Change<T> r = i.next();
+        i.remove();
+        return r;
+    }
+    else
     {
         Change<T> c;
         c.setReference(-1);
         return c;
     }
-    return _queue.takeAt(0);
 }
 
 template<class T>

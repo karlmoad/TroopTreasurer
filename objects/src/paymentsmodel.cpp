@@ -70,6 +70,7 @@ public:
         QString stmt = sql.arg(fields,buffer);
 
         QSqlDatabase db = QSqlDatabase::database("DATABASE");
+        if(!db.open()) return false;
         QSqlQuery insert(db);
         if(!insert.exec(stmt))
         {
@@ -109,6 +110,7 @@ public:
 
         QString stmt = PaymentsSql::UpdateStmt.arg(buffer, record.key());
         QSqlDatabase db = QSqlDatabase::database();
+        if(!db.open()) return false;
         QSqlQuery q(db);
         if(!q.exec(stmt))
         {
@@ -124,6 +126,7 @@ public:
     static bool deletePayment(const Payment &record)
     {
         QSqlDatabase db = QSqlDatabase::database("DATABASE");
+        if(!db.open()) return false;
         //make sure the record exists, if it doesnt add/update records could be in change queue only
         int existingCount = 0;
         QString existstmt = PaymentsSql::ExistsStmt.arg(record.key());
@@ -488,8 +491,6 @@ struct Transactions::PaymentsProxyModel::PaymentsProxyModelImpl
     bool _filterFinalized = false;
     bool _filterActive = false;
 };
-
-
 
 Transactions::PaymentsProxyModel::PaymentsProxyModel(QObject *parent) : QSortFilterProxyModel(parent), impl(new PaymentsProxyModelImpl){}
 
