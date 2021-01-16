@@ -28,13 +28,9 @@ public:
         _ui->ctrlMethod->setCurrentIndex(0);
     }
 
-    void setAction(UI::Action action)
+    void setRecord(Transactions::Payment *record, UI::Action action)
     {
         _action = action;
-    }
-
-    void setRecord(Transactions::Payment *record)
-    {
         _record = record;
         loadRecord();
     }
@@ -113,14 +109,9 @@ PaymentEditDialog::PaymentEditDialog(QWidget *parent) :
 PaymentEditDialog::~PaymentEditDialog()
 {}
 
-void PaymentEditDialog::setRecord(Transactions::Payment *payment)
+void PaymentEditDialog::setRecord(Transactions::Payment *payment, UI::Action action)
 {
-    impl->setRecord(payment);
-}
-
-void PaymentEditDialog::setAction(UI::Action action)
-{
-    impl->setAction(action);
+    impl->setRecord(payment, action);
 }
 
 void PaymentEditDialog::okHandler()

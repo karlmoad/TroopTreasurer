@@ -17,8 +17,8 @@ public:
     PaymentEditDialog& operator=(PaymentEditDialog&&) = delete;
     ~PaymentEditDialog();
 
-    void setRecord(Transactions::Payment *payment);
-    void setAction(UI::Action action = UI::Action::NONE);
+    void setRecord(Transactions::Payment *payment, UI::Action action = UI::Action::NONE);
+
 
 public slots:
     void okHandler();

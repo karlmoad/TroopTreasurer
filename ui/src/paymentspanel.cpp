@@ -4,6 +4,7 @@
 #include "objects/paymentsmodel.h"
 #include "objects/objecterror.h"
 #include "ui/paymenteditdialog.h"
+#include <QDebug>
 
 class PaymentsPanel::PaymentsPanelImpl
 {
@@ -52,8 +53,7 @@ public:
                 Transactions::Payment p;
                 PaymentEditDialog *dialog = new PaymentEditDialog(_panel);
                 dialog->setModal(true);
-                dialog->setRecord(&p);
-                dialog->setAction(UI::Action::ADD);
+                dialog->setRecord(&p, UI::Action::ADD);
                 int r = dialog->exec();
                 delete dialog;
 
@@ -72,10 +72,11 @@ public:
                     std::shared_ptr<Transactions::Payment> p = _model->getPayment(idx);
                     if(p)
                     {
+                        qDebug() << "Payment: " << p->key() << " Amount: " << p->amount();
+
                         PaymentEditDialog *dialog = new PaymentEditDialog(_panel);
                         dialog->setModal(true);
-                        dialog->setRecord(p.get());
-                        dialog->setAction(UI::Action::EDIT);
+                        dialog->setRecord(p.get(), UI::Action::EDIT);
                         int r = dialog->exec();
                         delete dialog;
 
@@ -83,7 +84,7 @@ public:
                         {
                             _model->updateRecord(idx);
                         }
-                        _ui->tablePayments->selectionModel()->clear();
+                        _ui->tablePayments->selectionModel()->clearSelection();
                     }
                 }
                 break;
@@ -215,5 +216,7 @@ void PaymentsPanel::changeQueueDepthUpdateHandler(int count)
 
 void PaymentsPanel::selectionChangedHandler(const QItemSelection &selected, const QItemSelection &deselected)
 {
+    qDebug() << "Selected: " << (selected.empty() ? -1 : selected.indexes()[0].row()) << " Deselected: " << (deselected.empty() ? -1 : deselected.indexes()[0].row());
+
     impl->selectionChanged(selected,deselected);
 }
