@@ -30,6 +30,11 @@ public:
 
     Q_SLOT void selectionChangedHandler(const QItemSelection &selected, const QItemSelection &deselected);
 
+    Q_SLOT void resetChangesHandler();
+
+    Q_SLOT void filterDatesHandler();
+
+
 public:
     explicit PaymentsPanel(QWidget *parent = nullptr);
     ~PaymentsPanel();

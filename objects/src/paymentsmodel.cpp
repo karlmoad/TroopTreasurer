@@ -31,6 +31,9 @@ public:
 
     void loadRecords(const QDate &begin, const QDate &end, QObject *parent= nullptr)
     {
+        _begin = begin;
+        _end = end;
+
         QSqlDatabase db = QSqlDatabase::database("DATABASE");
         QSqlQuery q(db);
 
@@ -161,6 +164,8 @@ public:
 
     QList<std::shared_ptr<Payment>> _payments;
     ChangeQueue<Payment> _changes;
+    QDate _begin;
+    QDate _end;
 };
 
 Transactions::PaymentsModel::PaymentsModel(QObject *parent) : QAbstractTableModel(parent), impl(new PaymentsModelImpl)
@@ -384,17 +389,17 @@ QList<QString> Transactions::PaymentsModel::save()
         {
             case Action::CREATE:
             {
-                qDebug() << "ADD Key: " << mod.object().key() << " Amount: " << mod.object().amount() << " What: " << mod.object().what();
-                //success = PaymentsModelImpl::insertPayment(mod.object(), log);
+                //qDebug() << "ADD Key: " << mod.object().key() << " Amount: " << mod.object().amount() << " What: " << mod.object().what();
+                success = PaymentsModelImpl::insertPayment(mod.object(), log);
                 break;
             }
             case Action::UPDATE:
             {
-                qDebug() << "Update Key: " << mod.object().key() << " Amount: " << mod.object().amount() << " What: " << mod.object().what();
-                //success = PaymentsModelImpl::updatePayment(mod.object(), log);
+                //qDebug() << "Update Key: " << mod.object().key() << " Amount: " << mod.object().amount() << " What: " << mod.object().what();
+                success = PaymentsModelImpl::updatePayment(mod.object(), log);
                 break;
             }
-            // modifying delete to be non queued modification, delete will be carried out directly on delete call.
+            // modifying delete to be non queued modification, delete will be carried out directly.
 //            case Action::DELETE:
 //            {
 //                qDebug() << "Delete Key: " << mod.object().key() << " Amount: " << mod.object().amount() << " What: " << mod.object().what();
@@ -466,6 +471,13 @@ void Transactions::PaymentsModel::deleteRecord(const QModelIndex &index)
             emit pendingRecordChangesNotification(impl->_changes.depth());
         }
     }
+}
+
+void Transactions::PaymentsModel::reset()
+{
+    impl->_changes.purge();
+    emit pendingRecordChangesNotification(impl->_changes.depth());
+    load(impl->_begin, impl->_end);
 }
 
 //sortfilterproxy

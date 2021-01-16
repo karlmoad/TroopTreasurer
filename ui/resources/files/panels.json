@@ -15,7 +15,9 @@
       "menu": true,
       "display": "Payments",
       "items":[
-        {"id": 1, "icon": ":/resources/accept.png", "title": "Finalize payment", "menu": true, "toolbar": true}
+        {"id": 1, "icon": ":/resources/accept.png", "title": "Finalize payment", "menu": true, "toolbar": true},
+        {"id": 2, "icon": ":/resources/calendar.png" , "title": "Filter dates", "menu": true, "toolbar": true},
+        {"id": 3, "icon": ":/resources/cancel.png" , "title": "Reset changes", "menu": false, "toolbar": true}
       ]
     },
     { "id": 3,

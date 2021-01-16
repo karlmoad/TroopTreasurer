@@ -134,17 +134,43 @@ public:
         if(active)
         {
             connect(actions->getAction(1), &QAction::triggered, _panel, &PaymentsPanel::finalizeHandler);
+            connect(actions->getAction(3), &QAction::triggered, _panel, &PaymentsPanel::resetChangesHandler);
+            connect(actions->getAction(2), &QAction::triggered, _panel, &PaymentsPanel::filterDatesHandler);
             emit _panel->itemActionStateChange(_currentState);
         }
         else
         {
-            disconnect(actions->getAction(1), nullptr,_panel, nullptr);
+            for(int i: actions->getActionIdentifiers())
+            {
+                disconnect(actions->getAction(i), nullptr, _panel, nullptr);
+            }
         }
     }
 
     void finalize()
     {
+        QModelIndexList selected = _ui->tablePayments->selectionModel()->selectedRows();
+        if(selected.count() == 1)
+        {
+            QModelIndex idx = _proxy->mapToSource(selected.at(0));
+            std::shared_ptr<Transactions::Payment> p = _model->getPayment(idx);
+            if(p)
+            {
+                p->setFinalized(true);
+                _model->updateRecord(idx);
+                _ui->tablePayments->selectionModel()->clearSelection();
+            }
+        }
+    }
 
+    void resetChanges()
+    {
+        _model->reset();
+    }
+
+    void filterDates()
+    {
+        qDebug() << "Filter";
     }
 
     ItemState currentState()
@@ -246,4 +272,14 @@ void PaymentsPanel::selectionChangedHandler(const QItemSelection &selected, cons
     qDebug() << "Selected: " << (selected.empty() ? -1 : selected.indexes()[0].row()) << " Deselected: " << (deselected.empty() ? -1 : deselected.indexes()[0].row());
 
     impl->selectionChanged(selected,deselected);
+}
+
+void PaymentsPanel::resetChangesHandler()
+{
+    impl->resetChanges();
+}
+
+void PaymentsPanel::filterDatesHandler()
+{
+    impl->filterDates();
 }
