@@ -8,6 +8,7 @@
 #include <QSqlResult>
 #include "objects/change.h"
 #include "objects/changequeue.h"
+#include "objects/objecterror.h"
 #include <QDebug>
 
 namespace Transactions
@@ -18,6 +19,7 @@ namespace Transactions
         static const QString DeleteStmt = QString("DELETE FROM PAYMENTS WHERE PAYMENT_KEY='%1'");
         static const QString UpdateStmt = QString("UPDATE PAYMENTS SET %1 WHERE PAYMENT_KEY='%2'");
         static const QString InsertStmt = QString("INSERT INTO PAYMENTS (%1) VALUES (%2)");
+        static const QString ExistsStmt = QString("SELECT COUNT(*) FROM PAYMENTS WHERE PAYMENT_KEY='%1'");
     }
 }
 
@@ -46,21 +48,21 @@ public:
         }
     }
 
-    static bool insertPayment(const std::shared_ptr<Payment>& payment, QList<QString> &log)
+    static bool insertPayment(const Payment& payment, QList<QString> &log)
     {
         QString sql = PaymentsSql::InsertStmt;
         QString fields = "PAYMENT_KEY,PAYMENT_DATE,AMOUNT,METHOD,REF_VALUE,COMMENTS,FINALIZED,FINALIZED_DATE,RECONCILED,WHO,WHAT";
-        QString buffer = QString("'%1'").arg(payment->key());
-        buffer.append(QString(",'%1'").arg(payment->date().toString(DateFormats::DATABASE_FORMAT)));
-        buffer.append(QString(",%1").arg(QString::number(payment->amount(),'f',2)));
-        buffer.append(QString(",%1").arg(QString::number(TransactionTypes::typeToInt(payment->method()))));
-        buffer.append(QString(",%1").arg((payment->referenceValue().trimmed().length() > 0 ? QString("'%1'").arg(payment->referenceValue().trimmed()) : "NULL")));
-        buffer.append(QString(",%1").arg((payment->comments().trimmed().length() > 0 ? QString("'%1'").arg(payment->comments().trimmed()) : "NULL")));
-        buffer.append(QString(",%1").arg(payment->finalized() ? "1" : "0"));
-        buffer.append(QString(",'%1'").arg(payment->finalizedDate().toString(DateFormats::DATABASE_FORMAT)));
-        buffer.append(QString(",%1").arg(payment->reconciled() ? "1" : "0"));
-        buffer.append(QString(",%1").arg((payment->who().trimmed().length() > 0 ? QString("'%1'").arg(payment->who().trimmed()) : "NULL")));
-        buffer.append(QString(",%1").arg((payment->what().trimmed().length() > 0 ? QString("'%1'").arg(payment->what().trimmed()) : "NULL")));
+        QString buffer = QString("'%1'").arg(payment.key());
+        buffer.append(QString(",'%1'").arg(payment.date().toString(DateFormats::DATABASE_FORMAT)));
+        buffer.append(QString(",%1").arg(QString::number(payment.amount(),'f',2)));
+        buffer.append(QString(",%1").arg(QString::number(TransactionTypes::typeToInt(payment.method()))));
+        buffer.append(QString(",%1").arg((payment.referenceValue().trimmed().length() > 0 ? QString("'%1'").arg(payment.referenceValue().trimmed()) : "NULL")));
+        buffer.append(QString(",%1").arg((payment.comments().trimmed().length() > 0 ? QString("'%1'").arg(payment.comments().trimmed()) : "NULL")));
+        buffer.append(QString(",%1").arg(payment.finalized() ? "1" : "0"));
+        buffer.append(QString(",'%1'").arg(payment.finalizedDate().toString(DateFormats::DATABASE_FORMAT)));
+        buffer.append(QString(",%1").arg(payment.reconciled() ? "1" : "0"));
+        buffer.append(QString(",%1").arg((payment.who().trimmed().length() > 0 ? QString("'%1'").arg(payment.who().trimmed()) : "NULL")));
+        buffer.append(QString(",%1").arg((payment.what().trimmed().length() > 0 ? QString("'%1'").arg(payment.what().trimmed()) : "NULL")));
 
         QString stmt = sql.arg(fields,buffer);
 
@@ -77,32 +79,32 @@ public:
         }
     }
 
-    static bool updatePayment(const std::shared_ptr<Payment> &record, QList<QString> &log)
+    static bool updatePayment(const Payment &record, QList<QString> &log)
     {
-        QString buffer = QString("REG_DATE = '%1'").arg(record->date().toString(DateFormats::DATABASE_FORMAT));
-        buffer.append(QString(",AMOUNT=%1").arg(QString::number(record->amount(),'f',2)));
-        buffer.append(QString(",PAY_METHOD=%1").arg(QString::number(TransactionTypes::typeToInt(record->method()))));
-        buffer.append(QString(",FINALIZED=%1").arg(record->finalized() ? "1" : "0"));
-        buffer.append(QString(",FINALIZED_DATE='%1'").arg(record->finalizedDate().toString(DateFormats::DATABASE_FORMAT)));
-        buffer.append(QString(",RECONCILED=%1").arg(record->reconciled() ? "1" : "0"));
-        if(record->referenceValue().trimmed().length() > 0)
+        QString buffer = QString("REG_DATE = '%1'").arg(record.date().toString(DateFormats::DATABASE_FORMAT));
+        buffer.append(QString(",AMOUNT=%1").arg(QString::number(record.amount(),'f',2)));
+        buffer.append(QString(",PAY_METHOD=%1").arg(QString::number(TransactionTypes::typeToInt(record.method()))));
+        buffer.append(QString(",FINALIZED=%1").arg(record.finalized() ? "1" : "0"));
+        buffer.append(QString(",FINALIZED_DATE='%1'").arg(record.finalizedDate().toString(DateFormats::DATABASE_FORMAT)));
+        buffer.append(QString(",RECONCILED=%1").arg(record.reconciled() ? "1" : "0"));
+        if(record.referenceValue().trimmed().length() > 0)
         {
-            buffer.append(QString(",REF_VALUE='%1'").arg(record->referenceValue().trimmed()));
+            buffer.append(QString(",REF_VALUE='%1'").arg(record.referenceValue().trimmed()));
         }
-        if(record->comments().trimmed().length() > 0)
+        if(record.comments().trimmed().length() > 0)
         {
-            buffer.append(QString(",COMMENTS='%1'").arg(record->comments().trimmed()));
+            buffer.append(QString(",COMMENTS='%1'").arg(record.comments().trimmed()));
         }
-        if(record->who().trimmed().length() > 0)
+        if(record.who().trimmed().length() > 0)
         {
-            buffer.append(QString(",WHO='%1'").arg(record->who().trimmed()));
+            buffer.append(QString(",WHO='%1'").arg(record.who().trimmed()));
         }
-        if(record->what().trimmed().length() > 0)
+        if(record.what().trimmed().length() > 0)
         {
-            buffer.append(QString(",WHAT='%1'").arg(record->what().trimmed()));
+            buffer.append(QString(",WHAT='%1'").arg(record.what().trimmed()));
         }
 
-        QString stmt = PaymentsSql::UpdateStmt.arg(buffer, record->key());
+        QString stmt = PaymentsSql::UpdateStmt.arg(buffer, record.key());
         QSqlDatabase db = QSqlDatabase::database();
         QSqlQuery q(db);
         if(!q.exec(stmt))
@@ -116,14 +118,39 @@ public:
         }
     }
 
-    static bool deletePayment(const std::shared_ptr<Payment> &record, QList<QString> &log)
+    static bool deletePayment(const Payment &record)
     {
-        QString stmt = PaymentsSql::DeleteStmt.arg(record->key());
         QSqlDatabase db = QSqlDatabase::database("DATABASE");
+        //make sure the record exists, if it doesnt add/update records could be in change queue only
+        int existingCount = 0;
+        QString existstmt = PaymentsSql::ExistsStmt.arg(record.key());
+        QSqlQuery exists(db);
+        if(!exists.exec(existstmt))
+        {
+            ObjectError err("Delete record failed: " + exists.lastError().text() + "- existing record check failure", static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
+            err.raise();
+            return false;
+        }
+
+        if(exists.first())
+        {
+            existingCount = exists.value(0).toInt();
+        }
+
+        if(existingCount == 0)
+        {
+            //if there is no record in the db it is essentially deleted,
+            //return true so that table and change queue are purged of prior records
+            return true;
+        }
+
+        QString stmt = PaymentsSql::DeleteStmt.arg(record.key());
+
         QSqlQuery del(db);
         if(!del.exec(stmt))
         {
-            log.append("Delete record failed: " + del.lastError().text() + "- SQL:" + stmt);
+            ObjectError err("Delete record failed: " + del.lastError().text() + "- SQL:" + stmt, static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
+            err.raise();
             return false;
         }
         else
@@ -133,7 +160,7 @@ public:
     }
 
     QList<std::shared_ptr<Payment>> _payments;
-    ChangeQueue<std::shared_ptr<Payment>> _changes;
+    ChangeQueue<Payment> _changes;
 };
 
 Transactions::PaymentsModel::PaymentsModel(QObject *parent) : QAbstractTableModel(parent), impl(new PaymentsModelImpl)
@@ -348,27 +375,32 @@ QList<QString> Transactions::PaymentsModel::save()
 {
     QList<QString> log;
     int depth = impl->_changes.depth();
+    qDebug() << "Saving....";
     for(int i =0; i<depth; i++)
     {
-        Change<std::shared_ptr<Payment>> mod = impl->_changes.popChange();
+        Change<Payment> mod = impl->_changes.pop();
         bool success = false;
         switch(mod.action())
         {
             case Action::CREATE:
             {
-                success = PaymentsModelImpl::insertPayment(mod.object(), log);
+                qDebug() << "ADD Key: " << mod.object().key() << " Amount: " << mod.object().amount() << " What: " << mod.object().what();
+                //success = PaymentsModelImpl::insertPayment(mod.object(), log);
                 break;
             }
             case Action::UPDATE:
             {
-                success = PaymentsModelImpl::updatePayment(mod.object(), log);
+                qDebug() << "Update Key: " << mod.object().key() << " Amount: " << mod.object().amount() << " What: " << mod.object().what();
+                //success = PaymentsModelImpl::updatePayment(mod.object(), log);
                 break;
             }
-            case Action::DELETE:
-            {
-                success = PaymentsModelImpl::deletePayment(mod.object(),log);
-                break;
-            }
+            // modifying delete to be non queued modification, delete will be carried out directly on delete call.
+//            case Action::DELETE:
+//            {
+//                qDebug() << "Delete Key: " << mod.object().key() << " Amount: " << mod.object().amount() << " What: " << mod.object().what();
+//                //success = PaymentsModelImpl::deletePayment(mod.object(),log);
+//                break;
+//            }
             default:
                 break;
         }
@@ -376,7 +408,7 @@ QList<QString> Transactions::PaymentsModel::save()
         //requeue error records
         if(!success)
         {
-            impl->_changes.pushChange(mod);
+            impl->_changes.push(mod);
         }
     }
     emit pendingRecordChangesNotification(impl->_changes.depth());
@@ -396,11 +428,11 @@ void Transactions::PaymentsModel::addPayment(const Payment& payment)
     beginInsertRows(QModelIndex(),idx,idx);
     std::shared_ptr<Payment> np = std::shared_ptr<Payment>(new Payment(payment));
     impl->_payments.append(np);
-    Change<std::shared_ptr<Payment>> c;
+    Change<Payment> c;
     c.setReference(idx);
-    c.setObject(np);
+    c.setObject(payment);
     c.setAction(Action::CREATE);
-    impl->_changes.pushChange(c);
+    impl->_changes.push(c);
     endInsertRows();
     emit pendingRecordChangesNotification(impl->_changes.depth());
 }
@@ -409,11 +441,11 @@ void Transactions::PaymentsModel::updateRecord(const QModelIndex &index)
 {
     if(index.row() < impl->_payments.count())
     {
-        Change<std::shared_ptr<Payment>> c;
+        Change<Payment> c;
         c.setAction(Action::UPDATE);
-        c.setObject(impl->_payments[index.row()]);
+        c.setObject(*(impl->_payments[index.row()].get()));
         c.setReference(index.row());
-        impl->_changes.pushChange(c);
+        impl->_changes.push(c);
         emit dataChanged(index,index);
         emit pendingRecordChangesNotification(impl->_changes.depth());
     }
@@ -423,14 +455,16 @@ void Transactions::PaymentsModel::deleteRecord(const QModelIndex &index)
 {
     if(index.row() < impl->_payments.count())
     {
-        beginRemoveRows(QModelIndex(), index.row(), index.row());
-        Change<std::shared_ptr<Payment>> c;
-        c.setAction(Action::DELETE);
-        c.setObject(impl->_payments.takeAt(index.row()));
-        c.setReference(index.row());
-        impl->_changes.pushChange(c);
-        endRemoveRows();
-        emit pendingRecordChangesNotification(impl->_changes.depth());
+        Payment p = *(impl->_payments.at(index.row()).get());
+        bool success = PaymentsModelImpl::deletePayment(p);
+        if(success)
+        {
+            impl->_changes.purgeRecordsFor(p);
+            beginRemoveRows(QModelIndex(), index.row(), index.row());
+            impl->_payments.removeAt(index.row());
+            endRemoveRows();
+            emit pendingRecordChangesNotification(impl->_changes.depth());
+        }
     }
 }
 

@@ -18,6 +18,10 @@ public:
     int reference() const;
     void setReference(int value);
 
+    bool operator==(const Change &rhs) const;
+
+    bool operator!=(const Change &rhs) const;
+
 private:
     Action _action;
     T _obj;
@@ -25,7 +29,7 @@ private:
 };
 
 template<class T>
-Change<T>::Change(): _action(Action::UNDEFINED), _obj(nullptr)
+Change<T>::Change(): _action(Action::UNDEFINED)
 {}
 
 template<class T>
@@ -73,6 +77,20 @@ template<class T>
 void Change<T>::setReference(int value)
 {
     _ref = value;
+}
+
+template<class T>
+bool Change<T>::operator==(const Change &rhs) const
+{
+    return _action == rhs._action &&
+           _obj == rhs._obj &&
+           _ref == rhs._ref;
+}
+
+template<class T>
+bool Change<T>::operator!=(const Change &rhs) const
+{
+    return !(rhs == *this);
 }
 
 #endif //TROOPTREASURER_CHANGERECORD_H

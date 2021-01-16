@@ -18,6 +18,8 @@ namespace Transactions
     {
     public:
         Payment();
+        Payment(const Payment &copy);
+
         virtual ~Payment();
 
         QString key() const;
@@ -52,6 +54,13 @@ namespace Transactions
         void setWhat(const QString &value);
 
         const QJsonObject &json() const;
+
+        bool operator==(const Payment &rhs) const;
+
+        bool operator!=(const Payment &rhs) const;
+
+        Payment& operator=(const Payment &other);
+
 
     private:
         friend class PaymentsModel;

@@ -72,8 +72,6 @@ public:
                     std::shared_ptr<Transactions::Payment> p = _model->getPayment(idx);
                     if(p)
                     {
-                        qDebug() << "Payment: " << p->key() << " Amount: " << p->amount();
-
                         PaymentEditDialog *dialog = new PaymentEditDialog(_panel);
                         dialog->setModal(true);
                         dialog->setRecord(p.get(), UI::Action::EDIT);
@@ -91,10 +89,39 @@ public:
             }
             case ItemAction::SAVE:
             {
+                QList<QString> log = _model->save();
                 break;
             }
             case ItemAction::DELETE:
             {
+                QModelIndexList selected = _ui->tablePayments->selectionModel()->selectedRows();
+                if(selected.count() == 1)
+                {
+                    QModelIndex idx = _proxy->mapToSource(selected.at(0));
+                    std::shared_ptr<Transactions::Payment> p = _model->getPayment(idx);
+                    if(p)
+                    {
+                        QMessageBox msgBox;
+                        msgBox.setText("Are you sure you would like to delete this Payment, this action is final and can not be reversed?");
+                        msgBox.setInformativeText("Delete Payment?");
+                        msgBox.setStandardButtons(QMessageBox::No | QMessageBox::Yes);
+                        msgBox.setDefaultButton(QMessageBox::No);
+                        int r = msgBox.exec();
+
+                        if (r == QMessageBox::Yes)
+                        {
+                            try
+                            {
+                                _model->deleteRecord(idx);
+                            }
+                            catch(ObjectError err)
+                            {
+                                QMessageBox::critical(_panel, "Error", QString(err.what()));
+                            }
+                        }
+                        _ui->tablePayments->selectionModel()->clearSelection();
+                    }
+                }
                 break;
             }
             default:

@@ -194,4 +194,25 @@ void Transactions::Payment::setComments(const QString &value)
     impl->setValue("comments",value);
 }
 
+bool Transactions::Payment::operator==(const Transactions::Payment &rhs) const
+{
+    return this->key().compare(rhs.key(), Qt::CaseSensitive) ==0;
+}
+
+bool Transactions::Payment::operator!=(const Transactions::Payment &rhs) const
+{
+    return !(rhs == *this);
+}
+
+Transactions::Payment::Payment(const Transactions::Payment &copy)
+{
+    this->impl = std::shared_ptr<PaymentImpl>(new PaymentImpl(copy.json()));
+}
+
+Transactions::Payment &Transactions::Payment::operator=(const Transactions::Payment &other)
+{
+    this->impl = std::shared_ptr<PaymentImpl>(new PaymentImpl(other.json()));
+    return *this;
+}
+
 
