@@ -85,11 +85,12 @@ Change<T> ChangeQueue<T>::peek()
 template<class T>
 void ChangeQueue<T>::purgeRecordsFor(T obj)
 {
-    for(int i=0; i<_queue.length(); i++)
+    QMutableListIterator<Change<T>> i(_queue);
+    while(i.hasNext())
     {
-        if(_queue[i].object()==obj)
+        if(i.next().object()==obj)
         {
-            _queue.removeAt(i);
+            i.remove();
         }
     }
 }
