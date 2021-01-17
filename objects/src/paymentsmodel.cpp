@@ -6,8 +6,6 @@
 #include <QSqlField>
 #include <QSqlRecord>
 #include <QSqlResult>
-#include "objects/change.h"
-#include "objects/changequeue.h"
 #include "objects/objecterror.h"
 #include <QDebug>
 
@@ -51,7 +49,7 @@ public:
         }
     }
 
-    static bool insertPayment(const Payment& payment, QList<QString> &log)
+    static bool insertPayment(const Payment& payment)
     {
         QString sql = PaymentsSql::InsertStmt;
         QString fields = "PAYMENT_KEY,PAYMENT_DATE,AMOUNT,METHOD,REF_VALUE,COMMENTS,FINALIZED,FINALIZED_DATE,RECONCILED,WHO,WHAT";
@@ -74,7 +72,8 @@ public:
         QSqlQuery insert(db);
         if(!insert.exec(stmt))
         {
-            log.append("Insert record failed: " + insert.lastError().text() + "- SQL:" + sql);
+            ObjectError err("Insert record failed: " + insert.lastError().text() + "- SQL:" + sql, static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
+            err.raise();
             return false;
         }
         else
@@ -83,7 +82,7 @@ public:
         }
     }
 
-    static bool updatePayment(const Payment &record, QList<QString> &log)
+    static bool updatePayment(const Payment &record)
     {
         QString buffer = QString("REG_DATE = '%1'").arg(record.date().toString(DateFormats::DATABASE_FORMAT));
         buffer.append(QString(",AMOUNT=%1").arg(QString::number(record.amount(),'f',2)));
@@ -114,7 +113,8 @@ public:
         QSqlQuery q(db);
         if(!q.exec(stmt))
         {
-            log.append("Update record failed: " + q.lastError().text() + "- SQL:" + stmt);
+            ObjectError err("Update record failed: " + q.lastError().text() + "- SQL:" + stmt, static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
+            err.raise();
             return false;
         }
         else
@@ -166,7 +166,6 @@ public:
     }
 
     QList<std::shared_ptr<Payment>> _payments;
-    ChangeQueue<Payment> _changes;
     QDate _begin;
     QDate _end;
 };
@@ -379,50 +378,6 @@ void Transactions::PaymentsModel::load(const QDate &begin, const QDate &end)
     endResetModel();
 }
 
-QList<QString> Transactions::PaymentsModel::save()
-{
-    QList<QString> log;
-    int depth = impl->_changes.depth();
-    qDebug() << "Saving....";
-    for(int i =0; i<depth; i++)
-    {
-        Change<Payment> mod = impl->_changes.pop();
-        bool success = false;
-        switch(mod.action())
-        {
-            case Action::CREATE:
-            {
-                //qDebug() << "ADD Key: " << mod.object().key() << " Amount: " << mod.object().amount() << " What: " << mod.object().what();
-                success = PaymentsModelImpl::insertPayment(mod.object(), log);
-                break;
-            }
-            case Action::UPDATE:
-            {
-                //qDebug() << "Update Key: " << mod.object().key() << " Amount: " << mod.object().amount() << " What: " << mod.object().what();
-                success = PaymentsModelImpl::updatePayment(mod.object(), log);
-                break;
-            }
-            // modifying delete to be non queued modification, delete will be carried out directly.
-//            case Action::DELETE:
-//            {
-//                qDebug() << "Delete Key: " << mod.object().key() << " Amount: " << mod.object().amount() << " What: " << mod.object().what();
-//                //success = PaymentsModelImpl::deletePayment(mod.object(),log);
-//                break;
-//            }
-            default:
-                break;
-        }
-
-        //requeue error records
-        if(!success)
-        {
-            impl->_changes.push(mod);
-        }
-    }
-    emit pendingRecordChangesNotification(impl->_changes.depth());
-    return log;
-}
-
 std::shared_ptr<Transactions::Payment> Transactions::PaymentsModel::getPayment(const QModelIndex &index)
 {
     if(index.row() < impl->_payments.count())
@@ -432,30 +387,22 @@ std::shared_ptr<Transactions::Payment> Transactions::PaymentsModel::getPayment(c
 
 void Transactions::PaymentsModel::addPayment(const Payment& payment)
 {
-    int idx = rowCount(QModelIndex());
-    beginInsertRows(QModelIndex(),idx,idx);
-    std::shared_ptr<Payment> np = std::shared_ptr<Payment>(new Payment(payment));
-    impl->_payments.append(np);
-    Change<Payment> c;
-    c.setReference(idx);
-    c.setObject(payment);
-    c.setAction(Action::CREATE);
-    impl->_changes.push(c);
-    endInsertRows();
-    emit pendingRecordChangesNotification(impl->_changes.depth());
+    if(PaymentsModelImpl::insertPayment(payment))
+    {
+        int idx = rowCount(QModelIndex());
+        beginInsertRows(QModelIndex(), idx, idx);
+        std::shared_ptr<Payment> np = std::shared_ptr<Payment>(new Payment(payment));
+        impl->_payments.append(np);
+        endInsertRows();
+    }
 }
 
 void Transactions::PaymentsModel::updateRecord(const QModelIndex &index)
 {
     if(index.row() < impl->_payments.count())
     {
-        Change<Payment> c;
-        c.setAction(Action::UPDATE);
-        c.setObject(*(impl->_payments[index.row()].get()));
-        c.setReference(index.row());
-        impl->_changes.push(c);
-        emit dataChanged(index,index);
-        emit pendingRecordChangesNotification(impl->_changes.depth());
+        if(PaymentsModelImpl::updatePayment(*(impl->_payments[index.row()].get())))
+            emit dataChanged(index,index);
     }
 }
 
@@ -463,24 +410,13 @@ void Transactions::PaymentsModel::deleteRecord(const QModelIndex &index)
 {
     if(index.row() < impl->_payments.count())
     {
-        Payment p = *(impl->_payments.at(index.row()).get());
-        bool success = PaymentsModelImpl::deletePayment(p);
-        if(success)
+        if(PaymentsModelImpl::deletePayment(*(impl->_payments.at(index.row()).get())))
         {
-            impl->_changes.purgeRecordsFor(p);
             beginRemoveRows(QModelIndex(), index.row(), index.row());
             impl->_payments.removeAt(index.row());
             endRemoveRows();
-            emit pendingRecordChangesNotification(impl->_changes.depth());
         }
     }
-}
-
-void Transactions::PaymentsModel::reset()
-{
-    impl->_changes.purge();
-    emit pendingRecordChangesNotification(impl->_changes.depth());
-    load(impl->_begin, impl->_end);
 }
 
 //sortfilterproxy

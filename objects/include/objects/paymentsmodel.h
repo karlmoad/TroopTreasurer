@@ -36,12 +36,6 @@ namespace Transactions
         void addPayment(const Payment& payment);
         void updateRecord(const QModelIndex& index);
         void deleteRecord(const QModelIndex& index);
-        void reset();
-        QList<QString> save();
-
-    signals:
-        void pendingRecordChangesNotification(int count);
-
 
     private:
         class PaymentsModelImpl;

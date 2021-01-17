@@ -26,11 +26,7 @@ public:
 
     Q_SLOT void finalizeHandler();
 
-    Q_SLOT void changeQueueDepthUpdateHandler(int count);
-
     Q_SLOT void selectionChangedHandler(const QItemSelection &selected, const QItemSelection &deselected);
-
-    Q_SLOT void resetChangesHandler();
 
     Q_SLOT void filterDatesHandler();
 

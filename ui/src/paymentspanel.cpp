@@ -14,7 +14,7 @@ public:
         _ui->setupUi(_panel);
         ItemState initial;
         initial.setDeleteEnabled(false);
-        initial.setSaveEnabled(true);
+        initial.setSaveEnabled(false);
         initial.setEditEnabled(false);
         initial.setAddEnabled(true);
         setCurrentState(initial);
@@ -26,7 +26,6 @@ public:
         _proxy->setFinalizedStatusFilter(true);
         _proxy->setActiveStatusFilter(true);
 
-        connect(_model, &Transactions::PaymentsModel::pendingRecordChangesNotification, _panel, &PaymentsPanel::changeQueueDepthUpdateHandler);
         connect(_ui->tablePayments->selectionModel(), &QItemSelectionModel::selectionChanged, _panel, &PaymentsPanel::selectionChangedHandler);
 
         try
@@ -59,7 +58,14 @@ public:
 
                 if(r == QDialog::Accepted)
                 {
-                    _model->addPayment(p);
+                    try
+                    {
+                        _model->addPayment(p);
+                    }
+                    catch(ObjectError err)
+                    {
+                        QMessageBox::critical(_panel, "Error", QString(err.what()));
+                    }
                 }
                 break;
             }
@@ -80,7 +86,14 @@ public:
 
                         if (r == QDialog::Accepted)
                         {
-                            _model->updateRecord(idx);
+                            try
+                            {
+                                _model->updateRecord(idx);
+                            }
+                            catch(ObjectError err)
+                            {
+                                QMessageBox::critical(_panel, "Error", QString(err.what()));
+                            }
                         }
                         _ui->tablePayments->selectionModel()->clearSelection();
                     }
@@ -89,7 +102,6 @@ public:
             }
             case ItemAction::SAVE:
             {
-                QList<QString> log = _model->save();
                 break;
             }
             case ItemAction::DELETE:
@@ -134,7 +146,6 @@ public:
         if(active)
         {
             connect(actions->getAction(1), &QAction::triggered, _panel, &PaymentsPanel::finalizeHandler);
-            connect(actions->getAction(3), &QAction::triggered, _panel, &PaymentsPanel::resetChangesHandler);
             connect(actions->getAction(2), &QAction::triggered, _panel, &PaymentsPanel::filterDatesHandler);
             emit _panel->itemActionStateChange(_currentState);
         }
@@ -161,11 +172,6 @@ public:
                 _ui->tablePayments->selectionModel()->clearSelection();
             }
         }
-    }
-
-    void resetChanges()
-    {
-        _model->reset();
     }
 
     void filterDates()
@@ -262,21 +268,9 @@ void PaymentsPanel::finalizeHandler()
     impl->finalize();
 }
 
-void PaymentsPanel::changeQueueDepthUpdateHandler(int count)
-{
-    impl->updateChangeQueueDepth(count);
-}
-
 void PaymentsPanel::selectionChangedHandler(const QItemSelection &selected, const QItemSelection &deselected)
 {
-    qDebug() << "Selected: " << (selected.empty() ? -1 : selected.indexes()[0].row()) << " Deselected: " << (deselected.empty() ? -1 : deselected.indexes()[0].row());
-
     impl->selectionChanged(selected,deselected);
-}
-
-void PaymentsPanel::resetChangesHandler()
-{
-    impl->resetChanges();
 }
 
 void PaymentsPanel::filterDatesHandler()
