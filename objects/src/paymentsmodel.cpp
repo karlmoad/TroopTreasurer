@@ -27,7 +27,7 @@ public:
     PaymentsModelImpl(){}
     ~PaymentsModelImpl(){}
 
-    void loadRecords(const QDate &begin, const QDate &end, QObject *parent= nullptr)
+    void loadRecords(const QDate &begin, const QDate &end)
     {
         _begin = begin;
         _end = end;
@@ -49,7 +49,7 @@ public:
         }
     }
 
-    static bool insertPayment(const Payment& payment)
+    static bool insertPayment(const Payment& payment, QString &message)
     {
         QString sql = PaymentsSql::InsertStmt;
         QString fields = "PAYMENT_KEY,PAYMENT_DATE,AMOUNT,METHOD,REF_VALUE,COMMENTS,FINALIZED,FINALIZED_DATE,RECONCILED,WHO,WHAT";
@@ -68,12 +68,16 @@ public:
         QString stmt = sql.arg(fields,buffer);
 
         QSqlDatabase db = QSqlDatabase::database("DATABASE");
-        if(!db.open()) return false;
+        if(!db.open())
+        {
+            message = QString("Insert record failed: Database failed to open, " + QString(db.lastError().databaseText()));
+            return false;
+        }
+
         QSqlQuery insert(db);
         if(!insert.exec(stmt))
         {
-            ObjectError err("Insert record failed: " + insert.lastError().text() + "- SQL:" + sql, static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
-            err.raise();
+            message = QString("Insert record failed: " + insert.lastError().text() + "- SQL:" + sql);
             return false;
         }
         else
@@ -82,11 +86,11 @@ public:
         }
     }
 
-    static bool updatePayment(const Payment &record)
+    static bool updatePayment(const Payment &record,QString &message)
     {
-        QString buffer = QString("REG_DATE = '%1'").arg(record.date().toString(DateFormats::DATABASE_FORMAT));
+        QString buffer = QString("PAYMENT_DATE = '%1'").arg(record.date().toString(DateFormats::DATABASE_FORMAT));
         buffer.append(QString(",AMOUNT=%1").arg(QString::number(record.amount(),'f',2)));
-        buffer.append(QString(",PAY_METHOD=%1").arg(QString::number(TransactionTypes::typeToInt(record.method()))));
+        buffer.append(QString(",METHOD=%1").arg(QString::number(TransactionTypes::typeToInt(record.method()))));
         buffer.append(QString(",FINALIZED=%1").arg(record.finalized() ? "1" : "0"));
         buffer.append(QString(",FINALIZED_DATE='%1'").arg(record.finalizedDate().toString(DateFormats::DATABASE_FORMAT)));
         buffer.append(QString(",RECONCILED=%1").arg(record.reconciled() ? "1" : "0"));
@@ -108,13 +112,17 @@ public:
         }
 
         QString stmt = PaymentsSql::UpdateStmt.arg(buffer, record.key());
-        QSqlDatabase db = QSqlDatabase::database();
-        if(!db.open()) return false;
+        QSqlDatabase db = QSqlDatabase::database("DATABASE");
+        if(!db.open())
+        {
+            message = QString("Update record failed: Database failed to open, " + QString(db.lastError().databaseText()));
+            return false;
+        }
+
         QSqlQuery q(db);
         if(!q.exec(stmt))
         {
-            ObjectError err("Update record failed: " + q.lastError().text() + "- SQL:" + stmt, static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
-            err.raise();
+            message = QString("Update record failed: " + q.lastError().text() + "- SQL:" + stmt);
             return false;
         }
         else
@@ -123,18 +131,21 @@ public:
         }
     }
 
-    static bool deletePayment(const Payment &record)
+    static bool deletePayment(const Payment &record,QString &message)
     {
         QSqlDatabase db = QSqlDatabase::database("DATABASE");
-        if(!db.open()) return false;
+        if(!db.open())
+        {
+            message = QString("Delete record failed: Database failed to open, " + QString(db.lastError().databaseText()));
+            return false;
+        }
         //make sure the record exists, if it doesnt add/update records could be in change queue only
         int existingCount = 0;
         QString existstmt = PaymentsSql::ExistsStmt.arg(record.key());
         QSqlQuery exists(db);
         if(!exists.exec(existstmt))
         {
-            ObjectError err("Delete record failed: " + exists.lastError().text() + "- existing record check failure", static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
-            err.raise();
+            message = QString("Delete record failed: " + QString(exists.lastError().databaseText()) + "- existing record check failure");
             return false;
         }
 
@@ -155,8 +166,7 @@ public:
         QSqlQuery del(db);
         if(!del.exec(stmt))
         {
-            ObjectError err("Delete record failed: " + del.lastError().text() + "- SQL:" + stmt, static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
-            err.raise();
+            message = QString("Delete record failed: " + QString(del.lastError().databaseText()) + "- SQL: " + stmt);
             return false;
         }
         else
@@ -374,7 +384,7 @@ void Transactions::PaymentsModel::load(const QDate &begin, const QDate &end)
 {
     beginResetModel();
     impl->_payments.clear();
-    impl->loadRecords(begin,end, this);
+    impl->loadRecords(begin,end);
     endResetModel();
 }
 
@@ -387,7 +397,9 @@ std::shared_ptr<Transactions::Payment> Transactions::PaymentsModel::getPayment(c
 
 void Transactions::PaymentsModel::addPayment(const Payment& payment)
 {
-    if(PaymentsModelImpl::insertPayment(payment))
+    QString msg;
+
+    if(PaymentsModelImpl::insertPayment(payment,msg))
     {
         int idx = rowCount(QModelIndex());
         beginInsertRows(QModelIndex(), idx, idx);
@@ -395,27 +407,50 @@ void Transactions::PaymentsModel::addPayment(const Payment& payment)
         impl->_payments.append(np);
         endInsertRows();
     }
+    else
+    {
+        //reload from db to reset equal state
+        load(impl->_begin, impl->_end);
+        ObjectError err(msg, static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
+        err.raise();
+    }
 }
 
 void Transactions::PaymentsModel::updateRecord(const QModelIndex &index)
 {
+    QString msg;
     if(index.row() < impl->_payments.count())
     {
-        if(PaymentsModelImpl::updatePayment(*(impl->_payments[index.row()].get())))
+        if(PaymentsModelImpl::updatePayment(*(impl->_payments[index.row()].get()),msg))
             emit dataChanged(index,index);
+    }
+    else
+    {
+        //reload from db to reset equal state
+        load(impl->_begin, impl->_end);
+        ObjectError err(msg, static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
+        err.raise();
     }
 }
 
 void Transactions::PaymentsModel::deleteRecord(const QModelIndex &index)
 {
+    QString msg;
     if(index.row() < impl->_payments.count())
     {
-        if(PaymentsModelImpl::deletePayment(*(impl->_payments.at(index.row()).get())))
+        if(PaymentsModelImpl::deletePayment(*(impl->_payments.at(index.row()).get()),msg))
         {
             beginRemoveRows(QModelIndex(), index.row(), index.row());
             impl->_payments.removeAt(index.row());
             endRemoveRows();
         }
+    }
+    else
+    {
+        //reload from db to reset equal state
+        load(impl->_begin, impl->_end);
+        ObjectError err(msg, static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
+        err.raise();
     }
 }
 

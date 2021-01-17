@@ -76,7 +76,7 @@ public:
                 {
                     QModelIndex idx = _proxy->mapToSource(selected.at(0));
                     std::shared_ptr<Transactions::Payment> p = _model->getPayment(idx);
-                    if(p)
+                    if(p && !p->finalized())
                     {
                         PaymentEditDialog *dialog = new PaymentEditDialog(_panel);
                         dialog->setModal(true);
@@ -97,6 +97,10 @@ public:
                         }
                         _ui->tablePayments->selectionModel()->clearSelection();
                     }
+                    else
+                    {
+                        QMessageBox::critical(_panel, "Error", "Finalized records can not be edited");
+                    }
                 }
                 break;
             }
@@ -111,7 +115,7 @@ public:
                 {
                     QModelIndex idx = _proxy->mapToSource(selected.at(0));
                     std::shared_ptr<Transactions::Payment> p = _model->getPayment(idx);
-                    if(p)
+                    if(p && !p->finalized())
                     {
                         QMessageBox msgBox;
                         msgBox.setText("Are you sure you would like to delete this Payment, this action is final and can not be reversed?");
@@ -132,6 +136,10 @@ public:
                             }
                         }
                         _ui->tablePayments->selectionModel()->clearSelection();
+                    }
+                    else
+                    {
+                        QMessageBox::critical(_panel, "Error", "Finalized records can not be deleted");
                     }
                 }
                 break;
@@ -168,8 +176,15 @@ public:
             if(p)
             {
                 p->setFinalized(true);
-                _model->updateRecord(idx);
-                _ui->tablePayments->selectionModel()->clearSelection();
+                try
+                {
+                    _model->updateRecord(idx);
+                    _ui->tablePayments->selectionModel()->clearSelection();
+                }
+                catch(ObjectError err)
+                {
+                    QMessageBox::critical(_panel, "Error", QString(err.what()));
+                }
             }
         }
     }
