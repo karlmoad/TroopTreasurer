@@ -272,6 +272,7 @@ private:
     {
         if(panel == nullptr) return;
         index2Panel.remove(index);
+        panel2Index.remove(panel->panelId());
     }
 
     void registerPanel(PanelWindow *panel, int index)
