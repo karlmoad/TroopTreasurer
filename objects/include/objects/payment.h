@@ -64,7 +64,7 @@ namespace Transactions
 
     private:
         friend class PaymentsModel;
-        void setKey(QString const &key);
+        void setKey(const QString &key);
         explicit Payment(const QSqlRecord &record);
         class PaymentImpl;
         std::shared_ptr<PaymentImpl> impl;
