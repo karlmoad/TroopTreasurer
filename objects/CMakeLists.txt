@@ -24,7 +24,9 @@ set(SOURCES settingsmanager.cpp
             payment.cpp
             paymentsmodel.cpp
             deposit.cpp
-            fundsrecord.cpp)
+            fundsrecord.cpp
+            depositsmodel.cpp
+            fundsrecordsmodel.cpp)
 
 set(HEADERS settingsmanager.h
             objecterror.h
@@ -53,7 +55,9 @@ set(HEADERS settingsmanager.h
             change.h
             changequeue.h
             deposit.h
-            fundsrecord.h)
+            fundsrecord.h
+            depositsmodel.h
+            fundsrecordsmodel.h)
 
 format_source_paths("/src" SOURCES)
 format_source_paths("/include/objects" HEADERS)

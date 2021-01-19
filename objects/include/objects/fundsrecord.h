@@ -54,7 +54,7 @@ namespace Transactions
         std::shared_ptr<FundsRecordImpl> impl;
 
     private:
-        friend class Deposit;
+        friend class FundsRecordsModel;
         explicit FundsRecord(const QSqlRecord &record);
         void setKey(const QString &key);
         void setDepositKey(const QString &deposit);
