@@ -421,16 +421,30 @@ void Transactions::PaymentsModel::updateRecord(const QModelIndex &index)
     QString msg;
     if(index.row() < impl->_payments.count())
     {
-        if(PaymentsModelImpl::updatePayment(*(impl->_payments[index.row()].get()),msg))
-            emit dataChanged(index,index);
+        std::shared_ptr<Payment> current = impl->_payments.value(index.row());
+        if(!current->finalized())
+        {
+            if (PaymentsModelImpl::updatePayment(*(impl->_payments[index.row()].get()), msg))
+            {
+                emit dataChanged(index, index);
+                return;
+            }
+        }
+        else
+        {
+            msg = "Finalized payments can not be modified";
+        }
     }
     else
     {
-        //reload from db to reset equal state
-        load(impl->_begin, impl->_end);
-        ObjectError err(msg, static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
-        err.raise();
+        msg = "invalid index";
     }
+
+    //reload from db to reset equal state
+    load(impl->_begin, impl->_end);
+    ObjectError err(msg, static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
+    err.raise();
+
 }
 
 void Transactions::PaymentsModel::deleteRecord(const QModelIndex &index)
@@ -438,20 +452,32 @@ void Transactions::PaymentsModel::deleteRecord(const QModelIndex &index)
     QString msg;
     if(index.row() < impl->_payments.count())
     {
-        if(PaymentsModelImpl::deletePayment(*(impl->_payments.at(index.row()).get()),msg))
+        std::shared_ptr<Payment> current = impl->_payments.value(index.row());
+        if(!current->finalized())
         {
-            beginRemoveRows(QModelIndex(), index.row(), index.row());
-            impl->_payments.removeAt(index.row());
-            endRemoveRows();
+            if (PaymentsModelImpl::deletePayment(*(impl->_payments.at(index.row()).get()), msg))
+            {
+                beginRemoveRows(QModelIndex(), index.row(), index.row());
+                impl->_payments.removeAt(index.row());
+                endRemoveRows();
+                return;
+            }
+        }
+        else
+        {
+            msg = "Finalized payments can not be deleted";
         }
     }
     else
     {
-        //reload from db to reset equal state
-        load(impl->_begin, impl->_end);
-        ObjectError err(msg, static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
-        err.raise();
+        msg = "invalid index";
     }
+
+    //reload from db to reset equal state
+    load(impl->_begin, impl->_end);
+    ObjectError err(msg, static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
+    err.raise();
+
 }
 
 //sortfilterproxy

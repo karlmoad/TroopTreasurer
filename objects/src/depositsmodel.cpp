@@ -22,8 +22,31 @@ namespace Transactions
 
 class Transactions::DepositsModel::DepositsModelImpl
 {
+public:
     DepositsModelImpl()=default;
     ~DepositsModelImpl()=default;
+
+    void loadRecords(const QDate &begin, const QDate &end)
+    {
+        _begin = begin;
+        _end = end;
+
+        QSqlDatabase db = QSqlDatabase::database("DATABASE");
+        QSqlQuery q(db);
+
+        QString sql = Transactions::DepositsSql::SelectStmt.arg(begin.toString(DateFormats::DATABASE_FORMAT), end.toString(DateFormats::DATABASE_FORMAT));
+        if(!q.exec(sql))
+        {
+            ObjectError err(q.lastError().databaseText(), static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
+            err.raise();
+            return;
+        }
+
+        while(q.next())
+        {
+            _deposits.append(std::shared_ptr<Deposit>(new Deposit(q.record())));
+        }
+    }
 
     static bool insertDeposit(const Deposit& deposit, QString &message)
     {
@@ -90,9 +113,8 @@ class Transactions::DepositsModel::DepositsModelImpl
     QDate _end;
 };
 
-Transactions::DepositsModel::DepositsModel(QObject *parent) : QAbstractTableModel(parent)
-{
-}
+Transactions::DepositsModel::DepositsModel(QObject *parent) : QAbstractTableModel(parent), impl(new DepositsModelImpl)
+{}
 
 Transactions::DepositsModel::~DepositsModel()
 {
@@ -101,47 +123,191 @@ Transactions::DepositsModel::~DepositsModel()
 
 int Transactions::DepositsModel::rowCount(const QModelIndex &parent) const
 {
-    return 0;
+    return impl->_deposits.count();
 }
 
 int Transactions::DepositsModel::columnCount(const QModelIndex &parent) const
 {
-    return 0;
+    return 4;
 }
 
 QVariant Transactions::DepositsModel::data(const QModelIndex &index, int role) const
 {
+    if(index.row() < impl->_deposits.count())
+    {
+        std::shared_ptr<Deposit> rec = impl->_deposits[index.row()];
+
+        if(role == Roles::ObjectRole)
+        {
+            return index.row(); //QVariant::fromValue<std::shared_ptr<Payment>>(rec);
+        }
+        else
+        {
+            switch (index.column())
+            {
+                case 0:
+                {
+                    switch (role)
+                    {
+                        case Qt::DisplayRole:
+                            return rec->date().toString(DateFormats::UI_DISPLAY_FORMAT);
+                        case Qt::UserRole:
+                            return rec->date();
+                        default:
+                            return QVariant();
+                    }
+                }
+                case 1:
+                {
+                    switch (role)
+                    {
+                        case Qt::DisplayRole:
+                            return QString("$ %1").arg(QString::number(rec->total(), 'f', 2));
+                        case Qt::UserRole:
+                            return rec->total();
+                        default:
+                            return QVariant();
+                    }
+                }
+                case 2:
+                {
+                    switch (role)
+                    {
+                        case Qt::DisplayRole:
+                            return rec->reconciled() ? "Yes" : "No";
+                        case Qt::UserRole:
+                            return rec->reconciled();
+                        default:
+                            return QVariant();
+                    }
+                }
+                case 3:
+                {
+                    switch (role)
+                    {
+                        case Qt::DisplayRole:
+                            return (rec->finalized() ? rec->finalizedDate().toString(DateFormats::UI_DISPLAY_FORMAT) : "");
+                        case Qt::UserRole:
+                            return rec->finalizedDate();
+                        default:
+                            return QVariant();
+                    }
+                }
+                default:
+                    return QVariant();
+            }
+        }
+    }
     return QVariant();
 }
 
 QVariant Transactions::DepositsModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    return QAbstractItemModel::headerData(section, orientation, role);
+    if( role != Qt::DisplayRole )
+    {
+        return QVariant();
+    }
+
+    switch(orientation)
+    {
+        case Qt::Horizontal:
+        {
+            if (section < columnCount(QModelIndex()))
+            {
+                switch (section)
+                {
+                    case 0:
+                        return "Date";
+                        break;
+                    case 1:
+                        return "Total";
+                        break;
+                    case 2:
+                        return "Reconciled";
+                        break;
+                    case 3:
+                        return "Finalized";
+                        break;
+                    default:
+                        return QVariant();
+                        break;
+                }
+            }
+        }
+        default:
+            return QVariant();
+    }
 }
 
 Qt::ItemFlags Transactions::DepositsModel::flags(const QModelIndex &index) const
 {
-    return QAbstractTableModel::flags(index);
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
 void Transactions::DepositsModel::load(const QDate &begin, const QDate &end)
 {
-
+    beginResetModel();
+    impl->_deposits.clear();
+    impl->loadRecords(begin,end);
+    endResetModel();
 }
 
 std::shared_ptr<Transactions::Deposit> Transactions::DepositsModel::getDeposit(const QModelIndex &index)
 {
+    if(index.row() < impl->_deposits.count())
+        return impl->_deposits.value(index.row());
     return nullptr;
 }
 
 void Transactions::DepositsModel::addDeposit(const Transactions::Deposit &deposit)
 {
+    QString msg;
 
+    if(DepositsModelImpl::insertDeposit(deposit,msg))
+    {
+        int idx = rowCount(QModelIndex());
+        beginInsertRows(QModelIndex(), idx, idx);
+        std::shared_ptr<Deposit> np = std::shared_ptr<Deposit>(new Deposit(deposit));
+        impl->_deposits.append(np);
+        endInsertRows();
+    }
+    else
+    {
+        //reload from db to reset equal state
+        load(impl->_begin, impl->_end);
+        ObjectError err(msg, static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
+        err.raise();
+    }
 }
 
 void Transactions::DepositsModel::updateRecord(const QModelIndex &index)
 {
+    QString msg;
+    if(index.row() < impl->_deposits.count())
+    {
+        std::shared_ptr<Deposit> current = impl->_deposits.value(index.row());
+        if(!current->finalized())
+        {
+            if (DepositsModelImpl::updateDeposit(*(impl->_deposits[index.row()].get()), msg))
+            {
+                emit dataChanged(index, index);
+                return;
+            }
+        }
+        else
+        {
+            msg = "Finalized payments can not be modified";
+        }
+    }
+    else
+    {
+        msg = "invalid index";
+    }
 
+    //reload from db to reset equal state
+    load(impl->_begin, impl->_end);
+    ObjectError err(msg, static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
+    err.raise();
 }
 
 
