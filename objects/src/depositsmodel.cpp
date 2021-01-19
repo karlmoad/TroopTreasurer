@@ -17,6 +17,7 @@ namespace Transactions
         static const QString UpdateStmt = QString("UPDATE DEPOSITS SET %1 WHERE DEPOSIT_KEY='%2'");
         static const QString InsertStmt = QString("INSERT INTO DEPOSITS (%1) VALUES (%2)");
         static const QString ExistsStmt = QString("SELECT COUNT(*) FROM DEPOSITS WHERE DEPOSIT_KEY='%1'");
+        const QString FinalizedCheckStmt = QString("SELECT FINALIZED FROM DEPOSITS WHERE DEPOSIT_KEY='%1'");
     }
 }
 
@@ -46,6 +47,33 @@ public:
         {
             _deposits.append(std::shared_ptr<Deposit>(new Deposit(q.record())));
         }
+    }
+
+    bool recordModificationCheck(const QString &key, QString &message)
+    {
+        QString stmt = DepositsSql::FinalizedCheckStmt.arg(key);
+
+        QSqlDatabase db = QSqlDatabase::database("DATABASE");
+        if(!db.open())
+        {
+            message = QString("Record check failed: Database failed to open, " + QString(db.lastError().databaseText()));
+            return false;
+        }
+
+        QSqlQuery query(db);
+        if(!query.exec(stmt))
+        {
+            message = QString("Record check failed: " + query.lastError().text() + "- SQL:" + stmt);
+        }
+        else
+        {
+            if(query.first())
+            {
+                return query.value(0).toInt() == 0;
+            }
+        }
+        message = "Record status is finalized, no modification permitted";
+        return false;
     }
 
     static bool insertDeposit(const Deposit& deposit, QString &message)
@@ -285,18 +313,14 @@ void Transactions::DepositsModel::updateRecord(const QModelIndex &index)
     QString msg;
     if(index.row() < impl->_deposits.count())
     {
-        std::shared_ptr<Deposit> current = impl->_deposits.value(index.row());
-        if(!current->finalized())
+        std::shared_ptr<Deposit> rec = impl->_deposits.value(index.row());
+        if(impl->recordModificationCheck(rec->key(), msg))
         {
-            if (DepositsModelImpl::updateDeposit(*(impl->_deposits[index.row()].get()), msg))
+            if (DepositsModelImpl::updateDeposit(*(rec.get()), msg))
             {
                 emit dataChanged(index, index);
                 return;
             }
-        }
-        else
-        {
-            msg = "Finalized payments can not be modified";
         }
     }
     else
