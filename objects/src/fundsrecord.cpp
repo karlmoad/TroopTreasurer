@@ -80,85 +80,106 @@ Transactions::FundsRecord::~FundsRecord()
 
 QString Transactions::FundsRecord::key() const
 {
-    return QString();
+    return impl->getValue("key").toString();
 }
 
 QDate Transactions::FundsRecord::date() const
 {
-    return QDate();
+    QString v = impl->getValue("date").toString();
+    return v.trimmed().length() > 0 ? QDate::fromString(v, DateFormats::DATABASE_FORMAT) : QDate(1900,1,1);
 }
 
 void Transactions::FundsRecord::setDate(QDate date)
 {
-
+    impl->setValue("date",date.toString(DateFormats::DATABASE_FORMAT));
 }
 
 double Transactions::FundsRecord::amount() const
 {
-    return 0;
+    return impl->getValue("amount").toDouble(0);
 }
 
 void Transactions::FundsRecord::setAmount(double value)
 {
-
+    impl->setValue("amount", value);
 }
 
 Transactions::TransactionTypes::Type Transactions::FundsRecord::method() const
 {
-    return Transactions::TransactionTypes::Type::PAYPAL;
+    return static_cast<TransactionTypes::Type>(impl->getValue("method").toInt(0));
 }
 
 void Transactions::FundsRecord::setMethod(Transactions::TransactionTypes::Type type)
 {
-
+    impl->setValue("method",static_cast<int>(type));
 }
 
 QString Transactions::FundsRecord::referenceValue() const
 {
-    return QString();
+    return impl->getValue("ref").toString();
 }
 
 void Transactions::FundsRecord::setReferenceValue(const QString &value)
 {
-
+    impl->setValue("ref", value);
 }
 
 QString Transactions::FundsRecord::comments() const
 {
-    return QString();
+    return impl->getValue("comments").toString();
 }
 
 void Transactions::FundsRecord::setComments(const QString &value)
 {
-
+    impl->setValue("comments",value);
 }
 
 QString Transactions::FundsRecord::who() const
 {
-    return QString();
+    return impl->getValue("who").toString();
 }
 
 void Transactions::FundsRecord::setWho(const QString &value)
 {
-
+    impl->setValue("who",value);
 }
 
 QString Transactions::FundsRecord::what() const
 {
-    return QString();
+    return impl->getValue("what").toString();
 }
 
 void Transactions::FundsRecord::setWhat(const QString &value)
 {
-
+    impl->setValue("what",value);
 }
 
 const QJsonObject &Transactions::FundsRecord::json() const
 {
-    return <#initializer#>;
+    return impl->json();
 }
 
 void Transactions::FundsRecord::setKey(const QString &key)
 {
+    impl->setValue("key",key);
+}
 
+QString Transactions::FundsRecord::depositKey() const
+{
+    return impl->getValue("deposit").toString();
+}
+
+bool Transactions::FundsRecord::reconciled() const
+{
+    return impl->getValue("reconciled").toBool(false);
+}
+
+void Transactions::FundsRecord::setReconciled(bool value)
+{
+    impl->setValue("reconciled",value);
+}
+
+void Transactions::FundsRecord::setDepositKey(const QString &deposit)
+{
+    impl->setValue("deposit", deposit);
 }

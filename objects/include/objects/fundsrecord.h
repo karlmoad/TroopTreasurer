@@ -42,6 +42,11 @@ namespace Transactions
         QString what() const;
         void setWhat(const QString &value);
 
+        QString depositKey() const;
+
+        bool reconciled() const;
+        void setReconciled(bool value);
+
         const QJsonObject &json() const;
 
     private:
@@ -49,8 +54,10 @@ namespace Transactions
         std::shared_ptr<FundsRecordImpl> impl;
 
     private:
+        friend class Deposit;
         explicit FundsRecord(const QSqlRecord &record);
         void setKey(const QString &key);
+        void setDepositKey(const QString &deposit);
 
     };
 }

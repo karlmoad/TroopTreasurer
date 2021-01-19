@@ -10,6 +10,7 @@
 #include <QJsonValue>
 #include <memory>
 #include "transactions.h"
+#include "fundsrecord.h"
 
 namespace Transactions
 {
