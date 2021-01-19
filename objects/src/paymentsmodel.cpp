@@ -18,6 +18,7 @@ namespace Transactions
         static const QString UpdateStmt = QString("UPDATE PAYMENTS SET %1 WHERE PAYMENT_KEY='%2'");
         static const QString InsertStmt = QString("INSERT INTO PAYMENTS (%1) VALUES (%2)");
         static const QString ExistsStmt = QString("SELECT COUNT(*) FROM PAYMENTS WHERE PAYMENT_KEY='%1'");
+        static const QString FinalizedCheckStmt = QString("SELECT FINALIZED FROM PAYMENTS WHERE PAYMENT_KEY='%1'");
     }
 }
 
@@ -47,6 +48,33 @@ public:
         {
             _payments.append(std::shared_ptr<Payment>(new Payment(q.record())));
         }
+    }
+
+    bool recordModificationCheck(const QString &key, QString &message)
+    {
+        QString stmt = PaymentsSql::FinalizedCheckStmt.arg(key);
+
+        QSqlDatabase db = QSqlDatabase::database("DATABASE");
+        if(!db.open())
+        {
+            message = QString("Record check failed: Database failed to open, " + QString(db.lastError().databaseText()));
+            return false;
+        }
+
+        QSqlQuery query(db);
+        if(!query.exec(stmt))
+        {
+            message = QString("Record check failed: " + query.lastError().text() + "- SQL:" + stmt);
+        }
+        else
+        {
+            if(query.first())
+            {
+                return query.value(0).toInt() == 0;
+            }
+        }
+        message = "Record status is finalized, no modification permitted";
+        return false;
     }
 
     static bool insertPayment(const Payment& payment, QString &message)
@@ -421,18 +449,14 @@ void Transactions::PaymentsModel::updateRecord(const QModelIndex &index)
     QString msg;
     if(index.row() < impl->_payments.count())
     {
-        std::shared_ptr<Payment> current = impl->_payments.value(index.row());
-        if(!current->finalized())
+        std::shared_ptr<Payment> rec = impl->_payments.value(index.row());
+        if(impl->recordModificationCheck(rec->key(), msg))
         {
-            if (PaymentsModelImpl::updatePayment(*(impl->_payments[index.row()].get()), msg))
+            if (PaymentsModelImpl::updatePayment(*(rec.get()), msg))
             {
                 emit dataChanged(index, index);
                 return;
             }
-        }
-        else
-        {
-            msg = "Finalized payments can not be modified";
         }
     }
     else
@@ -452,20 +476,16 @@ void Transactions::PaymentsModel::deleteRecord(const QModelIndex &index)
     QString msg;
     if(index.row() < impl->_payments.count())
     {
-        std::shared_ptr<Payment> current = impl->_payments.value(index.row());
-        if(!current->finalized())
+        std::shared_ptr<Payment> rec = impl->_payments.value(index.row());
+        if(impl->recordModificationCheck(rec->key(), msg))
         {
-            if (PaymentsModelImpl::deletePayment(*(impl->_payments.at(index.row()).get()), msg))
+            if (PaymentsModelImpl::deletePayment(*(rec.get()), msg))
             {
                 beginRemoveRows(QModelIndex(), index.row(), index.row());
                 impl->_payments.removeAt(index.row());
                 endRemoveRows();
                 return;
             }
-        }
-        else
-        {
-            msg = "Finalized payments can not be deleted";
         }
     }
     else
@@ -477,7 +497,6 @@ void Transactions::PaymentsModel::deleteRecord(const QModelIndex &index)
     load(impl->_begin, impl->_end);
     ObjectError err(msg, static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
     err.raise();
-
 }
 
 //sortfilterproxy

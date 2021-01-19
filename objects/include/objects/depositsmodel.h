@@ -36,8 +36,8 @@ namespace Transactions
         void updateRecord(const QModelIndex& index);
 
     private:
-            class DepositsModelImpl;
-            std::shared_ptr<DepositsModelImpl> impl;
+        class DepositsModelImpl;
+        std::shared_ptr<DepositsModelImpl> impl;
     };
 
     class DepositsProxyModel: public QSortFilterProxyModel
