@@ -337,27 +337,33 @@ void Transactions::DepositsModel::updateRecord(const QModelIndex &index)
 
 // Proxy
 
-Transactions::DepositsProxyModel::DepositsProxyModel(QObject *parent) : QSortFilterProxyModel(parent)
-{
+Transactions::DepositsProxyModel::DepositsProxyModel(QObject *parent) : QSortFilterProxyModel(parent){}
 
-}
-
-Transactions::DepositsProxyModel::~DepositsProxyModel()
-{
-
-}
-
-void Transactions::DepositsProxyModel::setFinalizedStatusFilter(bool finalized)
-{
-
-}
+Transactions::DepositsProxyModel::~DepositsProxyModel(){}
 
 bool Transactions::DepositsProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
-    return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
+    return true;
 }
 
 bool Transactions::DepositsProxyModel::lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const
 {
-    return QSortFilterProxyModel::lessThan(source_left, source_right);
+    QVariant l = sourceModel()->data(source_left, Qt::UserRole);
+    QVariant r = sourceModel()->data(source_right, Qt::UserRole);
+
+    switch (l.userType())
+    {
+        case QMetaType::QDate:
+            return l.toDate() < r.toDate();
+        case QMetaType::Int:
+            return l.toInt() < r.toInt();
+        case QMetaType::Double:
+            return l.toDouble() < r.toDouble();
+        case QMetaType::QString:
+            return l.toString().compare(r.toString(), Qt::CaseInsensitive) < 0;
+        case QMetaType::Bool:
+            return l.toBool() < r.toBool();
+        default:
+            return false;
+    }
 }

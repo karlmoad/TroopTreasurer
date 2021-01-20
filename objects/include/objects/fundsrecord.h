@@ -15,6 +15,7 @@ namespace Transactions
 {
     class FundsRecord
     {
+    public:
         FundsRecord();
         explicit FundsRecord(const FundsRecord &copy);
         virtual ~FundsRecord();

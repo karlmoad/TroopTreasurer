@@ -25,8 +25,8 @@ namespace Transactions
 class Transactions::PaymentsModel::PaymentsModelImpl
 {
 public:
-    PaymentsModelImpl(){}
-    ~PaymentsModelImpl(){}
+    PaymentsModelImpl()=default;
+    ~PaymentsModelImpl()=default;
 
     void loadRecords(const QDate &begin, const QDate &end)
     {
