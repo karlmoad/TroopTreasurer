@@ -79,7 +79,7 @@ public:
             {
                 if(static_cast<int>(_record->method()) == _ui->ctrlMethod->itemData(i).toInt())
                 {
-                    _ui->ctrlMethod->setCurrentIndex(1);
+                    _ui->ctrlMethod->setCurrentIndex(i);
                     break;
                 }
             }

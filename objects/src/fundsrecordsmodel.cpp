@@ -13,8 +13,8 @@ namespace Transactions
 {
     namespace FundsSql
     {
-        static const QString SelectOpenStmt = QString("SELECT * FROM FUNDS_REGISTER WHERE DEPOSIT_KEY IS NULL OR DEPOSIT_KEY='' ORDER BY PAYMENT_DATE");
-        static const QString SelectAllStmt = QString("SELECT * FROM FUNDS_REGISTER ORDER BY PAYMENT_DATE");
+        static const QString SelectOpenStmt = QString("SELECT * FROM FUNDS_REGISTER WHERE DEPOSIT_KEY IS NULL OR DEPOSIT_KEY='' ORDER BY FUNDS_DATE");
+        static const QString SelectAllStmt = QString("SELECT * FROM FUNDS_REGISTER ORDER BY FUNDS_DATE");
         static const QString SelectByDepositStmt = QString("SELECT * FROM FUNDS_REGISTER WHERE DEPOSIT_KEY='%1'");
         static const QString DeleteStmt = QString("DELETE FROM FUNDS_REGISTER WHERE FUNDS_KEY='%1'");
         static const QString UpdateStmt = QString("UPDATE FUNDS_REGISTER SET %1 WHERE FUNDS_KEY='%2'");
