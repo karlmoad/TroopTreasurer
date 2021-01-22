@@ -183,3 +183,8 @@ void Transactions::FundsRecord::setDepositKey(const QString &deposit)
 {
     impl->setValue("deposit", deposit);
 }
+
+bool Transactions::FundsRecord::deposited() const
+{
+    return (!depositKey().isEmpty() && depositKey().trimmed().length() > 0);
+}

@@ -46,7 +46,7 @@ public:
              valid = false;
          }
 
-         if(_ui->ctrlAmount->value() == 0)
+         if(_ui->ctrlAmount->value() <= 0)
          {
             msg.append("Payment amount must be greater than 0.\n");
             valid = false;

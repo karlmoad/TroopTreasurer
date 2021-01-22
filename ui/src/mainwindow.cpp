@@ -94,9 +94,12 @@ private:
 
         //File menu
         mnuFileOpenSubmenu = mnuFile->addMenu("Open");
-        actFundsManagement = new QAction("Funds Management", this->window);
-        mnuFileOpenSubmenu->addAction(actFundsManagement);
-        actFundsManagement->setStatusTip("Open funds management panel");
+        actFundsRegister = new QAction("Funds Register", window);
+        actFundsRegister->setStatusTip("Manage Funds Register");
+        mnuFileOpenSubmenu->addAction(actFundsRegister);
+        connect(actFundsRegister, &QAction::triggered, [this](){
+            initNewPanel(Panel::FUNDS);
+        });
 
         mainToolbar = window->addToolBar("MAIN");
         actSave = new QAction(QIcon(":/resources/disk.png"), "&Save", this->window);
@@ -319,7 +322,7 @@ private:
     QAction *actSep;
     QAction *actPayments;
     QAction *actDeposits;
-    QAction *actFundsManagement;
+    QAction *actFundsRegister;
     QMap<Panel, QList<int>> panel2Index;
     QMap<int, PanelWindow*> index2Panel;
     QMap<Panel,PanelActions*> panelActionRegistry;

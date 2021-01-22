@@ -31,6 +31,7 @@ enum class Panel
     IMPORT_TEMPLATE_EDITOR=1,
     PAYMENTS=2,
     DEPOSITS=3,
+    FUNDS=4,
 };
 
 class PanelWindow: public QWidget

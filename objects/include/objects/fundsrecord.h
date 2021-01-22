@@ -43,6 +43,7 @@ namespace Transactions
         QString what() const;
         void setWhat(const QString &value);
 
+        bool deposited() const;
         QString depositKey() const;
 
         bool reconciled() const;

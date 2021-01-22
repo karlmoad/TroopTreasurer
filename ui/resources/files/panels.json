@@ -28,6 +28,13 @@
         {"id": 2, "icon": ":/resources/printer.png", "title": "Generate deposit slip", "menu": true, "toolbar": true},
         {"id": 3, "icon": ":/resources/accept.png", "title": "Finalize deposit", "menu": true, "toolbar": true}
       ]
+    },
+    {
+      "id": 4,
+      "toolbar": false,
+      "menu": false,
+      "display": "Funds Register",
+      "items":[]
     }
   ]
 }
