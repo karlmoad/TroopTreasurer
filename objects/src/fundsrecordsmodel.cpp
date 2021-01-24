@@ -152,6 +152,15 @@ public:
             buffer.append(QString(",WHAT='%1'").arg(record.what().trimmed()));
         }
 
+        if(record.depositKey().trimmed().length() > 0)
+        {
+            buffer.append(QString("DEPOSIT_KEY='%1'").arg(record.depositKey().trimmed()));
+        }
+        else
+        {
+            buffer.append("DEPOSIT_KEY=NULL");
+        }
+
         QString stmt = FundsSql::UpdateStmt.arg(buffer, record.key());
         QSqlDatabase db = QSqlDatabase::database("DATABASE");
         if(!db.open())
