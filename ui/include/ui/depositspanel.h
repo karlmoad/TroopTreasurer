@@ -2,15 +2,35 @@
 #define DEPOSITSPANEL_H
 
 #include <QWidget>
+#include <QItemSelectionModel>
+#include <QItemSelection>
 #include <memory>
+#include "itemstate.h"
+#include "panelwindow.h"
 
-class DepositsPanel : public QWidget
+class DepositsPanel : public PanelWindow
 {
     Q_OBJECT
-
 public:
     explicit DepositsPanel(QWidget *parent = nullptr);
     ~DepositsPanel();
+
+    virtual QString panelName() const override;
+
+    virtual Panel panelId() const override;
+
+    virtual ItemState getCurrentState() const override;
+
+    virtual void activate(PanelActions *actions) override;
+
+    virtual void deactivate(PanelActions *actions) override;
+
+    Q_SLOT virtual void itemActionHandler(ItemAction action) override;
+
+    Q_SLOT void finalizeHandler();
+
+    Q_SLOT void printSlipHandler();
+
 
 private:
     class DepositsPanelImpl;

@@ -2,21 +2,18 @@
 #define DESPOITEDITPICKLISTDIALOG_H
 
 #include <QDialog>
-
-namespace Ui {
-class DespoitEditPicklistDialog;
-}
-
-class DespoitEditPicklistDialog : public QDialog
+#include <memory>
+class DepositEditPicklistDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit DespoitEditPicklistDialog(QWidget *parent = nullptr);
-    ~DespoitEditPicklistDialog();
+    explicit DepositEditPicklistDialog(QWidget *parent = nullptr);
+    ~DepositEditPicklistDialog();
 
 private:
-    Ui::DespoitEditPicklistDialog *ui;
+    class DepositEditPicklistDialogImpl;
+    std::shared_ptr<DepositEditPicklistDialogImpl> impl;
 };
 
 #endif // DESPOITEDITPICKLISTDIALOG_H

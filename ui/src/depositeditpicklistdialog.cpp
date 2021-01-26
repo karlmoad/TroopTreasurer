@@ -1,14 +1,21 @@
-#include "despoiteditpicklistdialog.h"
-#include "ui_despoiteditpicklistdialog.h"
+#include "ui/depositeditpicklistdialog.h"
+#include "ui_depositeditpicklistdialog.h"
 
-DespoitEditPicklistDialog::DespoitEditPicklistDialog(QWidget *parent) :
+class DepositEditPicklistDialog::DepositEditPicklistDialogImpl
+{
+public:
+    DepositEditPicklistDialogImpl(DepositEditPicklistDialog *dialog): _dialog(dialog), _ui(new Ui::DepositEditPicklistDialog)
+    {
+        _ui->setupUi(_dialog);
+    }
+
+private:
+    DepositEditPicklistDialog *_dialog;
+    Ui::DepositEditPicklistDialog *_ui;
+};
+
+DepositEditPicklistDialog::DepositEditPicklistDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::DespoitEditPicklistDialog)
-{
-    ui->setupUi(this);
-}
+    impl(new DepositEditPicklistDialogImpl(this)){}
 
-DespoitEditPicklistDialog::~DespoitEditPicklistDialog()
-{
-    delete ui;
-}
+DepositEditPicklistDialog::~DepositEditPicklistDialog(){}

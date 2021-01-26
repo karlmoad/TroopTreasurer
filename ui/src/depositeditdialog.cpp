@@ -1,4 +1,4 @@
-#include "depositeditdialog.h"
+#include "ui/depositeditdialog.h"
 #include "ui_depositeditdialog.h"
 
 DepositEditDialog::DepositEditDialog(QWidget *parent) :
