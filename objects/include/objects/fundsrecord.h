@@ -57,6 +57,7 @@ namespace Transactions
 
     private:
         friend class FundsRecordsModel;
+        friend class DepositFundsModel;
         explicit FundsRecord(const QSqlRecord &record);
         void setKey(const QString &key);
         void setDepositKey(const QString &deposit);

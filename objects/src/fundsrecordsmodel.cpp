@@ -51,6 +51,13 @@ public:
     void load()
     {
         QSqlDatabase db = QSqlDatabase::database("DATABASE");
+        if(!db.open())
+        {
+            ObjectError err("Database failed to open, " + QString(db.lastError().databaseText()) ,static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
+            err.raise();
+            return;
+        }
+
         QSqlQuery q(db);
 
         if(!q.exec(_sqlStatement))
@@ -94,7 +101,7 @@ public:
         return false;
     }
 
-    static bool insertPayment(const FundsRecord &record, QString &message)
+    static bool insertRecord(const FundsRecord &record, QString &message)
     {
         QString sql = FundsSql::InsertStmt;
         QString fields = "FUNDS_KEY,FUNDS_DATE,AMOUNT,METHOD,REF_VALUE,COMMENTS,WHO,WHAT,RECONCILED";
@@ -129,7 +136,7 @@ public:
         }
     }
 
-    static bool updatePayment(const FundsRecord &record,QString &message)
+    static bool updateRecord(const FundsRecord &record,QString &message)
     {
         QString buffer = QString("FUNDS_DATE = '%1'").arg(record.date().toString(DateFormats::DATABASE_FORMAT));
         buffer.append(QString(",AMOUNT=%1").arg(QString::number(record.amount(),'f',2)));
@@ -152,14 +159,14 @@ public:
             buffer.append(QString(",WHAT='%1'").arg(record.what().trimmed()));
         }
 
-        if(record.depositKey().trimmed().length() > 0)
-        {
-            buffer.append(QString("DEPOSIT_KEY='%1'").arg(record.depositKey().trimmed()));
-        }
-        else
-        {
-            buffer.append("DEPOSIT_KEY=NULL");
-        }
+//        if(record.depositKey().trimmed().length() > 0)
+//        {
+//            buffer.append(QString("DEPOSIT_KEY='%1'").arg(record.depositKey().trimmed()));
+//        }
+//        else
+//        {
+//            buffer.append("DEPOSIT_KEY=NULL");
+//        }
 
         QString stmt = FundsSql::UpdateStmt.arg(buffer, record.key());
         QSqlDatabase db = QSqlDatabase::database("DATABASE");
@@ -181,7 +188,7 @@ public:
         }
     }
 
-    static bool deletePayment(const FundsRecord &record,QString &message)
+    static bool deleteRecord(const FundsRecord &record,QString &message)
     {
         QSqlDatabase db = QSqlDatabase::database("DATABASE");
         if(!db.open())
@@ -209,6 +216,32 @@ public:
             //if there is no record in the db it is essentially deleted,
             //return true so that table and change queue are purged of prior records
             return true;
+        }
+
+        bool isDeposited = true; // err on side of caution
+
+        //check to make sure the record is not part of a deposit, if it is it can not be deleted
+        QString depositedstmt = FundsSql::DepositedCheckStmt.arg(record.key());
+        QSqlQuery deposited(db);
+        if(!deposited.exec(depositedstmt))
+        {
+            message = QString("Delete record failed: " + QString(exists.lastError().databaseText()) + "- deposited record check failure");
+            return false;
+        }
+
+        if(deposited.first())
+        {
+            QString depositKey = deposited.value(0).toString().trimmed();
+            if(depositKey.isEmpty() || depositKey.length() == 0)
+            {
+                isDeposited = false;
+            }
+        }
+
+        if(isDeposited)
+        {
+            message = QString("Delete record failed: record is deposited");
+            return false;
         }
 
         QString stmt = FundsSql::DeleteStmt.arg(record.key());
@@ -440,7 +473,7 @@ void Transactions::FundsRecordsModel::addRecord(const Transactions::FundsRecord 
 {
     QString msg;
 
-    if(FundsRecordsModelImpl::insertPayment(record,msg))
+    if(FundsRecordsModelImpl::insertRecord(record,msg))
     {
         int idx = rowCount(QModelIndex());
         beginInsertRows(QModelIndex(), idx, idx);
@@ -467,7 +500,7 @@ void Transactions::FundsRecordsModel::updateRecord(const QModelIndex &index)
         std::shared_ptr<FundsRecord> rec = impl->_records.value(index.row());
         if(impl->recordModificationCheck(rec->key(), msg))
         {
-            if (FundsRecordsModelImpl::updatePayment(*(rec.get()), msg))
+            if (FundsRecordsModelImpl::updateRecord(*(rec.get()), msg))
             {
                 emit dataChanged(index, index);
                 return;
@@ -495,7 +528,7 @@ void Transactions::FundsRecordsModel::deleteRecord(const QModelIndex &index)
         std::shared_ptr<FundsRecord> rec = impl->_records.value(index.row());
         if(impl->recordModificationCheck(rec->key(), msg))
         {
-            if (FundsRecordsModelImpl::deletePayment(*(rec.get()), msg))
+            if (FundsRecordsModelImpl::deleteRecord(*(rec.get()), msg))
             {
                 beginRemoveRows(QModelIndex(), index.row(), index.row());
                 impl->_records.removeAt(index.row());
