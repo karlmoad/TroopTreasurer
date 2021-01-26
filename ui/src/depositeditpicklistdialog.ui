@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DespoitEditPicklistDialog</class>
- <widget class="QDialog" name="DespoitEditPicklistDialog">
+ <class>DepositEditPicklistDialog</class>
+ <widget class="QDialog" name="DepositEditPicklistDialog">
   <property name="geometry">
    <rect>
     <x>0</x>

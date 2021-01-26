@@ -23,7 +23,9 @@ set(SOURCES mainwindow.cpp mainwindow.ui
             depositspanel.cpp depositspanel.ui
             fundsregisterpanel.cpp fundsregisterpanel.ui
             paymenteditdialog.cpp paymenteditdialog.ui
-            fundsrecordeditdialog.cpp fundsrecordeditdialog.ui)
+            fundsrecordeditdialog.cpp fundsrecordeditdialog.ui
+        depositeditdialog.cpp depositeditdialog.ui
+        depositeditpicklistdialog.cpp depositeditpicklistdialog.ui)
 
 set(HEADERS ui.h
         mainwindow.h
@@ -46,7 +48,9 @@ set(HEADERS ui.h
         depositspanel.h
         fundsregisterpanel.h
         paymenteditdialog.h
-        fundsrecordeditdialog.h)
+        fundsrecordeditdialog.h
+        depositeditdialog.h
+        depositeditpicklistdialog.h)
 
 format_source_paths("/src" SOURCES)
 format_source_paths("/include/ui" HEADERS)
