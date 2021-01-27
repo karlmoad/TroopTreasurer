@@ -9,6 +9,7 @@ public:
     DepositEditPicklistDialogImpl(DepositEditPicklistDialog *dialog): _dialog(dialog), _ui(new Ui::DepositEditPicklistDialog)
     {
         _ui->setupUi(_dialog);
+        _dialog->setWindowTitle("Select Deposit Items");
         _model = new Transactions::FundsRecordsModel(_dialog);
         _ui->tableFunds->setModel(_model);
 
@@ -52,7 +53,7 @@ DepositEditPicklistDialog::~DepositEditPicklistDialog(){}
 
 QList<Transactions::FundsRecord> DepositEditPicklistDialog::getSelected()
 {
-    return QList<Transactions::FundsRecord>();
+    return impl->getSelected();
 }
 
 void DepositEditPicklistDialog::okHandler()

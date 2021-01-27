@@ -29,12 +29,14 @@ public:
     void init(UI::Action action, std::shared_ptr<Transactions::Deposit> deposit)
     {
         _deposit = deposit;
+        _dialog->setWindowTitle("Edit Deposit");
         if(action == UI::Action::NONE)
         {
             _ui->btnAdd->setEnabled(false);
             _ui->btnAdd->setHidden(true);
             _ui->btnRemove->setEnabled(false);
             _ui->btnRemove->setHidden(true);
+            _ui->dateDeposit->setReadOnly(true);
         }
 
         _ui->dateDeposit->setDate(_deposit->date());
@@ -44,10 +46,8 @@ public:
 
     void syncTotalDisplay()
     {
-        _ui->lcdTotal->setMode(QLCDNumber::Dec);
-        _ui->lcdTotal->display(_deposit->total());
+        _ui->lblTotal->setText(QString("$ %1").arg(QString::number(_deposit->total(), 'f', 2)));
     }
-
 
     void sync()
     {
@@ -66,6 +66,7 @@ public:
                 _model->addFundsRecord(Transactions::FundsRecord(items[i]));
             }
         }
+        delete picker;
         _deposit->setTotal(_model->sumTotal());
         syncTotalDisplay();
     }
@@ -100,12 +101,13 @@ DepositEditDialog::~DepositEditDialog(){}
 
 void DepositEditDialog::setDeposit(std::shared_ptr<Transactions::Deposit> deposit, UI::Action action)
 {
-
+    impl->init(action,deposit);
 }
 
 void DepositEditDialog::okHandler()
 {
     this->done(QDialog::Accepted);
+    impl->sync();
     this->close();
 }
 
