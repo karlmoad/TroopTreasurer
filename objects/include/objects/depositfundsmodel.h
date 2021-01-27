@@ -33,6 +33,7 @@ namespace Transactions
         void addFundsRecord(FundsRecord record);
         void removeFundsRecord(const QModelIndex& index);
         void setDeposit(std::shared_ptr<Deposit> deposit);
+        double sumTotal() const;
 
     private:
         class DepositFundsModelImpl;

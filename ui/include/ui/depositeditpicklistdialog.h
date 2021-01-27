@@ -3,6 +3,9 @@
 
 #include <QDialog>
 #include <memory>
+#include <QList>
+#include "objects/fundsrecord.h"
+
 class DepositEditPicklistDialog : public QDialog
 {
     Q_OBJECT
@@ -10,6 +13,12 @@ class DepositEditPicklistDialog : public QDialog
 public:
     explicit DepositEditPicklistDialog(QWidget *parent = nullptr);
     ~DepositEditPicklistDialog();
+
+    QList<Transactions::FundsRecord> getSelected();
+
+public slots:
+    void okHandler();
+    void cancelHandler();
 
 private:
     class DepositEditPicklistDialogImpl;

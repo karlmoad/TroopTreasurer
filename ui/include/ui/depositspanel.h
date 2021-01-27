@@ -31,6 +31,9 @@ public:
 
     Q_SLOT void printSlipHandler();
 
+    Q_SLOT void viewHandler();
+
+    Q_SLOT void selectionChangedHandler(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
     class DepositsPanelImpl;

@@ -125,6 +125,17 @@ public:
         return false;
     }
 
+    double sum()
+    {
+        double total = 0.0;
+        for(int i =0; i<_records.length(); i++)
+        {
+            total+=_records[i]->amount();
+        }
+        return total;
+    }
+
+
     std::shared_ptr<Deposit> _deposit;
     QList<std::shared_ptr<FundsRecord>> _records;
 };
@@ -373,4 +384,9 @@ void Transactions::DepositFundsModel::removeFundsRecord(const QModelIndex &index
     endResetModel();
     ObjectError err(msg, static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
     err.raise();
+}
+
+double Transactions::DepositFundsModel::sumTotal() const
+{
+    return impl->sum();
 }

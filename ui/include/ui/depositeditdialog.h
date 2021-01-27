@@ -2,10 +2,10 @@
 #define DEPOSITEDITDIALOG_H
 
 #include <QDialog>
-
-namespace Ui {
-class DepositEditDialog;
-}
+#include <memory>
+#include "objects/deposit.h"
+#include "objects/fundsrecord.h"
+#include "ui/ui.h"
 
 class DepositEditDialog : public QDialog
 {
@@ -14,9 +14,22 @@ class DepositEditDialog : public QDialog
 public:
     explicit DepositEditDialog(QWidget *parent = nullptr);
     ~DepositEditDialog();
+    DepositEditDialog(const DepositEditDialog&) = delete;
+    DepositEditDialog(DepositEditDialog&&) = delete;
+    DepositEditDialog& operator=(const DepositEditDialog&) = delete;
+    DepositEditDialog& operator=(DepositEditDialog&&) = delete;
+
+    void setDeposit(std::shared_ptr<Transactions::Deposit> deposit, UI::Action action= UI::Action::NONE);
+
+public slots:
+    void okHandler();
+    void cancelHandler();
+    void addHandler();
+    void remHandler();
 
 private:
-    Ui::DepositEditDialog *ui;
+    class DepositEditDialogImpl;
+    std::shared_ptr<DepositEditDialogImpl> impl;
 };
 
 #endif // DEPOSITEDITDIALOG_H

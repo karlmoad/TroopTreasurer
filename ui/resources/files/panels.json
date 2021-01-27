@@ -23,9 +23,10 @@
       "toolbar": true,
       "menu": true,
       "display": "Deposits",
-      "items":[
-        {"id": 1, "icon": ":/resources/accept.png", "title": "Finalize deposit", "menu": true, "toolbar": true},
-        {"id": 2, "icon": ":/resources/printer.png", "title": "Generate deposit slip", "menu": true, "toolbar": true}
+      "items": [
+        {"id": 1, "icon": ":/resources/table.png", "title": "View Details", "menu": true, "toolbar": true},
+        {"id": 2, "icon": ":/resources/accept.png", "title": "Finalize deposit", "menu": true, "toolbar": true},
+        {"id": 3, "icon": ":/resources/printer.png", "title": "Generate deposit slip", "menu": true, "toolbar": true}
       ]
     },
     {

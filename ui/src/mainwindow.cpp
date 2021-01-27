@@ -179,6 +179,9 @@ private:
         actDeposits = new QAction("Deposits",window);
         actDeposits->setStatusTip("Manage deposits");
         mnuFunds->addAction(actDeposits);
+        connect(actDeposits, &QAction::triggered, [this](){
+            initNewPanel(Panel::DEPOSITS);
+        });
 
         //wire panels container control events
         connect(ui->tabMain, &QTabWidget::currentChanged, window, &MainWindow::ActivePanelChanged);

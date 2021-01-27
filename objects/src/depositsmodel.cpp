@@ -79,7 +79,7 @@ public:
     static bool insertDeposit(const Deposit& deposit, QString &message)
     {
         QString sql = DepositsSql::InsertStmt;
-        QString fields = "DEPOSIT_KEY,DEPOSIT_DATE,DEPOSIT_TOTAL,FINALIZED,FINALIZED_DATE,RECONCILED,WHO";
+        QString fields = "DEPOSIT_KEY,DEPOSIT_DATE,DEPOSIT_TOTAL,FINALIZED,FINALIZED_DATE,RECONCILED";
         QString buffer = QString("'%1'").arg(deposit.key());
         buffer.append(QString(",'%1'").arg(deposit.date().toString(DateFormats::DATABASE_FORMAT)));
         buffer.append(QString(",%1").arg(QString::number(deposit.total(),'f',2)));
