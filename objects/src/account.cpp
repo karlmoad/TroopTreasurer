@@ -42,56 +42,14 @@ QString Account::key() const
     return impl->getValue("key").toString();
 }
 
-void Account::setParent(std::shared_ptr<Account> parent)
+void Account::setParent(const QString& parent)
 {
-    impl->_parent = parent;
+    impl->setValue("parent", parent);
 }
 
-std::shared_ptr<Account> Account::parent() const
+QString Account::parent() const
 {
-    return impl->_parent;
-}
-
-int Account::subAccountCount()
-{
-    return impl->_subAccounts.count();
-}
-
-std::shared_ptr<Account> Account::subAccount(int index)
-{
-    if(index >=0 && index < impl->_subAccounts.count())
-    {
-        return impl->_subAccounts.at(index);
-    }
-    return nullptr;
-}
-
-int Account::subAccountIndex() const
-{
-    if(impl->_parent)
-    {
-        return impl->_parent->impl->_subAccounts.indexOf(std::const_pointer_cast<Account>(shared_from_this()));
-    }
-    return 0;
-}
-
-void Account::addSubAccount(Account sub)
-{
-    std::shared_ptr<Account> acct = std::shared_ptr<Account>(new Account(sub));
-    acct->setParent(shared_from_this());
-    impl->_subAccounts.append(acct);
-}
-
-void Account::removeSubAccount(int index)
-{
-    if(index < impl->_subAccounts.count())
-    {
-        auto acct = impl->_subAccounts.takeAt(index);
-        if(acct->parent().get() == this)
-        {
-            acct->setParent(nullptr);
-        }
-    }
+    return impl->getValue("parent").toString();
 }
 
 void Account::setName(const QString &name)

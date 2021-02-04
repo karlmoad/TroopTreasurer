@@ -29,7 +29,9 @@ set(SOURCES settingsmanager.cpp
             fundsrecordsmodel.cpp
             depositfundsmodel.cpp
             dataobject.cpp
-            account.cpp)
+            account.cpp
+            accountsmodel.cpp
+            hierarchyitem.cpp)
 
 set(HEADERS settingsmanager.h
             objecterror.h
@@ -63,7 +65,9 @@ set(HEADERS settingsmanager.h
             fundsrecordsmodel.h
             depositfundsmodel.h
             dataobject.h
-            account.h)
+            account.h
+            accountsmodel.h
+            hierarchyitem.h)
 
 format_source_paths("/src" SOURCES)
 format_source_paths("/include/objects" HEADERS)
