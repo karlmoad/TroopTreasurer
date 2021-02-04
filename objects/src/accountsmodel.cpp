@@ -1,14 +1,27 @@
 #include "objects/accountsmodel.h"
 #include <QUuid>
 #include <QMap>
-#include <QQueue>
-#include <QFile>
-#include <QJsonDocument>
-#include <QJsonArray>
-#include <QJsonObject>
 #include <QList>
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QSqlQuery>
+#include <QSqlField>
+#include <QSqlRecord>
+#include <QSqlResult>
 #include "objects/hierarchyitem.h"
 #include <QDebug>
+
+
+namespace AccountsSql
+{
+    static const QString Fields = QString("ACCT_KEY, ACCT_NAME, ACCT_PARENT, SOURCE_KEY, REPORTED_FLAG, ROLLUP_FLAG, DISPLAY_ORDER, EXTERNAL_FLAG, CLOSED_FLAG, ORG");
+    static const QString SelectStmt = QString("SELECT " + Fields + " FROM ACCOUNT_MASTER ORDER BY ACCT_PARENT, DISPLAY_ORDER");
+    static const QString UpdateStmt = QString("UPDATE ACCOUNT_MASTER SET %1 WHERE ACCT_KEY='%2'");
+    static const QString InsertStmt = QString("INSERT INTO ACCOUNT_MASTER (" + Fields + ") VALUES (%1)");
+    static const QString DeleteStmt = QString("DELETE FROM ACCOUNT_MASTER WHERE ACCT_KEY='%1'");
+    static const QString ExistsStmt = QString("SELECT COUNT(*) FROM ACCOUNT_MASTER WHERE ACCT_KEY='%1'");
+    static const QString DeletableCheckStmt = QString("SELECT ACCT_KEY, CLOSED_FLAG, (SELECT COUNT(ACCT_KEY) FROM ACCOUNT_MASTER WHERE ACCT_PARENT ='%1') AS SUB_COUNT FROM ACCOUNT_MASTER WHERE ACCT_KEY='%1'");
+}
 
 class AccountsModel::AccountsModelImpl
 {
@@ -63,6 +76,119 @@ public:
 //        _root = process(parent2ChildRef, _rootKey);
 //
 //        debug();
+    }
+
+    static bool insertAccount(const Account& account, QString& message)
+    {
+        QString sql = AccountsSql::InsertStmt;
+        QString buffer = QString("'%1'").arg(account.key());
+        buffer.append(QString(",'%1'").arg(account.name()));
+        buffer.append(QString(",'%1'").arg(account.parent()));
+        buffer.append(QString(",'%1'").arg(account.sourceKey()));
+        buffer.append(QString(",%1").arg(account.isReported() ? "1" : "0"));
+        buffer.append(QString(",%1").arg(account.isRollup() ? "1" : "0"));
+        buffer.append(QString(",%1").arg(QString::number(account.displayOrder())));
+        buffer.append(QString(",%1").arg(account.isExternal() ? "1" : "0"));
+        buffer.append(QString(",%1").arg(account.isClosed() ? "1" : "0"));
+        buffer.append(QString(",'%1'").arg(account.org()));
+
+        QString stmt = sql.arg(buffer);
+
+        QSqlDatabase db = QSqlDatabase::database("DATABASE");
+        if(!db.open())
+        {
+            message = QString("Insert record failed: Database failed to open, " + QString(db.lastError().databaseText()));
+            return false;
+        }
+
+        QSqlQuery insert(db);
+        if(!insert.exec(stmt))
+        {
+            message = QString("Insert record failed: " + insert.lastError().text() + "\n\nSQL:" + sql);
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    static bool updateAccount(const Account& account, QString& msg)
+    {
+
+    }
+
+    static bool deleteAccount(const Account& account, QString& message)
+    {
+        QSqlDatabase db = QSqlDatabase::database("DATABASE");
+        if(!db.open())
+        {
+            message = QString("Delete record failed: Database failed to open, " + QString(db.lastError().databaseText()));
+            return false;
+        }
+        //make sure the record exists, if it doesnt add/update records could be in change queue only
+        int existingCount = 0;
+        QString existstmt = AccountsSql::ExistsStmt.arg(account.key());
+        QSqlQuery exists(db);
+        if(!exists.exec(existstmt))
+        {
+            message = QString("Delete record failed: " + QString(exists.lastError().databaseText()) + "\n\nExisting record check failure");
+            return false;
+        }
+
+        if(exists.first())
+        {
+            existingCount = exists.value(0).toInt();
+        }
+
+        if(existingCount == 0)
+        {
+            //if there is no record in the db it is essentially deleted,
+            //return true so that table and change queue are purged of prior records
+            return true;
+        }
+
+        // make sure account is deletable (closed and has no sub accounts)
+        QString deletableStmt = AccountsSql::DeletableCheckStmt.arg(account.key());
+        QSqlQuery deletable(db);
+        if(!deletable.exec(deletableStmt))
+        {
+            message = QString("Delete record failed: " + QString(exists.lastError().databaseText()) + "\n\nAccount status check failure");
+            return false;
+        }
+
+        if(deletable.first())
+        {
+            QString key = deletable.value(0).toString();
+            int closed = deletable.value(1).toInt();
+            int subAccounts = deletable.value(2).toInt();
+
+            if(closed ==0 || subAccounts > 0)
+            {
+                message = QString("Delete record failed: " + QString(exists.lastError().databaseText()) + "\n\nAccount is either closed, or has sub accounts.\n function not allowed");
+                return false;
+            }
+        }
+        else
+        {
+            message = QString("Delete record failed: " + QString(exists.lastError().databaseText()) + "\n\nAccount status check failure, could not identify account");
+            return false;
+        }
+
+        //if reached this far, account can be deleted, do so.
+
+        QString stmt = AccountsSql::DeleteStmt.arg(account.key());
+
+        QSqlQuery del(db);
+        if(!del.exec(stmt))
+        {
+            message = QString("Delete record failed: " + QString(del.lastError().databaseText()) + "\n\n SQL: " + stmt);
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     }
 
     HierarchyItem * process(const QMap<QString, QList<QString>>& map, const QString& key)
