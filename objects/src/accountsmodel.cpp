@@ -9,6 +9,7 @@
 #include <QSqlRecord>
 #include <QSqlResult>
 #include "objects/hierarchyitem.h"
+#include "objects/objecterror.h"
 #include <QDebug>
 
 
@@ -28,54 +29,59 @@ class AccountsModel::AccountsModelImpl
 public:
     void load()
     {
-//        QMap<QString, QList<QString>> parent2ChildRef;
-//        QJsonObject data;
-//        QFile file(":/resources/items.json");
-//        if(file.open(QFile::ReadOnly | QFile::Text)){
-//            QByteArray raw = file.readAll();
-//            file.close();
-//            data = QJsonDocument::fromJson(raw).object();
-//        }
-//
-//        QJsonArray items = data["items"].toArray();
-//
-//
-//        auto rootAcct = std::shared_ptr<Account>(new Account);
-//        rootAcct->setKey(_rootKey);
-//        rootAcct->setName("Root Account");
-//        rootAcct->setReported(true);
-//        rootAcct->setRollup(true);
-//        rootAcct->setSourceKey("--root--");
-//        _accounts.insert(rootAcct->key(), rootAcct);
-//
-//        for(int i =0; i<items.size(); ++i)
-//        {
-//            QJsonObject o = items[i].toObject();
-//            auto acct = std::shared_ptr<Account>(new Account);
-//            acct->setKey(o["id"].toString());
-//            acct->setName(o["name"].toString());
-//            acct->setOrg(o["org"].toString());
-//            acct->setSourceKey(o["source"].toString());
-//            acct->setParent(o["parent"].toString());
-//            acct->setRollup(o["rollup"].toBool());
-//            acct->setExternal(o["external"].toBool());
-//            acct->setClosed(o["closed"].toBool());
-//            acct->setReported(o["reported"].toBool());
-//            _accounts.insert(acct->key(), acct);
-//
-//            if (!parent2ChildRef.contains(acct->parent()))
-//            {
-//                parent2ChildRef.insert(acct->parent(), QList<QString>());
-//            }
-//            parent2ChildRef[acct->parent()].append(acct->key());
-//        }
-//
-//        qDebug() << parent2ChildRef;
-//        qDebug() << _accounts.keys();
-//
-//        _root = process(parent2ChildRef, _rootKey);
-//
-//        debug();
+        QMap<QString, QList<QString>> parent2ChildRef;
+        auto rootAcct = std::shared_ptr<Account>(new Account);
+        rootAcct->setKey(_rootKey);
+        rootAcct->setName("Root Account");
+        rootAcct->setReported(true);
+        rootAcct->setRollup(true);
+        rootAcct->setSourceKey("--root--");
+        _accounts.insert(rootAcct->key(), rootAcct);
+
+        QSqlDatabase db = QSqlDatabase::database("DATABASE");
+        if(!db.open())
+        {
+            ObjectError err(QString("Insert record failed: Database failed to open, " + QString(db.lastError().databaseText())), static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
+            err.raise();
+            return;
+        }
+        QSqlQuery q(db);
+
+        QString sql = AccountsSql::SelectStmt;
+        if(!q.exec(sql))
+        {
+            ObjectError err(q.lastError().databaseText(), static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
+            err.raise();
+            return;
+        }
+
+        while (q.next())
+        {
+            QSqlRecord rec = q.record();
+            QJsonObject meta;
+            meta["key"] = rec.value("ACCT_KEY").toString();
+            meta["name"] = rec.value("ACCT_NAME").toString();
+            meta["parent"] = rec.value("ACCT_PARENT").toString();
+            meta["source_key"] = rec.value("SOURCE_KEY").toString();
+            meta["reported"] = rec.value("REPORTED_FLAG").toInt() == 1;
+            meta["rollup"] = rec.value("ROLLUP_FLAG").toInt() == 1;
+            meta["external"] = rec.value("EXTERNAL_FLAG").toInt() == 1;
+            meta["closed"] = rec.value("CLOSED_FLAG").toInt() == 1;
+            meta["display_order"] = rec.value("DISPLAY_ORDER").toInt();
+            meta["org"] = rec.value("ORG").toString();
+
+            auto acct = std::shared_ptr<Account>(new Account(meta));
+            _accounts.insert(acct->key(), acct);
+
+            if (!parent2ChildRef.contains(acct->parent()))
+            {
+                parent2ChildRef.insert(acct->parent(), QList<QString>());
+            }
+            parent2ChildRef[acct->parent()].append(acct->key());
+
+        }
+
+        _root = process(parent2ChildRef, _rootKey);
     }
 
     static bool insertAccount(const Account& account, QString& message)
@@ -113,9 +119,36 @@ public:
         }
     }
 
-    static bool updateAccount(const Account& account, QString& msg)
+    static bool updateAccount(const Account& account, QString& message)
     {
+        QString buffer = QString("ACCT_NAME = '%1'").arg(account.name().trimmed());
+        buffer.append(QString(",ACCT_PARENT=%1").arg(account.parent()));
+        buffer.append(QString(",SOURCE_KEY='%1'").arg(account.sourceKey()));
+        buffer.append(QString(",REPORTED_FLAG=%1").arg(account.isReported() ? "1" : "0"));
+        buffer.append(QString(",ROLLUP_FLAG=%1").arg(account.isRollup() ? "1" : "0"));
+        buffer.append(QString(",DISPLAY_ORDER=%1").arg(QString::number(account.displayOrder())));
+        buffer.append(QString(",EXTERNAL_FLAG=%1").arg(account.isExternal() ? "1" : "0"));
+        buffer.append(QString(",CLOSED_FLAG=%1").arg(account.isClosed() ? "1" : "0"));
+        buffer.append(QString(",ORG='%1'").arg(account.org().trimmed()));
 
+        QString stmt = AccountsSql::UpdateStmt.arg(buffer, account.key());
+        QSqlDatabase db = QSqlDatabase::database("DATABASE");
+        if(!db.open())
+        {
+            message = QString("Update record failed: Database failed to open, " + QString(db.lastError().databaseText()));
+            return false;
+        }
+
+        QSqlQuery q(db);
+        if(!q.exec(stmt))
+        {
+            message = QString("Update record failed: " + q.lastError().text() + "\n\nSQL:" + stmt);
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     }
 
     static bool deleteAccount(const Account& account, QString& message)
@@ -221,7 +254,6 @@ public:
             }
         }
     }
-
 
     HierarchyItem* getAccountRefItem(const QModelIndex& index)
     {
@@ -373,19 +405,49 @@ void AccountsModel::addAccount(const Account &account, const QModelIndex &parent
     HierarchyItem *parentItem = impl->getAccountRefItem(parent);
     std::shared_ptr<Account> acct = std::shared_ptr<Account>(new Account(account));
 
-    beginInsertRows(parent, parentItem->subItemCount(),parentItem->subItemCount());
+    QString msg;
 
-    acct->setParent(parentItem->id());
-    HierarchyItem *acctItem = new HierarchyItem(acct->key());
-    parentItem->addSubItem(acctItem);
-    impl->_accounts.insert(acct->key(), acct);
-
-    endInsertRows();
+    if(AccountsModelImpl::insertAccount(account, msg))
+    {
+        beginInsertRows(parent, parentItem->subItemCount(), parentItem->subItemCount());
+        acct->setParent(parentItem->id());
+        HierarchyItem *acctItem = new HierarchyItem(acct->key());
+        parentItem->addSubItem(acctItem);
+        impl->_accounts.insert(acct->key(), acct);
+        endInsertRows();
+    }
+    else
+    {
+        //reload from db to reset state to prior to wipe any differences from model
+        //raise error
+        load();
+        ObjectError err(msg, static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
+        err.raise();
+    }
 }
 
 void AccountsModel::updateAccount(const QModelIndex &index)
 {
-    emit dataChanged(index,index);
+    QString msg;
+    std::shared_ptr<Account> acct = getAccount(index);
+    if(acct)
+    {
+        if(AccountsModelImpl::updateAccount(*(acct.get()),msg))
+        {
+            emit dataChanged(index, index);
+            return;
+        }
+    }
+    else
+    {
+        msg = "Invalid Index";
+    }
+
+    //reload from db to reset state to prior to wipe any differences from model
+    //raise error
+    load();
+    ObjectError err(msg, static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
+    err.raise();
 }
 
 void AccountsModel::moveAccount(const QModelIndex &index, const QModelIndex &parent)
@@ -395,18 +457,63 @@ void AccountsModel::moveAccount(const QModelIndex &index, const QModelIndex &par
     HierarchyItem *curParent = impl->getAccountRefItem(index.parent());
     std::shared_ptr<Account> account = getAccount(index);
 
-    beginMoveRows(index.parent(), item->subItemIndex(), item->subItemIndex(), parent, newParent->subItemCount());
+    QString msg;
+    if(account)
+    {
+        account->setParent(newParent->id());
+        if(AccountsModelImpl::updateAccount(*(account.get()),msg))
+        {
+            beginMoveRows(index.parent(), item->subItemIndex(), item->subItemIndex(), parent, newParent->subItemCount());
+            curParent->removeSubItem(item->subItemIndex());
+            newParent->addSubItem(item);
+            endMoveRows();
+            return;
+        }
+    }
+    else
+    {
+        msg = "Invalid Index";
+    }
 
-    curParent->removeSubItem(item->subItemIndex());
-    newParent->addSubItem(item);
-    account->setParent(newParent->id());
-
-    endMoveRows();
+    //reload from db to reset state to prior to wipe any differences from model
+    //raise error
+    load();
+    ObjectError err(msg, static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
+    err.raise();
 }
 
 void AccountsModel::deleteAccount(const QModelIndex &index)
 {
+    QString msg;
+    HierarchyItem *item = impl->getAccountRefItem(index);
+    HierarchyItem *parent = impl->getAccountRefItem(index.parent());
+    std::shared_ptr<Account> acct = getAccount(index);
 
+    if(item && item->subItemCount() == 0)
+    {
+        if(acct && acct->isClosed() && AccountsModelImpl::deleteAccount(*(acct.get()), msg))
+        {
+            beginRemoveRows(index.parent(), item->subItemIndex(), item->subItemIndex());
+            parent->removeSubItem(item->subItemIndex());
+            impl->_accounts.remove(acct->key());
+            endRemoveRows();
+            return;
+        }
+        else
+        {
+            msg = "Invalid operation, account must be closed to be deleted";
+        }
+    }
+    else
+    {
+        msg ="Invalid operation, account must have no sub accounts to be deleted";
+    }
+
+    //reload from db to reset state to prior to wipe any differences from model
+    //raise error
+    load();
+    ObjectError err(msg, static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
+    err.raise();
 }
 
 void AccountsModel::load()

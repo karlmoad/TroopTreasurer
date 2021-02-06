@@ -58,6 +58,7 @@ HierarchyItem *HierarchyItem::removeSubItem(int pos)
         sub->setParent(nullptr);
         return sub;
     }
+    return nullptr;
 }
 
 void HierarchyItem::addSubItem(HierarchyItem *sub)
