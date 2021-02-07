@@ -2,21 +2,37 @@
 #define ACCOUNTSMANAGEMENTPANEL_H
 
 #include <QWidget>
+#include <QItemSelection>
+#include <memory>
+#include "itemstate.h"
+#include "panelwindow.h"
 
-namespace Ui {
-class accountsmanagementpanel;
-}
-
-class accountsmanagementpanel : public QWidget
+class AccountsManagementPanel : public PanelWindow
 {
     Q_OBJECT
-
 public:
-    explicit accountsmanagementpanel(QWidget *parent = nullptr);
-    ~accountsmanagementpanel();
+    explicit AccountsManagementPanel(QWidget *parent = nullptr);
+    ~AccountsManagementPanel();
+
+    virtual QString panelName() const override;
+
+    virtual Panel panelId() const override;
+
+    virtual ItemState getCurrentState() const override;
+
+    virtual void activate(PanelActions *actions) override;
+
+    virtual void deactivate(PanelActions *actions) override;
+
+    Q_SLOT virtual void itemActionHandler(ItemAction action) override;
+
+    Q_SLOT void selectionChangedHandler(const QItemSelection &selected, const QItemSelection &deselected);
+
+    Q_SLOT void viewOrphanSourceAccounts();
 
 private:
-    Ui::accountsmanagementpanel *ui;
+    class AccountsManagementPanelImpl;
+    std::shared_ptr<AccountsManagementPanelImpl> impl;
 };
 
 #endif // ACCOUNTSMANAGEMENTPANEL_H

@@ -35,6 +35,15 @@
       "menu": false,
       "display": "Funds Register",
       "items":[]
+    },
+    {
+      "id": 5,
+      "toolbar": false,
+      "menu": false,
+      "display": "Accounts Management",
+      "items":[
+        {"id": 1, "icon": ":/resources/plugin.png", "title": "View Unassigned Source Accounts", "menu": false, "toolbar": true}
+      ]
     }
   ]
 }

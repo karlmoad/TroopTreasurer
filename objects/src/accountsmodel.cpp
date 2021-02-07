@@ -287,7 +287,7 @@ int AccountsModel::rowCount(const QModelIndex &parent) const
 
 int AccountsModel::columnCount(const QModelIndex &parent) const
 {
-    return 7;
+    return 6;
 }
 
 QVariant AccountsModel::data(const QModelIndex &index, int role) const
@@ -314,8 +314,8 @@ QVariant AccountsModel::data(const QModelIndex &index, int role) const
                         return acct->isRollup();
                     case 5:
                         return acct->org();
-                    case 6:
-                        return acct->sourceKey();
+                    //case 6:
+                    //    return acct->sourceKey();
                     default:
                         QVariant();
                 }
@@ -343,8 +343,8 @@ QVariant AccountsModel::headerData(int section, Qt::Orientation orientation, int
                 return "Rollup";
             case 5:
                 return "Organization";
-            case 6:
-                return "Source ID";
+            //case 6:
+            //    return "Source ID";
             default:
                 return QVariant();
         }

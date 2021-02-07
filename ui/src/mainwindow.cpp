@@ -93,13 +93,8 @@ private:
         mnuFunds = window->menuBar()->addMenu("Bank");
 
         //File menu
-        mnuFileOpenSubmenu = mnuFile->addMenu("Open");
-        actFundsRegister = new QAction("Funds Register", window);
-        actFundsRegister->setStatusTip("Manage Funds Register");
-        mnuFileOpenSubmenu->addAction(actFundsRegister);
-        connect(actFundsRegister, &QAction::triggered, [this](){
-            initNewPanel(Panel::FUNDS);
-        });
+        //mnuFileOpenSubmenu = mnuFile->addMenu("Open");
+
 
         mainToolbar = window->addToolBar("MAIN");
         actSave = new QAction(QIcon(":/resources/disk.png"), "&Save", this->window);
@@ -168,7 +163,22 @@ private:
             emit window->ContextItemActionTriggered(ItemAction::DELETE);
         });
 
+        //Accounts menu
+        actOpenAccounts = new QAction("Account Management", window);
+        actOpenAccounts->setStatusTip("Open Account Management");
+        mnuAccounts->addAction(actOpenAccounts);
+        connect(actOpenAccounts, &QAction::triggered, [this](){
+            initNewPanel(Panel::ACCOUNTSMGMT);
+        });
+
         //Bank menu
+        actFundsRegister = new QAction("Funds Register", window);
+        actFundsRegister->setStatusTip("Manage Funds Register");
+        mnuFunds->addAction(actFundsRegister);
+        connect(actFundsRegister, &QAction::triggered, [this](){
+            initNewPanel(Panel::FUNDS);
+        });
+
         actPayments = new QAction("Payments",window);
         actPayments->setStatusTip("Manage payments");
         mnuFunds->addAction(actPayments);

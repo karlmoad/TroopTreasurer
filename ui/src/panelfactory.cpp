@@ -7,6 +7,7 @@
 #include "ui/paymentspanel.h"
 #include "ui/fundsregisterpanel.h"
 #include "ui/depositspanel.h"
+#include "ui/accountsmanagementpanel.h"
 
 bool PanelFactory::PanelSupportsMultipleInstances(Panel panel)
 {
@@ -29,6 +30,8 @@ PanelWindow *PanelFactory::CreateNewPanel(Panel panel, QWidget *parent)
             return (PanelWindow*)new FundsRegisterPanel(parent);
         case Panel::DEPOSITS:
             return (PanelWindow*)new DepositsPanel(parent);
+        case Panel::ACCOUNTSMGMT:
+            return (PanelWindow*)new AccountsManagementPanel(parent);
         default:
             return nullptr;
     }
