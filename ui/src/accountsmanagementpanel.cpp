@@ -18,9 +18,14 @@ public:
         setCurrentState(initial);
 
         _model = new AccountsModel(_panel);
-        _ui->treeAccounts->setModel(_model);
+        _proxy = new AccountsProxyModel(_panel);
+        _proxy->setSourceModel(_model);
+        _ui->treeAccounts->setModel(_proxy);
+        _ui->chkShowClosed->setCheckState(Qt::Unchecked);
+        setShowClosedAccounts();
 
         connect(_ui->treeAccounts->selectionModel(), &QItemSelectionModel::selectionChanged, _panel, &AccountsManagementPanel::selectionChangedHandler);
+        connect(_ui->chkShowClosed, &QCheckBox::stateChanged, _panel, &AccountsManagementPanel::showClosedToggleHandler);
 
         try
         {
@@ -29,6 +34,23 @@ public:
         catch(ObjectError err)
         {
             QMessageBox::critical(_panel, "Error", QString("An error has occurred: \n %1").arg(err.what()));
+        }
+    }
+
+    void setShowClosedAccounts()
+    {
+        _proxy->setAccountClosedViewFilter(_ui->chkShowClosed->isChecked());
+    }
+
+    void expandItem(const QModelIndex& index)
+    {
+        if(!_ui->treeAccounts->isExpanded(index))
+        {
+            _ui->treeAccounts->expand(index);
+            if(index.parent().isValid())
+            {
+                expandItem(index.parent());
+            }
         }
     }
 
@@ -112,6 +134,7 @@ private:
     AccountsManagementPanel *_panel;
     Ui::AccountsManagementPanel *_ui;
     AccountsModel *_model;
+    AccountsProxyModel *_proxy;
     ItemState _currentState;
 };
 
@@ -157,4 +180,19 @@ void AccountsManagementPanel::selectionChangedHandler(const QItemSelection &sele
 void AccountsManagementPanel::viewOrphanSourceAccounts()
 {
 
+}
+
+void AccountsManagementPanel::rowsInsertedHandler(const QModelIndex &parent, int first, int last)
+{
+    impl->expandItem(parent);
+}
+
+void AccountsManagementPanel::rowsMovedHandler(const QModelIndex &parent, int start, int end, const QModelIndex &destination,int row)
+{
+    impl->expandItem(destination);
+}
+
+void AccountsManagementPanel::showClosedToggleHandler()
+{
+    impl->setShowClosedAccounts();
 }

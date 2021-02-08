@@ -30,6 +30,12 @@ public:
 
     Q_SLOT void viewOrphanSourceAccounts();
 
+    Q_SLOT void rowsInsertedHandler(const QModelIndex &parent, int first, int last);
+
+    Q_SLOT void rowsMovedHandler(const QModelIndex &parent, int start, int end, const QModelIndex &destination, int row);
+
+    Q_SLOT void showClosedToggleHandler();
+
 private:
     class AccountsManagementPanelImpl;
     std::shared_ptr<AccountsManagementPanelImpl> impl;
