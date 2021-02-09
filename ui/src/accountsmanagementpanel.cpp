@@ -1,8 +1,11 @@
 #include "ui/accountsmanagementpanel.h"
 #include "ui_accountsmanagementpanel.h"
 #include "ui/panelactions.h"
+#include "ui/accounteditdialog.h"
 #include "objects/objecterror.h"
 #include "objects/accountsmodel.h"
+#include <QMessageBox>
+#include <QItemSelectionModel>
 
 class AccountsManagementPanel::AccountsManagementPanelImpl
 {
@@ -17,19 +20,17 @@ public:
         initial.setAddEnabled(true);
         setCurrentState(initial);
 
-        _model = new AccountsModel(_panel);
-        _proxy = new AccountsProxyModel(_panel);
-        _proxy->setSourceModel(_model);
-        _ui->treeAccounts->setModel(_proxy);
-        _ui->chkShowClosed->setCheckState(Qt::Unchecked);
-        setShowClosedAccounts();
-
-        connect(_ui->treeAccounts->selectionModel(), &QItemSelectionModel::selectionChanged, _panel, &AccountsManagementPanel::selectionChangedHandler);
-        connect(_ui->chkShowClosed, &QCheckBox::stateChanged, _panel, &AccountsManagementPanel::showClosedToggleHandler);
-
         try
         {
+            _model = new AccountsModel(_panel);
             _model->load();
+            _proxy = new AccountsProxyModel(_panel);
+            _proxy->setSourceModel(_model);
+            _ui->treeAccounts->setModel(_proxy);
+            _ui->chkShowClosed->setCheckState(Qt::Unchecked);
+            connect(_ui->treeAccounts->selectionModel(), &QItemSelectionModel::selectionChanged, _panel, &AccountsManagementPanel::selectionChangedHandler);
+            connect(_ui->chkShowClosed, &QCheckBox::stateChanged, _panel, &AccountsManagementPanel::showClosedToggleHandler);
+            setShowClosedAccounts();
         }
         catch(ObjectError err)
         {
@@ -88,16 +89,12 @@ public:
 
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
     {
-        if(!selected.isEmpty() && selected.indexes().length() == 1)
+        if(!selected.isEmpty())
         {
-            std::shared_ptr<Account> acct = _model->getAccount(selected.indexes()[0]);
-            if(acct)
-            {
-                ItemState state = currentState();
-                state.setEditEnabled(true);
-                state.setDeleteEnabled(acct->isClosed());
-                setCurrentState(state);
-            }
+            ItemState state = currentState();
+            state.setEditEnabled(true);
+            state.setDeleteEnabled(true);
+            setCurrentState(state);
         }
         else
         {
@@ -114,15 +111,59 @@ public:
         {
             case ItemAction::ADD:
             {
+                AccountEditDialog *dialog = new AccountEditDialog(_model, ItemAction::ADD, _panel);
+                dialog->setModal(true);
+                dialog->exec();
+                delete dialog;
                 break;
             }
             case ItemAction::EDIT:
             {
+                QModelIndexList selected = _ui->treeAccounts->selectionModel()->selectedRows();
+                if(selected.count() ==1)
+                {
+                    AccountEditDialog *dialog = new AccountEditDialog(_model, ItemAction::EDIT, _panel);
+                    dialog->setModal(true);
+                    dialog->setContextItem(_proxy->mapToSource(selected.at(0)));
+                    dialog->exec();
+                    delete dialog;
+                }
 
                 break;
             }
             case ItemAction::DELETE:
             {
+                QModelIndexList selected = _ui->treeAccounts->selectionModel()->selectedRows();
+                if(selected.count() ==1)
+                {
+                    std::shared_ptr<Account> acct = _model->getAccount(selected[0]);
+                    if(acct && acct->isClosed())
+                    {
+                        QMessageBox msgBox;
+                        msgBox.setText(
+                                "Are you sure you would like to delete this Account, this action is final and can not be reversed?");
+                        msgBox.setInformativeText("Delete Account?");
+                        msgBox.setStandardButtons(QMessageBox::No | QMessageBox::Yes);
+                        msgBox.setDefaultButton(QMessageBox::No);
+                        int r = msgBox.exec();
+
+                        if (r == QMessageBox::Yes)
+                        {
+                            try
+                            {
+                                _model->deleteAccount(selected[0]);
+                            }
+                            catch (ObjectError err)
+                            {
+                                QMessageBox::critical(_panel, "Error", QString(err.what()));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        QMessageBox::critical(_panel, "Error", "Account must be closed to delete");
+                    }
+                }
                 break;
             }
             default:
