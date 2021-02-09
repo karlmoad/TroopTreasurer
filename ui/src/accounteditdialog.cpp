@@ -3,6 +3,7 @@
 #include "ui_accounteditdialog.h"
 #include <QMessageBox>
 #include <QDebug>
+#include "objects/objecterror.h"
 
 class AccountEditDialog::AccountEditDialogImpl
 {
@@ -95,31 +96,46 @@ public:
         {
             case ItemAction::EDIT:
             {
-                _model->updateAccount(_context);
-                // handle parent change
-                if(_newParentSet && _newParent != _context.parent())
+                try
                 {
-                    bool pass = true;
-                    if(!_newParent.isValid()) pass = confirmRootParentLinkage();
-                    if(pass)
+                    _model->updateAccount(_context);
+                    // handle parent change
+                    if (_newParentSet && _newParent != _context.parent())
                     {
-                        _model->moveAccount(_context, _newParent);
+                        bool pass = true;
+                        if (!_newParent.isValid()) pass = confirmRootParentLinkage();
+                        if (pass)
+                        {
+                            _model->moveAccount(_context, _newParent);
+                            return true;
+                        }
+                        return false;
+                    }
+                    return true;
+                }
+                catch(ObjectError err)
+                {
+                    QMessageBox::critical(_dialog, "Error Updating", QString(err.what()));
+                }
+            }
+            case ItemAction::ADD:
+            {
+                try
+                {
+
+                    bool pass = true;
+                    if (!_newParent.isValid()) pass = confirmRootParentLinkage();
+                    if (pass)
+                    {
+                        _model->addAccount(*(_account.get()), _newParent);
                         return true;
                     }
                     return false;
                 }
-                return true;
-            }
-            case ItemAction::ADD:
-            {
-                bool pass = true;
-                if (!_newParent.isValid()) pass = confirmRootParentLinkage();
-                if (pass)
+                catch(ObjectError err)
                 {
-                    _model->addAccount(*(_account.get()), _newParent);
-                    return true;
+                    QMessageBox::critical(_dialog, "Error Adding", QString(err.what()));
                 }
-                return false;
             }
             default:
                 return false;

@@ -122,7 +122,7 @@ public:
     static bool updateAccount(const Account& account, QString& message)
     {
         QString buffer = QString("ACCT_NAME = '%1'").arg(account.name().trimmed());
-        buffer.append(QString(",ACCT_PARENT=%1").arg(account.parent()));
+        buffer.append(QString(",ACCT_PARENT='%1'").arg(account.parent()));
         buffer.append(QString(",SOURCE_KEY='%1'").arg(account.sourceKey()));
         buffer.append(QString(",REPORTED_FLAG=%1").arg(account.isReported() ? "1" : "0"));
         buffer.append(QString(",ROLLUP_FLAG=%1").arg(account.isRollup() ? "1" : "0"));
@@ -132,6 +132,9 @@ public:
         buffer.append(QString(",ORG='%1'").arg(account.org().trimmed()));
 
         QString stmt = AccountsSql::UpdateStmt.arg(buffer, account.key());
+
+        qDebug() << stmt;
+
         QSqlDatabase db = QSqlDatabase::database("DATABASE");
         if(!db.open())
         {
