@@ -21,10 +21,10 @@ namespace Accounts
 namespace AccountsSql
 {
     static const QString Fields = QString("ACCT_KEY, ACCT_NAME, ACCT_PARENT, SOURCE_KEY, REPORTED_FLAG, ROLLUP_FLAG, DISPLAY_ORDER, EXTERNAL_FLAG, CLOSED_FLAG, ORG");
-    static const QString SelectStmt = QString("SELECT " + Fields + " FROM ACCOUNT_MASTER ORDER BY ACCT_PARENT, DISPLAY_ORDER");
+    static const QString SelectStmt = QString("SELECT " + Fields + " FROM ACCOUNT_MASTER WHERE ACCT_PARENT IS NOT NULL ORDER BY ACCT_PARENT, DISPLAY_ORDER");
     static const QString UpdateStmt = QString("UPDATE ACCOUNT_MASTER SET %1 WHERE ACCT_KEY='%2'");
     static const QString InsertStmt = QString("INSERT INTO ACCOUNT_MASTER (" + Fields + ") VALUES (%1)");
-    static const QString DeleteStmt = QString("DELETE FROM ACCOUNT_MASTER WHERE ACCT_KEY='%1'");
+    static const QString DeleteStmt = QString("UPDATE ACCOUNT_MASTER SET ACCT_PARENT = NULL WHERE ACCT_KEY='%1'");
     static const QString ExistsStmt = QString("SELECT COUNT(*) FROM ACCOUNT_MASTER WHERE ACCT_KEY='%1'");
     static const QString DeletableCheckStmt = QString("SELECT ACCT_KEY, CLOSED_FLAG, (SELECT COUNT(ACCT_KEY) FROM ACCOUNT_MASTER WHERE ACCT_PARENT ='%1') AS SUB_COUNT FROM ACCOUNT_MASTER WHERE ACCT_KEY='%1'");
 }
@@ -94,7 +94,7 @@ public:
         QString sql = AccountsSql::InsertStmt;
         QString buffer = QString("'%1'").arg(account.key());
         buffer.append(QString(",'%1'").arg(account.name()));
-        buffer.append(QString(",'%1'").arg(account.parent()));
+        buffer.append(QString(",'%1'").arg(account.parent().trimmed().length() == 0 ? Accounts::RootAccountKey : account.parent()));
         buffer.append(QString(",'%1'").arg(account.sourceKey()));
         buffer.append(QString(",%1").arg(account.isReported() ? "1" : "0"));
         buffer.append(QString(",%1").arg(account.isRollup() ? "1" : "0"));
@@ -411,13 +411,13 @@ void AccountsModel::addAccount(const Account &account, const QModelIndex &parent
 {
     HierarchyItem *parentItem = impl->getAccountRefItem(parent);
     std::shared_ptr<Account> acct = std::shared_ptr<Account>(new Account(account));
+    acct->setParent(parentItem->id());
 
     QString msg;
 
     if(AccountsModelImpl::insertAccount(account, msg))
     {
         beginInsertRows(parent, parentItem->subItemCount(), parentItem->subItemCount());
-        acct->setParent(parentItem->id());
         HierarchyItem *acctItem = new HierarchyItem(acct->key());
         parentItem->addSubItem(acctItem);
         impl->_accounts.insert(acct->key(), acct);
