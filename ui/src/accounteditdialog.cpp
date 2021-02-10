@@ -45,6 +45,7 @@ public:
             _context = index;
             _account = _model->getAccount(index);
             _oParent = _model->getAccount(index.parent());
+            _nParent = _oParent;
             load();
         }
     }
