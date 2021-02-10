@@ -4,8 +4,10 @@
 #include "ui/accounteditdialog.h"
 #include "objects/objecterror.h"
 #include "objects/accountsmodel.h"
+#include <QTreeView>
 #include <QMessageBox>
 #include <QItemSelectionModel>
+#include <QHeaderView>
 
 class AccountsManagementPanel::AccountsManagementPanelImpl
 {
@@ -28,9 +30,14 @@ public:
             _proxy->setSourceModel(_model);
             _ui->treeAccounts->setModel(_proxy);
             _ui->chkShowClosed->setCheckState(Qt::Unchecked);
+
+            connect(_model, &QAbstractItemModel::rowsInserted, _panel, &AccountsManagementPanel::rowsInsertedHandler);
+            connect(_model, &QAbstractItemModel::rowsMoved, _panel, &AccountsManagementPanel::rowsMovedHandler);
+            connect(_ui->treeAccounts, &QTreeView::expanded, _panel, &AccountsManagementPanel::itemExpandedHandler);
             connect(_ui->treeAccounts->selectionModel(), &QItemSelectionModel::selectionChanged, _panel, &AccountsManagementPanel::selectionChangedHandler);
             connect(_ui->chkShowClosed, &QCheckBox::stateChanged, _panel, &AccountsManagementPanel::showClosedToggleHandler);
             setShowClosedAccounts();
+            _ui->treeAccounts->resizeColumnToContents(0);
         }
         catch(ObjectError err)
         {
@@ -43,16 +50,29 @@ public:
         _proxy->setAccountClosedViewFilter(_ui->chkShowClosed->isChecked());
     }
 
-    void expandItem(const QModelIndex& index)
+    void expandItem(const QModelIndex& index, bool proxied = false)
     {
-        if(!_ui->treeAccounts->isExpanded(index))
+        QModelIndex idx = index;
+        if(proxied)
         {
-            _ui->treeAccounts->expand(index);
-            if(index.parent().isValid())
-            {
-                expandItem(index.parent());
-            }
+            idx = _proxy->mapFromSource(index);
         }
+
+        _ui->treeAccounts->expand(idx);
+        if(idx.parent().isValid())
+        {
+            expandItem(idx.parent());
+        }
+    }
+
+    void itemExpanded(const QModelIndex &index)
+    {
+        _ui->treeAccounts->resizeColumnToContents(0);
+    }
+
+    void userResized(int logicalIndex, int oldSize, int newSize)
+    {
+        qDebug() << "resized by user";
     }
 
     void activate(bool active, PanelActions *actions)
@@ -136,7 +156,7 @@ public:
                 QModelIndexList selected = _ui->treeAccounts->selectionModel()->selectedRows();
                 if(selected.count() ==1)
                 {
-                    std::shared_ptr<Account> acct = _model->getAccount(selected[0]);
+                    std::shared_ptr<Account> acct = _model->getAccount(_proxy->mapToSource(selected.at(0)));
                     if(acct && acct->isClosed())
                     {
                         QMessageBox msgBox;
@@ -151,7 +171,7 @@ public:
                         {
                             try
                             {
-                                _model->deleteAccount(selected[0]);
+                                _model->deleteAccount(_proxy->mapToSource(selected.at(0)));
                             }
                             catch (ObjectError err)
                             {
@@ -225,15 +245,25 @@ void AccountsManagementPanel::viewOrphanSourceAccounts()
 
 void AccountsManagementPanel::rowsInsertedHandler(const QModelIndex &parent, int first, int last)
 {
-    impl->expandItem(parent);
+    impl->expandItem(parent, true);
 }
 
 void AccountsManagementPanel::rowsMovedHandler(const QModelIndex &parent, int start, int end, const QModelIndex &destination,int row)
 {
-    impl->expandItem(destination);
+    impl->expandItem(destination, true);
 }
 
 void AccountsManagementPanel::showClosedToggleHandler()
 {
     impl->setShowClosedAccounts();
+}
+
+void AccountsManagementPanel::sectionResizedHandler(int logicalIndex, int oldSize, int newSize)
+{
+    impl->userResized(logicalIndex, oldSize, newSize);
+}
+
+void AccountsManagementPanel::itemExpandedHandler(const QModelIndex &index)
+{
+    impl->itemExpanded(index);
 }

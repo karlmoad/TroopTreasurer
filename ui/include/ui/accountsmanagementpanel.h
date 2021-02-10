@@ -36,6 +36,10 @@ public:
 
     Q_SLOT void showClosedToggleHandler();
 
+    Q_SLOT void sectionResizedHandler(int logicalIndex, int oldSize, int newSize);
+
+    Q_SLOT void itemExpandedHandler(const QModelIndex &index);
+
 private:
     class AccountsManagementPanelImpl;
     std::shared_ptr<AccountsManagementPanelImpl> impl;
