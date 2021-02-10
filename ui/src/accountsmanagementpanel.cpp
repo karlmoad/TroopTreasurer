@@ -7,7 +7,7 @@
 #include <QTreeView>
 #include <QMessageBox>
 #include <QItemSelectionModel>
-#include <QHeaderView>
+#include "ui/unassociatedsourceaccountdialog.h"
 
 class AccountsManagementPanel::AccountsManagementPanelImpl
 {
@@ -191,6 +191,30 @@ public:
         }
     }
 
+    void viewOrphanSourceAccounts()
+    {
+        QList<QJsonObject> data = _model->getUnassociatedSourceAccounts();
+        QJsonObject item;
+        UnassociatedSourceAccountDialog *dialog = new UnassociatedSourceAccountDialog(_panel);
+        dialog->setModal(true);
+        dialog->setData(data);
+        int r = dialog->exec();
+        if(r == QDialog::Accepted)
+        {
+            item = dialog->getSelected();
+        }
+        delete dialog;
+
+        if(!item.isEmpty())
+        {
+            AccountEditDialog *addDialog = new AccountEditDialog(_model, ItemAction::ADD, _panel);
+            addDialog->setModal(true);
+            addDialog->setContextData(item);
+            addDialog->exec();
+            delete addDialog;
+        }
+    }
+
 private:
     AccountsManagementPanel *_panel;
     Ui::AccountsManagementPanel *_ui;
@@ -240,7 +264,7 @@ void AccountsManagementPanel::selectionChangedHandler(const QItemSelection &sele
 
 void AccountsManagementPanel::viewOrphanSourceAccounts()
 {
-
+    impl->viewOrphanSourceAccounts();
 }
 
 void AccountsManagementPanel::rowsInsertedHandler(const QModelIndex &parent, int first, int last)

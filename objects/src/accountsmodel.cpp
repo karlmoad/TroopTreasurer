@@ -1,7 +1,6 @@
 #include "objects/accountsmodel.h"
 #include <QUuid>
 #include <QMap>
-#include <QList>
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
@@ -27,6 +26,9 @@ namespace AccountsSql
     static const QString DeleteStmt = QString("UPDATE ACCOUNT_MASTER SET ACCT_PARENT = NULL WHERE ACCT_KEY='%1'");
     static const QString ExistsStmt = QString("SELECT COUNT(*) FROM ACCOUNT_MASTER WHERE ACCT_KEY='%1'");
     static const QString DeletableCheckStmt = QString("SELECT ACCT_KEY, CLOSED_FLAG, (SELECT COUNT(ACCT_KEY) FROM ACCOUNT_MASTER WHERE ACCT_PARENT ='%1') AS SUB_COUNT FROM ACCOUNT_MASTER WHERE ACCT_KEY='%1'");
+    static const QString UnassociatedSourceAccountsStmt = QString("SELECT DISTINCT JRNL.ACCT_HASH, JRNL.ACCT_NAME"
+                                                                  " FROM TROOP_TRACK_JOURNAL JRNL"
+                                                                  " WHERE NOT EXISTS (SELECT AM.SOURCE_KEY FROM ACCOUNT_MASTER AM WHERE AM.SOURCE_KEY = JRNL.ACCT_HASH)");
 }
 
 class AccountsModel::AccountsModelImpl
@@ -230,6 +232,32 @@ public:
         {
             return true;
         }
+    }
+
+    static bool unassociatedSourceAccounts(QList<QJsonObject>& fill, QString& message)
+    {
+        QSqlDatabase db = QSqlDatabase::database("DATABASE");
+        if(!db.open())
+        {
+            message = QString("Database failed to open, " + QString(db.lastError().databaseText()));
+            return false;
+        }
+
+        QSqlQuery query(db);
+        if(!query.exec(AccountsSql::UnassociatedSourceAccountsStmt))
+        {
+            message = QString("Query failed, " + QString(query.lastError().databaseText()));
+            return false;
+        }
+
+        while(query.next())
+        {
+            QJsonObject rec;
+            rec["sourcekey"] = query.value(0).toString();
+            rec["name"] = query.value(1).toString();
+            fill.append(rec);
+        }
+        return true;
     }
 
     HierarchyItem * process(const QMap<QString, QList<QString>>& map, const QString& key)
@@ -537,6 +565,23 @@ bool AccountsModel::isRootAccount(std::shared_ptr<Account> account)
         return true;
     }
     return false;
+}
+
+QList<QJsonObject> AccountsModel::getUnassociatedSourceAccounts()
+{
+    QList<QJsonObject> out;
+    QString msg;
+
+    if(!impl->unassociatedSourceAccounts(out,msg))
+    {
+        ObjectError err(msg, static_cast<int>(ObjectErrorCode::DATABASE_ERROR));
+        err.raise();
+        return QList<QJsonObject>();
+    }
+    else
+    {
+        return out;
+    }
 }
 
 

@@ -15,6 +15,7 @@ public:
     ~AccountEditDialog();
 
     void setContextItem(const QModelIndex &index);
+    void setContextData(const QJsonObject& json);
     void load();
 
 public slots:

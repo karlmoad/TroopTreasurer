@@ -38,7 +38,7 @@
     },
     {
       "id": 5,
-      "toolbar": false,
+      "toolbar": true,
       "menu": false,
       "display": "Accounts Management",
       "items":[

@@ -84,6 +84,18 @@ public:
         return true;
     }
 
+    void setData(const QJsonObject& json)
+    {
+        if(json.contains("name"))
+            _ui->txtName->setText(json["name"].toString());
+
+        if(json.contains("sourcekey"))
+            _ui->txtSourceID->setText(json["sourcekey"].toString());
+
+        if(json.contains("org"))
+            _ui->txtOrg->setText(json["org"].toString());
+    }
+
     bool save()
     {
         _account->setOrg(_ui->txtOrg->text());
@@ -232,4 +244,9 @@ void AccountEditDialog::parentResetHandler()
 void AccountEditDialog::load()
 {
     impl->load();
+}
+
+void AccountEditDialog::setContextData(const QJsonObject &json)
+{
+    impl->setData(json);
 }

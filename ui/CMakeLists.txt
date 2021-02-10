@@ -28,7 +28,8 @@ set(SOURCES mainwindow.cpp mainwindow.ui
             depositeditpicklistdialog.cpp depositeditpicklistdialog.ui
             accountsmanagementpanel.cpp accountsmanagementpanel.ui
             accounteditdialog.cpp accounteditdialog.ui
-            accountpickerdialog.cpp accountpickerdialog.ui)
+            accountpickerdialog.cpp accountpickerdialog.ui
+            unassociatedsourceaccountdialog.cpp unassociatedsourceaccountdialog.ui)
 
 set(HEADERS ui.h
         mainwindow.h
@@ -56,7 +57,8 @@ set(HEADERS ui.h
         depositeditpicklistdialog.h
         accountsmanagementpanel.h
         accounteditdialog.h
-        accountpickerdialog.h)
+        accountpickerdialog.h
+        unassociatedsourceaccountdialog.h)
 
 format_source_paths("/src" SOURCES)
 format_source_paths("/include/ui" HEADERS)

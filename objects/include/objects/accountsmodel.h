@@ -7,6 +7,8 @@
 #include <QModelIndex>
 #include <QVariant>
 #include <memory>
+#include <QList>
+#include <QJsonObject>
 #include "account.h"
 
 class AccountsModel: public QAbstractItemModel
@@ -30,6 +32,7 @@ public:
     void moveAccount(const QModelIndex &index, const QModelIndex& parent);
     void deleteAccount(const QModelIndex& index);
     void load();
+    QList<QJsonObject> getUnassociatedSourceAccounts();
     static bool isRootAccount(std::shared_ptr<Account> account);
 
 private:
