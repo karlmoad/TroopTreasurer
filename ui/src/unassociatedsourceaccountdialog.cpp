@@ -36,7 +36,7 @@ public:
     bool setSelected()
     {
         auto selected =_ui->listItems->selectedItems();
-        if(selected.count() != 1)
+        if(selected.count() == 1)
         {
             _selected = selected.at(0)->data(Qt::UserRole).toJsonObject();
             return true;
