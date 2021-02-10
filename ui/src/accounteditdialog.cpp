@@ -12,13 +12,25 @@ public:
                                                                                                     _ui(new Ui::AccountEditDialog),
                                                                                                     _model(model),
                                                                                                     _action(action),
-                                                                                                    _account(nullptr)
+                                                                                                    _account(nullptr),
+                                                                                                    _oParent(nullptr),
+                                                                                                    _nParent(nullptr)
     {
         _ui->setupUi(_dialog);
         connect(_ui->btnOk, &QPushButton::clicked, _dialog, &AccountEditDialog::okHandler);
         connect(_ui->btnCancel, &QPushButton::clicked, _dialog, &AccountEditDialog::cancelHandler);
         connect(_ui->btnParent, &QPushButton::clicked, _dialog, &AccountEditDialog::parentSelectHandler);
         connect(_ui->btnReset, &QPushButton::clicked, _dialog, &AccountEditDialog::parentResetHandler);
+
+        if(_action == ItemAction::ADD)
+        {
+            _account = std::shared_ptr<Account>(new Account());
+            _dialog->setWindowTitle("Add Account");
+        }
+        else
+        {
+            _dialog->setWindowTitle("Add Account");
+        }
     }
 
     ~AccountEditDialogImpl()
@@ -32,23 +44,15 @@ public:
         {
             _context = index;
             _account = _model->getAccount(index);
+            _oParent = _model->getAccount(index.parent());
             load();
         }
     }
 
     void resetParent()
     {
-        switch(_action)
-        {
-            case ItemAction::EDIT:
-            {
-                _newParentSet = true;
-                break;
-            }
-            default:
-                break;
-        }
-        _newParent = QModelIndex();
+        _nParent = nullptr;
+        _nParentIndex = QModelIndex();
         _ui->txtParent->setText("");
     }
 
@@ -62,28 +66,25 @@ public:
         _ui->chkExtrenal->setCheckState((_account->isExternal() ? Qt::Checked : Qt::Unchecked));
         _ui->chkClosed->setCheckState((_account->isClosed() ? Qt::Checked : Qt::Unchecked));
 
-        std::shared_ptr<Account> parent = _model->getAccount(_context.parent());
-        if(parent)
-            _ui->txtParent->setText(parent->name());
-
+        if(_oParent)
+            _ui->txtParent->setText(_oParent->name());
     }
 
-    bool confirmRootParentLinkage()
+    bool checkRootParentLinkage()
     {
-        auto r = QMessageBox::question(_dialog,
-                                       "No Parent Account",
-                                       "You have not selected a parent account, if you continue this account will be linked at the root level.\n\nYES to continue, NO to stop.",
-                                       QMessageBox::Yes | QMessageBox::No);
-        return r == QMessageBox::Yes;
+        if(_nParent == nullptr)
+        {
+            auto r = QMessageBox::question(_dialog,
+                                           "No Parent Account",
+                                           "You have not selected a parent account, if you continue this account will be linked at the root level.\n\nYES to continue, NO to stop.",
+                                           QMessageBox::Yes | QMessageBox::No);
+            return r == QMessageBox::Yes;
+        }
+        return true;
     }
 
     bool save()
     {
-        if(_action == ItemAction::ADD)
-        {
-            _account = std::shared_ptr<Account>(new Account());
-        }
-
         _account->setOrg(_ui->txtOrg->text());
         _account->setName(_ui->txtName->text());
         _account->setSourceKey(_ui->txtSourceID->text());
@@ -98,18 +99,17 @@ public:
             {
                 try
                 {
-                    _model->updateAccount(_context);
-                    // handle parent change
-                    if (_newParentSet && _newParent != _context.parent())
+                    if(isParentChanging())
                     {
-                        bool pass = true;
-                        if (!_newParent.isValid()) pass = confirmRootParentLinkage();
-                        if (pass)
-                        {
-                            _model->moveAccount(_context, _newParent);
-                            return true;
-                        }
-                        return false;
+                        bool pass = checkRootParentLinkage();
+                        if(pass)
+                            _model->moveAccount(_context, _nParentIndex);
+                        else
+                            return false;
+                    }
+                    else
+                    {
+                        _model->updateAccount(_context);
                     }
                     return true;
                 }
@@ -122,12 +122,10 @@ public:
             {
                 try
                 {
-
-                    bool pass = true;
-                    if (!_newParent.isValid()) pass = confirmRootParentLinkage();
+                    bool pass = checkRootParentLinkage();
                     if (pass)
                     {
-                        _model->addAccount(*(_account.get()), _newParent);
+                        _model->addAccount(*(_account.get()), _nParentIndex);
                         return true;
                     }
                     return false;
@@ -142,6 +140,17 @@ public:
         }
     }
 
+    bool isParentChanging()
+    {
+        if(!_oParent)  // if there is no original parent, i.e. new account, parent needs will need be set
+            return true;
+
+        if(_oParent && !_nParent) // if there was an orig parent and new parent is null, intent is to set parent to root as a change
+            return true;
+
+        return _oParent->key().compare(_nParent->key(), Qt::CaseSensitive) != 0;  // compare the acct keys for orig and new parent, if diff the parent is changing
+    }
+
     void parentSelect()
     {
         AccountPickerDialog *picker = new AccountPickerDialog(_model);
@@ -151,17 +160,18 @@ public:
         int r = picker->exec();
         if(r == QDialog::Accepted)
         {
-            _newParentSet = true;
-            _newParent =  picker->getSelected();
-            auto newParent = _model->getAccount(_newParent);
-            if(newParent)
+            _nParentIndex = picker->getSelected();
+            _nParent = _model->getAccount(_nParentIndex);
+            if(_nParent)
             {
-                _ui->txtParent->setText(newParent->name());
-            }
-            else
-            {
-                _newParentSet = false;
-                _newParent = QModelIndex();
+                if (AccountsModel::isRootAccount(_nParent))
+                {
+                    _nParent = nullptr;
+                    _nParentIndex = QModelIndex();
+                }
+                else
+                    _ui->txtParent->setText(_nParent->name());
+
             }
         }
         delete picker;
@@ -174,8 +184,9 @@ private:
     ItemAction _action;
     QModelIndex _context;
     std::shared_ptr<Account> _account;
-    bool _newParentSet;
-    QModelIndex _newParent;
+    std::shared_ptr<Account> _oParent;
+    std::shared_ptr<Account> _nParent;
+    QModelIndex _nParentIndex;
 };
 
 AccountEditDialog::AccountEditDialog(AccountsModel* model, ItemAction action, QWidget *parent) :
@@ -215,4 +226,9 @@ void AccountEditDialog::parentSelectHandler()
 void AccountEditDialog::parentResetHandler()
 {
     impl->resetParent();
+}
+
+void AccountEditDialog::load()
+{
+    impl->load();
 }

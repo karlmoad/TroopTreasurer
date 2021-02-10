@@ -15,6 +15,7 @@ public:
     ~AccountEditDialog();
 
     void setContextItem(const QModelIndex &index);
+    void load();
 
 public slots:
     void okHandler();

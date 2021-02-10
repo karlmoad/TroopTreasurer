@@ -13,6 +13,11 @@
 #include <QDebug>
 
 
+namespace Accounts
+{
+    static const QString RootAccountKey = "{00000000-0000-0000-0000-000000000000}";
+}
+
 namespace AccountsSql
 {
     static const QString Fields = QString("ACCT_KEY, ACCT_NAME, ACCT_PARENT, SOURCE_KEY, REPORTED_FLAG, ROLLUP_FLAG, DISPLAY_ORDER, EXTERNAL_FLAG, CLOSED_FLAG, ORG");
@@ -31,7 +36,7 @@ public:
     {
         QMap<QString, QList<QString>> parent2ChildRef;
         auto rootAcct = std::shared_ptr<Account>(new Account);
-        rootAcct->setKey(_rootKey);
+        rootAcct->setKey(Accounts::RootAccountKey);
         rootAcct->setName("Root Account");
         rootAcct->setReported(true);
         rootAcct->setRollup(true);
@@ -81,7 +86,7 @@ public:
 
         }
 
-        _root = process(parent2ChildRef, _rootKey);
+        _root = process(parent2ChildRef, Accounts::RootAccountKey);
     }
 
     static bool insertAccount(const Account& account, QString& message)
@@ -273,7 +278,6 @@ public:
 
     HierarchyItem *_root;
     QMap<QString, std::shared_ptr<Account>> _accounts;
-    const QString _rootKey = "{00000000-0000-0000-0000-000000000000}";
 };
 
 AccountsModel::AccountsModel(QObject *parent) : QAbstractItemModel(parent) , impl(new AccountsModelImpl)
@@ -524,6 +528,15 @@ void AccountsModel::load()
     beginResetModel();
     impl->load();
     endResetModel();
+}
+
+bool AccountsModel::isRootAccount(std::shared_ptr<Account> account)
+{
+    if(account->key().compare(Accounts::RootAccountKey, Qt::CaseSensitive) == 0)
+    {
+        return true;
+    }
+    return false;
 }
 
 

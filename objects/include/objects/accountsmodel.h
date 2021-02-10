@@ -30,6 +30,7 @@ public:
     void moveAccount(const QModelIndex &index, const QModelIndex& parent);
     void deleteAccount(const QModelIndex& index);
     void load();
+    static bool isRootAccount(std::shared_ptr<Account> account);
 
 private:
     class AccountsModelImpl;
