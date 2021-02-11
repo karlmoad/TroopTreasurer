@@ -64,6 +64,14 @@ public:
         _headers.append(h);
     }
 
+    void addHeader(const QString& field, const QString& header)
+    {
+        auto json = std::make_shared<QJsonObject>();
+        json->insert("field", field);
+        json->insert("header", header);
+        _headers.append(json);
+    }
+
     void addData(const QJsonObject& data)
     {
         auto d = std::make_shared<QJsonObject>(data);
