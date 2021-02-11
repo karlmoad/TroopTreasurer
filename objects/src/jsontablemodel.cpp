@@ -1,7 +1,11 @@
 #include <objects/jsontablemodel.h>
 
 
-JsonTableModel::JsonTableModel(QObject *parent) : DataTableModel(parent){}
+JsonTableModel::JsonTableModel(QObject *parent) : DataTableModel(parent)
+{
+    impl->setVeritcalColumnsEnabled();
+    impl->setHorizontalColumnsEnabled();
+}
 
 JsonTableModel::~JsonTableModel(){}
 

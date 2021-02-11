@@ -22,6 +22,16 @@ public:
         return _headers.count();
     }
 
+    void setVeritcalColumnsEnabled(bool enabled=true)
+    {
+        _displayVerticalColumns = enabled;
+    }
+
+    void setHorizontalColumnsEnabled(bool enabled=true)
+    {
+        _displayHorizontalColumns = enabled;
+    }
+
     bool isVerticalColumnsEnabled()
     {
         return _displayVerticalColumns;
