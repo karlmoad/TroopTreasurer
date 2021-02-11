@@ -56,6 +56,7 @@ void NegativeBalanceReportModel::runReport()
         record["name"] = q.value(1).toString();
         record["date"] = q.value(2).toString();
         record["days"] = q.value(3).toInt();
+        record["acct_hash"] = q.value(0).toString();
         impl->addData(record);
     }
 }
