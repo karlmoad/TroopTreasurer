@@ -44,6 +44,13 @@
       "items":[
         {"id": 1, "icon": ":/resources/plugin.png", "title": "View Unassigned Source Accounts", "menu": false, "toolbar": true}
       ]
+    },
+    {
+      "id": 6,
+      "toolbar": false,
+      "menu": false,
+      "display": "Negative Balance Report",
+      "items":[]
     }
   ]
 }

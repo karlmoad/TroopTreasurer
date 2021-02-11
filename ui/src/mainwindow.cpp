@@ -93,8 +93,6 @@ private:
         mnuFunds = window->menuBar()->addMenu("Bank");
 
         //File menu
-        //mnuFileOpenSubmenu = mnuFile->addMenu("Open");
-
 
         mainToolbar = window->addToolBar("MAIN");
         actSave = new QAction(QIcon(":/resources/disk.png"), "&Save", this->window);
@@ -169,6 +167,15 @@ private:
         mnuAccounts->addAction(actOpenAccounts);
         connect(actOpenAccounts, &QAction::triggered, [this](){
             initNewPanel(Panel::ACCOUNTSMGMT);
+        });
+
+        mnuReports = mnuAccounts->addMenu("Reports");
+        actNegBalReport = new QAction("Negative Balance Report", window);
+        actNegBalReport->setStatusTip("View Negative Balance report");
+        mnuReports->addAction(actNegBalReport);
+
+        connect(actNegBalReport, &QAction::triggered, [this](){
+            initNewPanel(Panel::NEGBALREPORT);
         });
 
         //Bank menu
@@ -322,6 +329,7 @@ private:
     QMenu *mnuFunds;
     QMenu *mnuFileOpenSubmenu;
     QMenu *mnuFileImportSubmenu;
+    QMenu *mnuReports;
     QAction *actSave;
     QAction *actOpenAccounts;
     QAction *actImportEditTemplates;
@@ -336,6 +344,7 @@ private:
     QAction *actPayments;
     QAction *actDeposits;
     QAction *actFundsRegister;
+    QAction *actNegBalReport;
     QMap<Panel, QList<int>> panel2Index;
     QMap<int, PanelWindow*> index2Panel;
     QMap<Panel,PanelActions*> panelActionRegistry;

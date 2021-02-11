@@ -17,10 +17,10 @@ namespace ReportSQl
                                                    "GROUP BY A2.ACCT_HASH) AS LP ON A.ACCT_HASH = LP.ACCT_HASH "
                                                    "JOIN(SELECT AM.ACCT_KEY,AM.SOURCE_KEY,J.ACCT_HASH, SUM(J.ACTIVITY_VALUE) AS ACCT_BALANCE "
                                                    "FROM ACCOUNT_MASTER AM JOIN TROOP_TRACK_JOURNAL J ON AM.SOURCE_KEY = J.ACCT_HASH "
-                                                   "WHERE AM.ACCT_PARENT IS NOT NULL AND J.ACTIVITY_DATE <= '2021-01-25' "
+                                                   "WHERE AM.ACCT_PARENT IS NOT NULL "
                                                    "GROUP BY AM.ACCT_KEY,AM.SOURCE_KEY,J.ACCT_HASH) AS BAL ON A.ACCT_HASH = BAL.ACCT_HASH "
                                                    "WHERE A.ACTIVITY_DATE > LP.LASTPOS AND A.BALANCE < 0 AND BAL.ACCT_BALANCE < 0 "
-                                                   "GROUP BY A.ACCT_HASH, A.ACCT_NAME ");
+                                                   "GROUP BY A.ACCT_HASH, A.ACCT_NAME ORDER BY A.ACCT_NAME");
 
 }
 
@@ -50,6 +50,7 @@ void NegativeBalanceReportModel::runReport()
         return;
     }
 
+    beginResetModel();
     while(q.next())
     {
         QJsonObject record;
@@ -59,4 +60,5 @@ void NegativeBalanceReportModel::runReport()
         record["acct_hash"] = q.value(0).toString();
         impl->addData(record);
     }
+    endResetModel();
 }

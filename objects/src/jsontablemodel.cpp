@@ -19,8 +19,10 @@ void JsonTableModel::setHeaders(const QList<QJsonObject> &headers)
 
 void JsonTableModel::setData(const QList <QJsonObject>& data)
 {
+    beginResetModel();
     for(const QJsonObject json : data)
     {
         impl->addData(json);
     }
+    endResetModel();
 }
