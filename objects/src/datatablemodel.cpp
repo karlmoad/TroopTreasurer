@@ -1,13 +1,9 @@
 #include "objects/datatablemodel.h"
-
-struct DataTableModel::DataTableModelImpl
-{
-    int _colCount;
-    bool _errorState;
-    QString _errorMsg;
-    QVector<QString> _headers;
-    QVector<QMap<QString, QVariant>> _data;
-};
+#include "objects/objecterror.h"
+#include <QVector>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 
 DataTableModel::DataTableModel(QObject *parent) : QAbstractTableModel(parent), impl(new DataTableModelImpl)
 {}
@@ -17,7 +13,7 @@ DataTableModel::~DataTableModel()
 
 int DataTableModel::rowCount(const QModelIndex &parent) const
 {
-    return impl->_data.size();
+    return impl->count();
 }
 
 QVariant DataTableModel::data(const QModelIndex &index, int role) const
@@ -27,9 +23,18 @@ QVariant DataTableModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    if(index.column()<impl->_headers.size())
+    if(index.column() < impl->columnCount())
     {
-        return impl->_data.at(index.row())[impl->_headers.at(index.column())];
+        std::shared_ptr<QJsonObject> header = impl->getHeader(index.column());
+        std::shared_ptr<QJsonObject> record = impl->getRecord(index.row());
+
+        if(record && header)
+        {
+            if(header->contains("field") && record->contains(header->value("field").toString()))
+            {
+                return record->value(header->value("field").toString()).toVariant();
+            }
+        }
     }
     return QVariant();
 }
@@ -45,15 +50,23 @@ QVariant DataTableModel::headerData(int section, Qt::Orientation orientation, in
     {
         case Qt::Horizontal:
         {
-            if(section < impl->_headers.size())
+            if(impl->isHorizontalColumnsEnabled())
             {
-                return impl->_headers.at(section);
+                std::shared_ptr<QJsonObject> header= impl->getHeader(section);
+                if(header)
+                {
+                    return header->value("header").toString();
+                }
             }
             return QVariant();
         }
         case Qt::Vertical:
         {
-            return section + 1;
+            if(impl->isVerticalColumnsEnabled())
+            {
+                return section + 1;
+            }
+            return QVariant();
         }
         default:
             return QVariant();
@@ -67,17 +80,5 @@ Qt::ItemFlags DataTableModel::flags(const QModelIndex &index) const
 
 int DataTableModel::columnCount(const QModelIndex &parent) const
 {
-    return impl->_headers.size();
-}
-
-void DataTableModel::setHeaderMap(const QList<QString> &headers)
-{
-    this->impl->_headers = headers.toVector();
-}
-
-void DataTableModel::setData(const QList<QMap<QString, QVariant>> &data)
-{
-    beginResetModel();
-    impl->_data = data.toVector();
-    endResetModel();
+    return impl->columnCount();
 }

@@ -48,12 +48,17 @@ public:
         ImportSpecificationRuntime runtime(*_spec);
         QList<QString> fields = _spec->getFields();
 
-        QMap<QString, QString> headers;
+        QList<QJsonObject> headers;
         for(QString field: fields)
         {
-            headers[field]=field;
+            QJsonObject json;
+            json["field"] = field;
+            json["header"] = field;
+
+            headers.append(json);
         }
-        _output->setHeaderMap(headers);
+
+        _output->setHeaders(headers);
 
         runtime.compile();
         runtime.setModel(_input);

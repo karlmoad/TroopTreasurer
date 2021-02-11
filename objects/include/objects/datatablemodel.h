@@ -2,11 +2,9 @@
 #define TROOPTREASURER_DATATABLEMODEL_H
 
 #include <QAbstractTableModel>
-#include <QList>
-#include <QMap>
-#include <QString>
 #include <memory>
-#include <QDebug>
+#include "datatablemodelimpl.h"
+
 
 class DataTableModel: public QAbstractTableModel
 {
@@ -19,11 +17,8 @@ public:
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
     virtual int columnCount(const QModelIndex &parent) const override;
-    void setHeaderMap(const QList<QString> &headers);
-    void setData(const QList<QMap<QString, QVariant>> &data);
 
 protected:
-    class DataTableModelImpl;
     std::shared_ptr<DataTableModelImpl> impl;
 };
 

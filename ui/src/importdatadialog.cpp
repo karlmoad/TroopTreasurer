@@ -233,12 +233,34 @@ public:
 
     void showDetailResults()
     {
-        QMap<QString,QString> headers;
-        headers.insert("Stage","stage");
-        headers.insert("Status","status");
-        headers.insert("Record","record");
-        headers.insert("Message", "message");
-        headers.insert("Statement","statement");
+
+        QList<QJsonObject> headers;
+
+        QJsonObject hStage;
+        hStage["field"] = "stage";
+        hStage["header"] = "Stage";
+        headers.append(hStage);
+
+        QJsonObject hStatus;
+        hStatus["field"] = "status";
+        hStatus["header"] = "Status";
+        headers.append(hStatus);
+
+        QJsonObject hRecord;
+        hRecord["field"] = "record";
+        hRecord["header"] = "Record";
+        headers.append(hRecord);
+
+        QJsonObject hMsg;
+        hMsg["field"] = "message";
+        hMsg["header"] = "Message";
+        headers.append(hMsg);
+
+        QJsonObject hStmt;
+        hStmt["field"] = "statement";
+        hStmt["header"] = "Statement";
+        headers.append(hStmt);
+
 
         InformationTableDialog *infodialog = new InformationTableDialog(_dialog);
         infodialog->setDialogTitle("Data Import Results");

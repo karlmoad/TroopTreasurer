@@ -48,6 +48,7 @@ set(HEADERS settingsmanager.h
             expressionfactory.h
             importspecification.h
             importspecificationruntime.h
+            datatablemodelimpl.h
             datatablemodel.h
             schema.h
             jsontablemodel.h

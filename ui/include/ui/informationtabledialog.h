@@ -17,7 +17,7 @@ public:
     explicit InformationTableDialog(QWidget *parent = nullptr);
     ~InformationTableDialog();
 
-    void setHeaderMap(const QMap<QString,QString> &headers);
+    void setHeaderMap(const QList<QJsonObject>& headers);
     void setData(const QList<QJsonObject> &data);
     void setDialogTitle(const QString& title);
 

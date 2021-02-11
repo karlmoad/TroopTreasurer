@@ -17,9 +17,9 @@ public:
         delete _ui;
     }
 
-    void setHeaders(const QMap<QString,QString> &headers)
+    void setHeaders(const QList<QJsonObject>& headers)
     {
-        _model->setHeaderMap(headers);
+        _model->setHeaders(headers);
     }
 
     void setData(const QList<QJsonObject> &data)
@@ -47,7 +47,7 @@ InformationTableDialog::InformationTableDialog(QWidget *parent) :
 
 InformationTableDialog::~InformationTableDialog(){}
 
-void InformationTableDialog::setHeaderMap(const QMap<QString, QString> &headers)
+void InformationTableDialog::setHeaderMap(const QList<QJsonObject>& headers)
 {
     impl->setHeaders(headers);
 }
