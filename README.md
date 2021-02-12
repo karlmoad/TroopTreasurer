@@ -39,9 +39,9 @@ $ cmake ../TroopTreasuer -DQT_CMAKE_DIR=<directory where Qt5cmake.config can be 
 $ make
 ```
 
-<u>QT_CMAKE_DIR</u> argument is supplied ot cmake to direct it to where the Qt cmake configuration is located on the file system.  
+**QT_CMAKE_DIR** argument is supplied to cmake to direct it to where the Qt cmake configuration is located on the file system.  
 
-**One final note:**  I develope and work on Apple platforms, the build and execution of the project has been tested and verified to work on OSX 10.14 and above.  While I have made attempts in the project to accomidate windows platforms this largely remains untested and is not verified to work fully. 
+**One final note:**  I work mainly on Apple platforms, the build and execution of the project has been tested and verified to work on OSX 10.14 and above.  While I have made attempts in the project to accomidate windows platforms this largely remains untested and is not verified to work fully. 
 
 
 
