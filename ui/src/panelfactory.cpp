@@ -9,6 +9,7 @@
 #include "ui/depositspanel.h"
 #include "ui/accountsmanagementpanel.h"
 #include "ui/negativebalancereportpanel.h"
+#include "ui/accountbalancesreportpanel.h"
 
 bool PanelFactory::PanelSupportsMultipleInstances(Panel panel)
 {
@@ -35,6 +36,8 @@ PanelWindow *PanelFactory::CreateNewPanel(Panel panel, QWidget *parent)
             return (PanelWindow*)new AccountsManagementPanel(parent);
         case Panel::NEGBALREPORT:
             return (PanelWindow*)new NegativeBalanceReportPanel(parent);
+        case Panel::ACCTBALREPORT:
+            return (PanelWindow*)new AccountBalancesReportPanel(parent);
         default:
             return nullptr;
     }

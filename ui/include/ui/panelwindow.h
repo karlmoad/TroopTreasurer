@@ -33,7 +33,8 @@ enum class Panel
     DEPOSITS=3,
     FUNDS=4,
     ACCOUNTSMGMT=5,
-    NEGBALREPORT=6
+    NEGBALREPORT=6,
+    ACCTBALREPORT=7
 };
 
 class PanelWindow: public QWidget

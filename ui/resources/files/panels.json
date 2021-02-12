@@ -51,6 +51,15 @@
       "menu": false,
       "display": "Negative Balance Report",
       "items":[]
+    },
+    {
+      "id": 7,
+      "toolbar": true,
+      "menu": false,
+      "display": "Account Balances Report",
+      "items":[
+        {"id": 1, "icon": ":/resources/calendar_add.png", "title": "Add Date", "menu": false, "toolbar": true}
+      ]
     }
   ]
 }
