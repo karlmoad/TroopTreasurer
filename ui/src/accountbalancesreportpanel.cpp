@@ -1,6 +1,8 @@
 #include "ui/accountbalancesreportpanel.h"
 #include "ui_accountbalancesreportpanel.h"
 #include "ui/panelactions.h"
+#include "objects/accountbalancereportmodel.h"
+#include <QMessageBox>
 
 class AccountBalancesReportPanel::AccountBalancesReportPanelImpl
 {
@@ -8,6 +10,16 @@ public:
     AccountBalancesReportPanelImpl(AccountBalancesReportPanel *panel): _panel(panel), _ui(new Ui::AccountBalancesReportPanel)
     {
         _ui->setupUi(_panel);
+        _model = new AccountBalanceReportModel(_panel);
+        try
+        {
+            _model->runReport();
+            _ui->treeBalances->setModel(_model);
+        }
+        catch(ObjectError err)
+        {
+            QMessageBox::critical(_panel, "Error", "Error loading report" + QString(err.what()));
+        }
     }
 
     ~AccountBalancesReportPanelImpl()
@@ -41,7 +53,7 @@ public:
 private:
     AccountBalancesReportPanel *_panel;
     Ui::AccountBalancesReportPanel *_ui;
-
+    AccountBalanceReportModel *_model;
 };
 
 AccountBalancesReportPanel::AccountBalancesReportPanel(QWidget *parent) :

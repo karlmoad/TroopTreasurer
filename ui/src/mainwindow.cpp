@@ -170,6 +170,14 @@ private:
         });
 
         mnuReports = mnuAccounts->addMenu("Reports");
+
+        actAccountBalancesReport = new QAction("Account Balances Report",window);
+        actAccountBalancesReport->setStatusTip("View Account Balances Report");
+        mnuReports->addAction(actAccountBalancesReport);
+        connect(actAccountBalancesReport, &QAction::triggered, [this](){
+            initNewPanel(Panel::ACCTBALREPORT);
+        });
+
         actNegBalReport = new QAction("Negative Balance Report", window);
         actNegBalReport->setStatusTip("View Negative Balance report");
         mnuReports->addAction(actNegBalReport);
@@ -344,6 +352,7 @@ private:
     QAction *actPayments;
     QAction *actDeposits;
     QAction *actFundsRegister;
+    QAction *actAccountBalancesReport;
     QAction *actNegBalReport;
     QMap<Panel, QList<int>> panel2Index;
     QMap<int, PanelWindow*> index2Panel;

@@ -34,7 +34,8 @@ set(SOURCES settingsmanager.cpp
             datatreemodelcommon.cpp
             accountsmodel.cpp
             hierarchyitem.cpp
-            negativebalancereportmodel.cpp)
+            negativebalancereportmodel.cpp
+            accountbalancereportmodel.cpp)
 
 set(HEADERS settingsmanager.h
             objecterror.h
@@ -74,7 +75,8 @@ set(HEADERS settingsmanager.h
             datatreemodel.h
             datatreemodelcommon.h
             hierarchyitem.h
-            negativebalancereportmodel.h)
+            negativebalancereportmodel.h
+            accountbalancereportmodel.h)
 
 format_source_paths("/src" SOURCES)
 format_source_paths("/include/objects" HEADERS)
