@@ -30,6 +30,8 @@ set(SOURCES settingsmanager.cpp
             depositfundsmodel.cpp
             dataobject.cpp
             account.cpp
+            datatreemodel.cpp
+            datatreemodelcommon.cpp
             accountsmodel.cpp
             hierarchyitem.cpp
             negativebalancereportmodel.cpp)
@@ -69,6 +71,8 @@ set(HEADERS settingsmanager.h
             dataobject.h
             account.h
             accountsmodel.h
+            datatreemodel.h
+            datatreemodelcommon.h
             hierarchyitem.h
             negativebalancereportmodel.h)
 
