@@ -34,5 +34,5 @@ private:
     class DataTreeModelCommonImpl;
     std::shared_ptr<DataTreeModelCommonImpl> impl;
 
-}
+};
 #endif //TROOPTREASURER_DATATREEMODELCOMMON_H

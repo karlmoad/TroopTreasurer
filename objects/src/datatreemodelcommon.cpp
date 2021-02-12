@@ -126,7 +126,7 @@ private:
         {
             for(int i=0; i< item->subItemCount(); i++)
             {
-                HierarchyItem* f = find(key, item->subItem(i);
+                HierarchyItem* f = find(key, item->subItem(i));
                 if(f)
                 {
                     return f;
@@ -195,12 +195,12 @@ void DataTreeModelCommon::addHeader(const QString &field, const QString &text)
 
 int DataTreeModelCommon::recordCount()
 {
-    impl->recordCount();
+    return impl->recordCount();
 }
 
 int DataTreeModelCommon::columnCount()
 {
-    impl->headerCount();
+    return impl->headerCount();
 }
 
 QJsonObject DataTreeModelCommon::getRecord(const HierarchyItem &item)
