@@ -19,7 +19,7 @@ As stated this is a personal project and has no intent to be productized or anyt
 
 ### To Build
 
-This project is built using the open source version of the [Qt Platform](https://www.qt.io/download-open-source?hsCtaTracking=9f6a2170-a938-42df-a8e2-a9f0b1d6cdce%7C6cb0de4f-9bb5-4778-ab02-bfb62735f3e5), and utilizes a [MySQL](https://www.mysql.com/) database version 8.0 or above.  To compile this project you must have Qt installed and the QSqlDatabase drivers compiled for MySQL as well see [this link](https://doc.qt.io/qt-5/sql-driver.html) for more information.
+This project is built using the open source version of the [Qt Platform](https://www.qt.io/download-open-source?hsCtaTracking=9f6a2170-a938-42df-a8e2-a9f0b1d6cdce%7C6cb0de4f-9bb5-4778-ab02-bfb62735f3e5), and utilizes a [MySQL](https://www.mysql.com/) database version 8.0 or above.  To compile this project you must have Qt installed and the QSqlDatabase drivers compiled for MySQL as well, see [this link](https://doc.qt.io/qt-5/sql-driver.html) for more information.
 
  I have tested and built using Qt version 5.14 and 5.15 successfully.
 
