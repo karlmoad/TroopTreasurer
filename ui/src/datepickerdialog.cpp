@@ -27,7 +27,7 @@ public:
 
     void setSelected()
     {
-        this->_selected = _ui->dateSelect->selectedDate();
+        _selected = _ui->dateSelect->selectedDate();
     }
 
 private:

@@ -74,7 +74,7 @@ void AccountBalanceReportModel::runDate(QDate date, bool init)
     QSqlDatabase db = QSqlDatabase::database("DATABASE");
     QSqlQuery q(db);
 
-    QString d8 = QDate::currentDate().toString(DateFormats::DATABASE_FORMAT);
+    QString d8 = date.toString(DateFormats::DATABASE_FORMAT);
     QString sql = AccountBalanceReportSQL::BalancesStmt.arg(d8);
     if(!q.exec(sql))
     {
