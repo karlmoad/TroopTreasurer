@@ -15,8 +15,10 @@ namespace AccountBalanceReportSQL
                                                     "WHERE AM.ACCT_PARENT IS NOT NULL AND J.ACTIVITY_DATE <= '%1' "
                                                     "GROUP BY AM.ACCT_KEY");
     static const QString AccountsStmt = QString("SELECT ACCT_KEY, ACCT_NAME, ACCT_PARENT, SOURCE_KEY, REPORTED_FLAG, ROLLUP_FLAG, EXTERNAL_FLAG FROM ACCOUNT_MASTER WHERE ACCT_PARENT IS NOT NULL ORDER BY ACCT_PARENT, DISPLAY_ORDER");
-
+    static const QString TotalLineKey = "{cebe82a9-97ee-4f60-8ed8-783ae68a1e45}";
 }
+
+
 
 AccountBalanceReportModel::AccountBalanceReportModel(QObject *parent) :
             DataTreeModel("{00000000-0000-0000-0000-000000000000}","key", "parent" ,parent)
@@ -56,7 +58,7 @@ void AccountBalanceReportModel::runReport()
         data.append(record);
     }
     impl->initialize(data);
-    runDate(QDate::currentDate());
+    runDate(QDate::currentDate(), true);
     endResetModel();
 }
 
@@ -65,7 +67,7 @@ void AccountBalanceReportModel::addDate(const QDate &date)
 
 }
 
-void AccountBalanceReportModel::runDate(QDate date)
+void AccountBalanceReportModel::runDate(QDate date, bool init)
 {
     QSqlDatabase db = QSqlDatabase::database("DATABASE");
     QSqlQuery q(db);
@@ -88,7 +90,24 @@ void AccountBalanceReportModel::runDate(QDate date)
         balanceData.insert(d["key"].toString(), d);
     }
 
-    calcRollupBalances(impl->getRoot(), balanceData, d8);
+    double total = calcRollupBalances(impl->getRoot(), balanceData, d8);
+
+    if(init)
+    {
+        QJsonObject recTotal;
+        recTotal["key"] = AccountBalanceReportSQL::TotalLineKey;
+        recTotal["name"] = "Total";
+        recTotal["parent"] = impl->getRoot()->id();
+        recTotal[d8] = total;
+        impl->addRecord(recTotal);
+    }
+    else
+    {
+        QJsonObject recTotal;
+        recTotal["key"] = AccountBalanceReportSQL::TotalLineKey;
+        recTotal[d8] = total;
+        balanceData.insert(AccountBalanceReportSQL::TotalLineKey, recTotal);
+    }
     impl->addColumn(d8, d8, balanceData.values());
 }
 
@@ -124,4 +143,20 @@ double AccountBalanceReportModel::calcRollupBalances(HierarchyItem *item, QMap<Q
         }
     }
     return balance;
+}
+
+QVariant AccountBalanceReportModel::data(const QModelIndex &index, int role) const
+{
+    if(role == Qt::DisplayRole)
+    {
+        QVariant value = DataTreeModel::data(index, role);
+        if (index.column() > 0)
+        {
+            return QString::number(value.toDouble(), 'f', 2);
+        } else
+        {
+            return value;
+        }
+    }
+    return QVariant();
 }

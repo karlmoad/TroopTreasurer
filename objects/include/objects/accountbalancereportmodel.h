@@ -16,8 +16,10 @@ public:
     void runReport();
     void addDate(const QDate& date);
 
+    virtual QVariant data(const QModelIndex &index, int role) const override;
+
 private:
-    void runDate(QDate date);
+    void runDate(QDate date, bool init=false);
     double calcRollupBalances(HierarchyItem* item, QMap<QString, QJsonObject> &data, const QString& fieldname);
 };
 

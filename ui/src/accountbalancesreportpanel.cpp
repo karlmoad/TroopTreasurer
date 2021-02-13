@@ -15,6 +15,8 @@ public:
         {
             _model->runReport();
             _ui->treeBalances->setModel(_model);
+            _ui->treeBalances->header()->setSectionResizeMode(QHeaderView::Stretch);
+
         }
         catch(ObjectError err)
         {
