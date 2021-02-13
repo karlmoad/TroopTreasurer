@@ -4,7 +4,9 @@
 #include "objects/accountbalancereportmodel.h"
 #include "ui/datepickerdialog.h"
 #include <QMessageBox>
-#include <QDebug>
+#include <QApplication>
+#include <functional>
+#include <Qdebug>
 
 class AccountBalancesReportPanel::AccountBalancesReportPanelImpl
 {
@@ -94,7 +96,28 @@ public:
 
     void copy()
     {
-        qDebug() << "Copy called";
+        QString buffer;
+        int col =-1;
+        QModelIndexList selected = _ui->treeBalances->selectionModel()->selectedIndexes();
+        if(selected.count() > 0)
+        {
+//            std::sort(selected.begin(), selected.end(), [](const QModelIndex& lhs, const QModelIndex& rhs){
+//                    return lhs < rhs;
+//            });
+            for (const QModelIndex &c : selected)
+            {
+                QString data = _model->data(c, Qt::DisplayRole).toString();
+                if (c.column() > col)
+                {
+                    buffer.append(QString("%1\t").arg(data));
+                } else
+                {
+                    buffer.append(QString("\n%1\t").arg(data));
+                }
+                col = c.column();
+            }
+            QApplication::clipboard()->setText(buffer);
+        }
     }
 
 private:
