@@ -14,7 +14,7 @@ When utilizing this system in tandem with any solution the following guidelines 
 
 
 
-As stated this is a personal project and has no goal to be anything beyond a simple tool for personal use, I offer it here to help anyone out there looking for a method to help them with their treasurer responsibilities. Please feel free to fork and modify to your hearts delight, if you add/mod/tweak any aspect please drop me a pull request.  The master branch will always be the current release.  
+As stated this is a personal project and has no goal to be anything beyond a simple tool for personal use, I offer it here to help anyone out there looking for a method to help them with their treasurer responsibilities. Please feel free to fork and modify to your hearts delight, if you add/mod/tweak any aspect please drop me a pull request.  The **Main** branch will always be the current release.  
 
 **Note:** The project has no overarching design standard in mind, I design as I go with my only intent to learn and try new ideas.  The only pattern I do try to follow always is the PImpl idiom using smart pointers to make sure that impl class instances are deleted appropriately.
 
