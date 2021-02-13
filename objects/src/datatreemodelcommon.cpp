@@ -230,3 +230,8 @@ bool DataTreeModelCommon::isRoot(const HierarchyItem *item)
 {
     return impl->getRoot() == item;
 }
+
+HierarchyItem *DataTreeModelCommon::getRoot() const
+{
+    return impl->getRoot();
+}

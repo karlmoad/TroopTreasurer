@@ -6,6 +6,7 @@
 #include <QSqlRecord>
 #include <QSqlResult>
 #include "objects/dates.h"
+#include <QDebug>
 
 namespace AccountBalanceReportSQL
 {
@@ -40,6 +41,8 @@ void AccountBalanceReportModel::runReport()
     }
 
     beginResetModel();
+    impl->addHeader("name","Account");
+    QList<QJsonObject> data;
     while(q.next())
     {
         QJsonObject record;
@@ -50,8 +53,9 @@ void AccountBalanceReportModel::runReport()
         record["reported"] = q.value(4).toInt() == 1;
         record["rollup"] = q.value(5).toInt() == 1;
         record["external"] = q.value(6).toInt() == 1;
-        impl->addRecord(record);
+        data.append(record);
     }
+    impl->initialize(data);
     runDate(QDate::currentDate());
     endResetModel();
 }
@@ -84,34 +88,40 @@ void AccountBalanceReportModel::runDate(QDate date)
         balanceData.insert(d["key"].toString(), d);
     }
 
-    calcRollupBalances(impl->getHierarchyRef(QModelIndex()), balanceData, d8);
+    calcRollupBalances(impl->getRoot(), balanceData, d8);
     impl->addColumn(d8, d8, balanceData.values());
 }
 
 double AccountBalanceReportModel::calcRollupBalances(HierarchyItem *item, QMap<QString, QJsonObject> &data, const QString &fieldname)
 {
     double balance = 0.0L;
-    if (item->subItemCount() > 0)
+    QJsonObject account = impl->getRecord(*(item));
+    if(impl->isRoot(item) || !account.isEmpty())
     {
-        for (int i = 0; i < item->subItemCount(); i++)
+        double subTotals = 0.0l;
+        if (item->subItemCount() > 0)
         {
-            balance += calcRollupBalances(item->subItem(i), data, fieldname);
+            for (int i = 0; i < item->subItemCount(); i++)
+            {
+                subTotals += calcRollupBalances(item->subItem(i), data, fieldname);
+            }
+        }
+
+        if (data.contains(item->id()))
+        {
+            if(account["source"].toString().trimmed().length() > 0)
+            {
+                balance = data[item->id()][fieldname].toDouble();
+            }
+        }
+        else
+        {
+            balance = subTotals;
+            QJsonObject rec;
+            rec["key"] = item->id();
+            rec[fieldname] = balance;
+            data.insert(item->id(), rec);
         }
     }
-
-    if(!data.contains(item->id()))
-    {
-        QJsonObject rec;
-        rec["key"] = item->id();
-        rec[fieldname] = balance;
-        data.insert(item->id(), rec);
-    }
-    else
-    {
-        QJsonObject rec = data[item->id()];
-        rec["balance"] = rec["balance"].toDouble() + balance;
-        data[item->id()] = rec;
-    }
-
     return balance;
 }

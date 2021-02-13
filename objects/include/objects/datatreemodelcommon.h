@@ -28,6 +28,7 @@ public:
     HierarchyItem* getHierarchyRef(const QModelIndex& index);
     QJsonObject getRecord(const HierarchyItem& item);
     QJsonObject getHeader(int index);
+    HierarchyItem* getRoot() const;
     bool isRoot(const HierarchyItem* item);
 
 private:
