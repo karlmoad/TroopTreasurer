@@ -2,6 +2,7 @@
 #include "ui_accountbalancesreportpanel.h"
 #include "ui/panelactions.h"
 #include "objects/accountbalancereportmodel.h"
+#include "ui/datepickerdialog.h"
 #include <QMessageBox>
 
 class AccountBalancesReportPanel::AccountBalancesReportPanelImpl
@@ -16,7 +17,6 @@ public:
             _model->runReport();
             _ui->treeBalances->setModel(_model);
             _ui->treeBalances->header()->setSectionResizeMode(QHeaderView::Stretch);
-
         }
         catch(ObjectError err)
         {
@@ -51,6 +51,17 @@ public:
         }
     }
 
+    void addDate()
+    {
+        DatePickerDialog *dialog = new DatePickerDialog(_panel);
+        dialog->setModal(true);
+        int r = dialog->exec();
+        if(r == QDialog::Accepted)
+        {
+            _model->addDate(dialog->selected());
+        }
+        delete dialog;
+    }
 
 private:
     AccountBalancesReportPanel *_panel;
@@ -101,5 +112,5 @@ void AccountBalancesReportPanel::itemActionHandler(ItemAction action)
 
 void AccountBalancesReportPanel::addDateActionHandler()
 {
-
+    impl->addDate();
 }

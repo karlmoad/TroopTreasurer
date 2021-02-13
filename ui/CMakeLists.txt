@@ -31,7 +31,8 @@ set(SOURCES mainwindow.cpp mainwindow.ui
             accountpickerdialog.cpp accountpickerdialog.ui
             unassociatedsourceaccountdialog.cpp unassociatedsourceaccountdialog.ui
             negativebalancereportpanel.cpp negativebalancereportpanel.ui
-            accountbalancesreportpanel.cpp accountbalancesreportpanel.ui)
+            accountbalancesreportpanel.cpp accountbalancesreportpanel.ui
+            datepickerdialog.cpp datepickerdialog.ui)
 
 set(HEADERS ui.h
         mainwindow.h
@@ -62,7 +63,8 @@ set(HEADERS ui.h
         accountpickerdialog.h
         unassociatedsourceaccountdialog.h
         negativebalancereportpanel.h
-        accountbalancesreportpanel.h)
+        accountbalancesreportpanel.h
+        datepickerdialog.h)
 
 format_source_paths("/src" SOURCES)
 format_source_paths("/include/ui" HEADERS)

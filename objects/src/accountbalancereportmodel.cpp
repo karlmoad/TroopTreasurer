@@ -64,7 +64,9 @@ void AccountBalanceReportModel::runReport()
 
 void AccountBalanceReportModel::addDate(const QDate &date)
 {
-
+    beginInsertColumns(QModelIndex(),impl->columnCount(), impl->columnCount());
+    runDate(date);
+    endInsertColumns();
 }
 
 void AccountBalanceReportModel::runDate(QDate date, bool init)
