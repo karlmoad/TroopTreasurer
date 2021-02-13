@@ -18,6 +18,8 @@ public:
 
     virtual QVariant data(const QModelIndex &index, int role) const override;
 
+    static int getUnassociatedAccountCount();
+
 private:
     void runDate(QDate date, bool init=false);
     double calcRollupBalances(HierarchyItem* item, QMap<QString, QJsonObject> &data, const QString& fieldname);

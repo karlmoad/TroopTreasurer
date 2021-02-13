@@ -15,6 +15,7 @@ namespace AccountBalanceReportSQL
                                                     "WHERE AM.ACCT_PARENT IS NOT NULL AND J.ACTIVITY_DATE <= '%1' "
                                                     "GROUP BY AM.ACCT_KEY");
     static const QString AccountsStmt = QString("SELECT ACCT_KEY, ACCT_NAME, ACCT_PARENT, SOURCE_KEY, REPORTED_FLAG, ROLLUP_FLAG, EXTERNAL_FLAG FROM ACCOUNT_MASTER WHERE ACCT_PARENT IS NOT NULL ORDER BY ACCT_PARENT, DISPLAY_ORDER");
+    static const QString UnassociatedSourceAccountsStmt = QString("SELECT count(DISTINCT JRNL.ACCT_HASH) FROM TROOP_TRACK_JOURNAL JRNL WHERE NOT EXISTS (SELECT AM.SOURCE_KEY FROM ACCOUNT_MASTER AM WHERE AM.SOURCE_KEY = JRNL.ACCT_HASH)");
     static const QString TotalLineKey = "{cebe82a9-97ee-4f60-8ed8-783ae68a1e45}";
 }
 
@@ -161,4 +162,19 @@ QVariant AccountBalanceReportModel::data(const QModelIndex &index, int role) con
         }
     }
     return QVariant();
+}
+
+int AccountBalanceReportModel::getUnassociatedAccountCount()
+{
+    QSqlDatabase db = QSqlDatabase::database("DATABASE");
+    QSqlQuery q(db);
+
+    QString sql = AccountBalanceReportSQL::UnassociatedSourceAccountsStmt;
+    if(!q.exec(sql))
+    {
+        return -1;
+    }
+
+    q.first();
+    return q.value(0).toInt();
 }

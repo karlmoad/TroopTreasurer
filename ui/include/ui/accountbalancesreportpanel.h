@@ -29,6 +29,10 @@ public:
 
     Q_SLOT virtual void addDateActionHandler();
 
+    Q_SLOT void showContextMenuHandler(const QPoint& point);
+
+    Q_SLOT void copyHandler();
+
 private:
     class AccountBalancesReportPanelImpl;
     std::shared_ptr<AccountBalancesReportPanelImpl> impl;

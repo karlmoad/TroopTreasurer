@@ -4,6 +4,7 @@
 #include "objects/accountbalancereportmodel.h"
 #include "ui/datepickerdialog.h"
 #include <QMessageBox>
+#include <QDebug>
 
 class AccountBalancesReportPanel::AccountBalancesReportPanelImpl
 {
@@ -17,6 +18,23 @@ public:
             _model->runReport();
             _ui->treeBalances->setModel(_model);
             _ui->treeBalances->header()->setSectionResizeMode(QHeaderView::Stretch);
+            _ui->treeBalances->setContextMenuPolicy(Qt::CustomContextMenu);
+            _actCopy = new QAction("Copy Selected", _panel);
+            connect(_ui->treeBalances, &QTreeView::customContextMenuRequested, _panel, &AccountBalancesReportPanel::showContextMenuHandler);
+            connect(_actCopy, &QAction::triggered, _panel, &AccountBalancesReportPanel::copyHandler);
+
+            int unassAcct = AccountBalanceReportModel::getUnassociatedAccountCount();
+            if(unassAcct != 0)
+            {
+                if(unassAcct > 0)
+                {
+                    QMessageBox::information(_panel, "Info", QString("There are currently %1 unassociated account, this can effect the balance calculations.").arg(QString::number(unassAcct)));
+                }
+                else
+                {
+                    QMessageBox::critical(_panel, "Error", "Unable to retrieve unassociated account number, please verify using account management panel");
+                }
+            }
         }
         catch(ObjectError err)
         {
@@ -63,10 +81,27 @@ public:
         delete dialog;
     }
 
+    void showMenu(const QPoint& p)
+    {
+        QModelIndexList selected = _ui->treeBalances->selectionModel()->selectedIndexes();
+        if(selected.count() > 0)
+        {
+            QList<QAction*> actions;
+            actions.append(_actCopy);
+            QMenu::exec(actions, _ui->treeBalances->mapToGlobal(p), nullptr, _panel);
+        }
+    }
+
+    void copy()
+    {
+        qDebug() << "Copy called";
+    }
+
 private:
     AccountBalancesReportPanel *_panel;
     Ui::AccountBalancesReportPanel *_ui;
     AccountBalanceReportModel *_model;
+    QAction *_actCopy;
 };
 
 AccountBalancesReportPanel::AccountBalancesReportPanel(QWidget *parent) :
@@ -113,4 +148,14 @@ void AccountBalancesReportPanel::itemActionHandler(ItemAction action)
 void AccountBalancesReportPanel::addDateActionHandler()
 {
     impl->addDate();
+}
+
+void AccountBalancesReportPanel::copyHandler()
+{
+    impl->copy();
+}
+
+void AccountBalancesReportPanel::showContextMenuHandler(const QPoint &point)
+{
+    impl->showMenu(point);
 }
