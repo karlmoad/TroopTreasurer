@@ -1,0 +1,10 @@
+{
+  "database": {
+    "tables": [
+      {
+        "name": "<TABLE_NAME>",
+        "ddl": ""
+      }
+    ]
+  }
+}
