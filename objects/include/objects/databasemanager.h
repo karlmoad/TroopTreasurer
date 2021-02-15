@@ -26,6 +26,7 @@ public:
     ~DatabaseManager();
 
     DatabaseValidationResponse createDatabaseConnection();
+    bool checkSchema();
     bool initializeSchema();
 
 private:

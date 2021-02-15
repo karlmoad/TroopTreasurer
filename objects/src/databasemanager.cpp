@@ -82,3 +82,8 @@ bool DatabaseManager::initializeSchema()
 {
     return impl->initializeSchema();
 }
+
+bool DatabaseManager::checkSchema()
+{
+    return false;
+}

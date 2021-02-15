@@ -4,6 +4,17 @@
         <file>resources/files/schema.json</file>
         <file>resources/files/config_meta.json</file>
         <file>resources/files/panels.json</file>
+        <file>resources/file/database.json</file>
+        <file>resources/file/ddl/account_master.sql</file>
+        <file>resources/file/ddl/bank_data.sql</file>
+        <file>resources/file/ddl/bank_data_archive.sql</file>
+        <file>resources/file/ddl/bank_transaction_journal.sql</file>
+        <file>resources/file/ddl/deposits.sql</file>
+        <file>resources/file/ddl/funds_register.sql</file>
+        <file>resources/file/ddl/payments.sql</file>
+        <file>resources/file/ddl/troop_transactions.sql</file>
+        <file>resources/file/ddl/troop_transactions_archive.sql</file>
+        <file>resources/file/ddl/troop_transactions_journal.sql</file>
         <file>resources/add.png</file>
         <file>resources/accept.png</file>
         <file>resources/add.png</file>
