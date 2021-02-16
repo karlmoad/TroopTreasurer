@@ -15,6 +15,7 @@
 #include "ui/applicationconstants.h"
 #include "ui/importdatadialog.h"
 #include "objects/settingsmanager.h"
+#include "objects/databasemanager.h"
 #include "objects/objecterror.h"
 
 class MainWindow::MainWindowImpl
@@ -24,6 +25,7 @@ public:
     {
         ui->setupUi(window);
         window->setUnifiedTitleAndToolBarOnMac(true);
+        databaseMgr = std::shared_ptr<DatabaseManager>(new DatabaseManager(":/resources/files/database.json"));
         loadSettings();
         initDatabase();
         window->setWindowTitle("Troop Treasurer");
@@ -233,12 +235,29 @@ private:
         settingsManager = SettingsManager::initialize(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation),APP::ApplicationSettingsFile,APP::ApplicationConfigMetadataFile);
     }
 
-    void initDatabase()
+    bool initDatabase()
     {
-        if(!settingsManager->initializeDatabaseConnection())
+        if(databaseMgr)
         {
-            QMessageBox::critical(window, "Database Error", "Database could not be opened");
+            while(true)
+            {
+                DatabaseValidationResponse r = databaseMgr->createDatabaseConnection();
+                if ( r == DatabaseValidationResponse::OPEN)
+                {
+                    return true;
+                }
+
+                if( r == DatabaseValidationResponse::SCHEMA_NOT_INITIALIZED)
+                {
+                    // need to create db objects
+                }
+                else
+                {
+                    // need to configure db
+                }
+            }
         }
+        return false;
     }
 
     PanelActions* getPanelActions(Panel panel)
@@ -358,6 +377,7 @@ private:
     QMap<int, PanelWindow*> index2Panel;
     QMap<Panel,PanelActions*> panelActionRegistry;
     SettingsManager *settingsManager;
+    std::shared_ptr<DatabaseManager> databaseMgr;
 };
 
 MainWindow::MainWindow(QWidget *parent):QMainWindow(parent), impl(std::shared_ptr<MainWindowImpl>(new MainWindowImpl(this)))

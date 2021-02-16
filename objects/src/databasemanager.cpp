@@ -1,17 +1,22 @@
 #include "objects/databasemanager.h"
-
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonValue>
+#include <QDebug>
 
 class DatabaseManager::DatabaseManagerImpl
 {
 public:
-    DatabaseManagerImpl(const QString& defFile): _databaseDefinitionFile(defFile)
+    DatabaseManagerImpl(const QString& defFile)
     {
-
+        QFile file1(defFile);
+        if(file1.open(QFile::ReadOnly | QFile::Text)){
+            QByteArray raw1 = file1.readAll();
+            file1.close();
+            _databaseDefinition = QJsonDocument::fromJson(raw1).object();
+        }
     }
 
     virtual ~DatabaseManagerImpl()
@@ -52,19 +57,95 @@ public:
         }
     }
 
+    bool verifyTables()
+    {
+        bool pass = true;
+        QSqlDatabase db = QSqlDatabase::database("DATABASE");
+        QSqlQuery q(db);
+        QString sql = "SELECT TABLE_SCHEMA, TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = database()";
+        QList<QString> inDbSchema;
+        QString schema;
+        if(q.exec(sql))
+        {
+            while(q.next())
+            {
+                if(schema.isEmpty())
+                {
+                    schema = q.value(0).toString();
+                }
+                inDbSchema.append(q.value(1).toString().toUpper().trimmed());
+            }
+        }
+
+        QJsonArray tables = _databaseDefinition["database"].toObject()["tables"].toArray();
+        for(int i =0; i<tables.count(); i++)
+        {
+            QJsonObject table = tables[i].toObject();
+            if(!inDbSchema.contains(table["name"].toString().toUpper().trimmed()))
+            {
+                pass = false;
+                table["schema"] = schema;
+                _notFound.append(table);
+            }
+        }
+        return pass;
+    }
+
+    bool verifyViews()
+    {
+        bool pass = true;
+        QSqlDatabase db = QSqlDatabase::database("DATABASE");
+        QSqlQuery q(db);
+        QString sql = "SELECT TABLE_SCHEMA, TABLE_NAME FROM information_schema.VIEWS WHERE TABLE_SCHEMA = database()";
+        QList<QString> inDbSchema;
+        QString schema;
+        if(q.exec(sql))
+        {
+            while(q.next())
+            {
+                if(schema.isEmpty())
+                {
+                    schema = q.value(0).toString();
+                }
+                inDbSchema.append(q.value(1).toString().toUpper().trimmed());
+            }
+        }
+
+        QJsonArray views = _databaseDefinition["database"].toObject()["views"].toArray();
+        for(int i =0; i<views.count(); i++)
+        {
+            QJsonObject view = views[i].toObject();
+            if(!inDbSchema.contains(view["name"].toString().toUpper().trimmed()))
+            {
+                pass = false;
+                view["schema"] = schema;
+                _notFound.append(view);
+            }
+        }
+        return pass;
+    }
+
     bool verifySchema()
     {
+        bool tables = verifyTables();
+        bool views = verifyViews();
 
+        return tables==views && tables == true;
+    }
 
+    const QList<QJsonObject>& getNotFound() const
+    {
+        return _notFound;
     }
 
     bool initializeSchema()
     {
-
+        return true;
     }
 
 private:
-    QString _databaseDefinitionFile;
+    QJsonObject _databaseDefinition;
+    QList<QJsonObject> _notFound;
 };
 
 DatabaseManager::DatabaseManager(const QString &databaseInfoFile): impl(new DatabaseManagerImpl(databaseInfoFile))
@@ -83,7 +164,8 @@ bool DatabaseManager::initializeSchema()
     return impl->initializeSchema();
 }
 
-bool DatabaseManager::checkSchema()
+const QList<QJsonObject> &DatabaseManager::getItemsNotFoundInDatabase() const
 {
-    return false;
+    return impl->getNotFound();
 }
+

@@ -31,7 +31,7 @@ public:
     QJsonObject getSettingsSegment(QString const &key);
     void setSettingsSegment(QJsonObject data, const QString& key);
     bool saveSettings(QString *message);
-    bool initializeDatabaseConnection();
+
 
 public:
     static SettingsManager *getInstance();
@@ -39,6 +39,7 @@ public:
     static void free();
 
 private:
+    bool initializeDatabaseConnection();
     class SettingsManagerImpl;
     SettingsManagerImpl *impl;
     static SettingsManager *_instance;
