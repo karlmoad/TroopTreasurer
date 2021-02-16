@@ -57,12 +57,12 @@ public:
         }
     }
 
-    bool verifyTables()
+    bool verifyObjects(const QString& info_schema, const QJsonArray& objects)
     {
         bool pass = true;
         QSqlDatabase db = QSqlDatabase::database("DATABASE");
         QSqlQuery q(db);
-        QString sql = "SELECT TABLE_SCHEMA, TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = database()";
+        QString sql = QString("SELECT TABLE_SCHEMA, TABLE_NAME FROM %1 WHERE TABLE_SCHEMA = database()").arg(info_schema);
         QList<QString> inDbSchema;
         QString schema;
         if(q.exec(sql))
@@ -77,49 +77,14 @@ public:
             }
         }
 
-        QJsonArray tables = _databaseDefinition["database"].toObject()["tables"].toArray();
-        for(int i =0; i<tables.count(); i++)
+        for(int i =0; i<objects.count(); i++)
         {
-            QJsonObject table = tables[i].toObject();
-            if(!inDbSchema.contains(table["name"].toString().toUpper().trimmed()))
+            QJsonObject object = objects[i].toObject();
+            if(!inDbSchema.contains(object["name"].toString().toUpper().trimmed()))
             {
                 pass = false;
-                table["schema"] = schema;
-                _notFound.append(table);
-            }
-        }
-        return pass;
-    }
-
-    bool verifyViews()
-    {
-        bool pass = true;
-        QSqlDatabase db = QSqlDatabase::database("DATABASE");
-        QSqlQuery q(db);
-        QString sql = "SELECT TABLE_SCHEMA, TABLE_NAME FROM information_schema.VIEWS WHERE TABLE_SCHEMA = database()";
-        QList<QString> inDbSchema;
-        QString schema;
-        if(q.exec(sql))
-        {
-            while(q.next())
-            {
-                if(schema.isEmpty())
-                {
-                    schema = q.value(0).toString();
-                }
-                inDbSchema.append(q.value(1).toString().toUpper().trimmed());
-            }
-        }
-
-        QJsonArray views = _databaseDefinition["database"].toObject()["views"].toArray();
-        for(int i =0; i<views.count(); i++)
-        {
-            QJsonObject view = views[i].toObject();
-            if(!inDbSchema.contains(view["name"].toString().toUpper().trimmed()))
-            {
-                pass = false;
-                view["schema"] = schema;
-                _notFound.append(view);
+                object["schema"] = schema;
+                _notFound.append(object);
             }
         }
         return pass;
@@ -127,8 +92,8 @@ public:
 
     bool verifySchema()
     {
-        bool tables = verifyTables();
-        bool views = verifyViews();
+        bool tables = verifyObjects("information_schema.TABLES",_databaseDefinition["database"].toObject()["tables"].toArray());
+        bool views = verifyObjects("information_schema.VIEWS", _databaseDefinition["database"].toObject()["views"].toArray());
 
         return tables==views && tables == true;
     }
