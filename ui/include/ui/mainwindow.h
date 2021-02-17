@@ -38,6 +38,7 @@ public slots:
     void PanelCloseHandler(int panelIdx);
     void ActivePanelChanged(int index);
     void SettingsHandler();
+    void ConnectHandler();
 
 signals:
     void ContextItemActionTriggered(ItemAction action);

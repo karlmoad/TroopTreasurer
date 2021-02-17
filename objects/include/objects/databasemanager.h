@@ -26,8 +26,8 @@ public:
     ~DatabaseManager();
 
     DatabaseValidationResponse createDatabaseConnection();
-    const QList<QJsonObject>& getItemsNotFoundInDatabase() const;
-    bool initializeSchema();
+    QJsonObject getItemsNotFoundInDatabase() const;
+    QJsonObject initializeDatabaseObjects();
 
 private:
     class DatabaseManagerImpl;

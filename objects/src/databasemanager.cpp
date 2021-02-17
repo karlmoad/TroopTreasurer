@@ -133,17 +133,59 @@ public:
         return tables==views && tables == true;
     }
 
-    const QList<QJsonObject>& getNotFound() const
+    QJsonObject getNotFound() const
     {
-        return _notFound;
+        QJsonObject out;
+        QJsonArray items;
+
+        for(QJsonObject json : _notFound)
+        {
+            items.append(json["name"].toString());
+        }
+        out["not_found"] = items;
+        return out;
     }
 
-    bool initializeSchema()
+    QJsonObject initializeDatabaseObjects()
     {
-        return true;
+        QJsonObject out;
+
+        for(QJsonObject json: _notFound)
+        {
+            out[json["name"].toString()] = runDDL(json["ddl"].toString());
+        }
+
+        return out;
     }
 
 private:
+
+    bool runDDL(const QString& path)
+    {
+        QFile file(path);
+        QString ddlStmt;
+        if(file.open(QFile::ReadOnly | QFile::Text)){
+            ddlStmt = QString(file.readAll());
+            file.close();
+        }
+        else
+        {
+            return false;
+        }
+
+        QSqlDatabase db = QSqlDatabase::database("DATABASE");
+        QSqlQuery q(db);
+
+        bool r = q.exec(ddlStmt);
+
+        if(!r)
+        {
+            qDebug() << "Err DB: " << q.lastError().databaseText() << " driver:" << q.lastError().driverText();
+        }
+
+        return r;
+    }
+
     QJsonObject _databaseDefinition;
     QList<QJsonObject> _notFound;
 };
@@ -159,12 +201,12 @@ DatabaseValidationResponse DatabaseManager::createDatabaseConnection()
     return impl->openDatabase();
 }
 
-bool DatabaseManager::initializeSchema()
+QJsonObject DatabaseManager::initializeDatabaseObjects()
 {
-    return impl->initializeSchema();
+    return impl->initializeDatabaseObjects();
 }
 
-const QList<QJsonObject> &DatabaseManager::getItemsNotFoundInDatabase() const
+QJsonObject DatabaseManager::getItemsNotFoundInDatabase() const
 {
     return impl->getNotFound();
 }

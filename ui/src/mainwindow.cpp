@@ -8,6 +8,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
+#include <QMessageBox>
 #include "ui/panelfactory.h"
 #include "ui/panelwindow.h"
 #include "ui/panelactions.h"
@@ -27,7 +28,6 @@ public:
         window->setUnifiedTitleAndToolBarOnMac(true);
         databaseMgr = std::shared_ptr<DatabaseManager>(new DatabaseManager(":/resources/files/database.json"));
         loadSettings();
-        initDatabase();
         window->setWindowTitle("Troop Treasurer");
     }
 
@@ -41,6 +41,19 @@ public:
     void init()
     {
         initMenuAndToolbar();
+        connect2DB();
+    }
+
+    void connect2DB()
+    {
+        bool enable = true;
+        QString msg;
+        if(!initDatabase(msg))
+        {
+            enable=false;
+            QMessageBox::critical(window, "Database Error", "Database error,\n" + msg);
+        }
+        enableMainFunctionItems(enable);
     }
 
     void closePanel(int panelIdx)
@@ -86,6 +99,18 @@ public:
     }
 
 private:
+    void enableMainFunctionItems(bool enable)
+    {
+        actImportEditTemplates->setEnabled(enable);
+        actImportData->setEnabled(enable);
+        actOpenAccounts->setEnabled(enable);
+        actAccountBalancesReport->setEnabled(enable);
+        actNegBalReport->setEnabled(enable);
+        actFundsRegister->setEnabled(enable);
+        actPayments->setEnabled(enable);
+        actDeposits->setEnabled(enable);
+        actConnectDb->setEnabled(!enable);
+    }
 
     void initMenuAndToolbar()
     {
@@ -95,6 +120,11 @@ private:
         mnuFunds = window->menuBar()->addMenu("Bank");
 
         //File menu
+
+        actConnectDb = new QAction(QIcon(":/resources/database_connect.png"), "Connect Database", this->window);
+        actConnectDb->setStatusTip("Connect to the application database");
+        mnuFile->addAction(actConnectDb);
+        connect(actConnectDb, &QAction::triggered, window, &MainWindow::ConnectHandler);
 
         mainToolbar = window->addToolBar("MAIN");
         actSave = new QAction(QIcon(":/resources/disk.png"), "&Save", this->window);
@@ -183,7 +213,6 @@ private:
         actNegBalReport = new QAction("Negative Balance Report", window);
         actNegBalReport->setStatusTip("View Negative Balance report");
         mnuReports->addAction(actNegBalReport);
-
         connect(actNegBalReport, &QAction::triggered, [this](){
             initNewPanel(Panel::NEGBALREPORT);
         });
@@ -214,8 +243,9 @@ private:
         connect(ui->tabMain, &QTabWidget::currentChanged, window, &MainWindow::ActivePanelChanged);
         connect(ui->tabMain, &QTabWidget::tabCloseRequested, window, &MainWindow::PanelCloseHandler);
 
-        QList<PanelActions*> actions = PanelActions::LoadPanelActionDefinitions(window);
-        for(PanelActions *action: actions)
+
+        QList<PanelActions *> actions = PanelActions::LoadPanelActionDefinitions(window);
+        for (PanelActions *action: actions)
         {
             panelActionRegistry.insert(action->getPanel(), action);
         }
@@ -235,25 +265,41 @@ private:
         settingsManager = SettingsManager::initialize(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation),APP::ApplicationSettingsFile,APP::ApplicationConfigMetadataFile);
     }
 
-    bool initDatabase()
+    bool initDatabase(QString& message)
     {
         if(databaseMgr)
         {
-            while(true)
+            DatabaseValidationResponse r = databaseMgr->createDatabaseConnection();
+            switch(r)
             {
-                DatabaseValidationResponse r = databaseMgr->createDatabaseConnection();
-                if ( r == DatabaseValidationResponse::OPEN)
+                case DatabaseValidationResponse::OPEN:
                 {
                     return true;
                 }
 
-                if( r == DatabaseValidationResponse::SCHEMA_NOT_INITIALIZED)
+                case DatabaseValidationResponse::SCHEMA_NOT_INITIALIZED:
                 {
-                    // need to create db objects
+                    QJsonObject results = databaseMgr->initializeDatabaseObjects();
+                    bool success = true;
+                    QString msg = "Failed to initialize the following database objects:\n";
+                    for (QString key : results.keys())
+                    {
+                        if (!results[key].toBool())
+                        {
+                            success = false;
+                            msg.append(QString("%1\n").arg(key));
+                        }
+                    }
+
+                    if (!success)
+                        message = msg;
+
+                    return success;
                 }
-                else
+                default:
                 {
-                    // need to configure db
+                    editSettings();
+                    return false;
                 }
             }
         }
@@ -357,6 +403,7 @@ private:
     QMenu *mnuFileOpenSubmenu;
     QMenu *mnuFileImportSubmenu;
     QMenu *mnuReports;
+    QAction *actConnectDb;
     QAction *actSave;
     QAction *actOpenAccounts;
     QAction *actImportEditTemplates;
@@ -417,6 +464,11 @@ void MainWindow::ActivePanelChanged(int index)
 void MainWindow::SettingsHandler()
 {
     impl->editSettings();
+}
+
+void MainWindow::ConnectHandler()
+{
+    impl->connect2DB();
 }
 
 
