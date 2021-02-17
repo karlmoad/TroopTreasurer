@@ -67,7 +67,7 @@
         "drop" : false
       },
       {
-        "name": "TROOP_TRANSACTIONS_JOURNAL",
+        "name": "TROOP_TRANSACTION_JOURNAL",
         "ddl" : ":resources/files/ddl/troop_transactions_journal.sql",
         "create": true,
         "alter": false,
