@@ -27,7 +27,7 @@ namespace AccountsSql
     static const QString ExistsStmt = QString("SELECT COUNT(*) FROM ACCOUNT_MASTER WHERE ACCT_KEY='%1'");
     static const QString DeletableCheckStmt = QString("SELECT ACCT_KEY, CLOSED_FLAG, (SELECT COUNT(ACCT_KEY) FROM ACCOUNT_MASTER WHERE ACCT_PARENT ='%1') AS SUB_COUNT FROM ACCOUNT_MASTER WHERE ACCT_KEY='%1'");
     static const QString UnassociatedSourceAccountsStmt = QString("SELECT DISTINCT JRNL.ACCT_HASH, JRNL.ACCT_NAME"
-                                                                  " FROM TROOP_TRACK_JOURNAL JRNL"
+                                                                  " FROM TROOP_TRANSACTION_JOURNAL JRNL"
                                                                   " WHERE NOT EXISTS (SELECT AM.SOURCE_KEY FROM ACCOUNT_MASTER AM WHERE AM.SOURCE_KEY = JRNL.ACCT_HASH)");
 }
 

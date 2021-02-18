@@ -45,7 +45,22 @@ $ make
 **Platform compatibility:**  I work mainly on Apple OSX (intel), the build and execution of the project has been tested and verified to work on OSX 10.14 and above only on intel based macs.  While I have made attempts in the project to accommodate windows this largely remains untested and is not verified to work fully. I have avoided linux integration for the time being until I have identified a key store for credentials integration method, but the majority of the remaining code base is tested and functional. I have tested and built using Qt version 5.14 and 5.15 successfully.
 
 
+------
 
+### Prior to running the application
+
+A schema and database user account must be established on the MySQL server instance that will be utilized.  the user in which the application will access the database/schema must have the following permissions at the schema level minimally:
+- SELECT
+- INSERT
+- UPDATE
+- DELETE
+- CREATE
+- CREATE VIEW
+
+**Run the application and configure and test your database connection.**  
+The application will run the necessary scripts to initialize the database objects the application utilizes, when you connect to the database the first time.  
+
+**If for any reason there is an error message stating that a database object could not be created**, locate the ddl script in the resources folder within the project ui directory and run it manually on the database to correct.
 
 
 

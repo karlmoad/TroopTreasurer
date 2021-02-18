@@ -1,0 +1,78 @@
+{
+  "database": {
+    "tables": [
+      {
+        "name": "ACCOUNT_MASTER",
+        "ddl" : ":resources/files/ddl/account_master.sql",
+        "create": true,
+        "alter": false,
+        "drop" : false
+      },
+      {
+        "name": "BANK_DATA",
+        "ddl" : ":resources/files/ddl/bank_data.sql",
+        "create": true,
+        "alter": false,
+        "drop" : false
+      },
+      {
+        "name": "BANK_DATA_ARCHIVE",
+        "ddl" : ":resources/files/ddl/bank_data_archive.sql",
+        "create": true,
+        "alter": false,
+        "drop" : false
+      },
+      {
+        "name": "DEPOSITS",
+        "ddl" : ":resources/files/ddl/deposits.sql",
+        "create": true,
+        "alter": false,
+        "drop" : false
+      },
+      {
+        "name": "FUNDS_REGISTER",
+        "ddl" : ":resources/files/ddl/funds_register.sql",
+        "create": true,
+        "alter": false,
+        "drop" : false
+      },
+      {
+        "name": "PAYMENTS",
+        "ddl" : ":resources/files/ddl/payments.sql",
+        "create": true,
+        "alter": false,
+        "drop" : false
+      },
+      {
+        "name": "TROOP_TRANSACTIONS",
+        "ddl" : ":resources/files/ddl/troop_transactions.sql",
+        "create": true,
+        "alter": false,
+        "drop" : false
+      },
+      {
+        "name": "TROOP_TRANSACTION_ARCHIVE",
+        "ddl" : ":resources/files/ddl/troop_transactions_archive.sql",
+        "create": true,
+        "alter": false,
+        "drop" : false
+      }
+    ],
+    "views" : [
+      {
+        "name": "BANK_TRANSACTION_JOURNAL",
+        "ddl" : ":resources/files/ddl/bank_transaction_journal.sql",
+        "create": true,
+        "alter": false,
+        "drop" : false
+      },
+      {
+        "name": "TROOP_TRANSACTION_JOURNAL",
+        "ddl" : ":resources/files/ddl/troop_transactions_journal.sql",
+        "create": true,
+        "alter": false,
+        "drop" : false
+      }
+    ]
+  }
+}

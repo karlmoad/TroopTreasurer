@@ -10,13 +10,13 @@
 namespace ReportSQl
 {
     static const QString ReportQueryStmt = QString("SELECT A.ACCT_HASH , A.ACCT_NAME , MIN(A.ACTIVITY_DATE), TIMESTAMPDIFF(DAY,MIN(A.ACTIVITY_DATE),CURDATE()) AS DAYS_AGE "
-                                                   "FROM TROOP_TRACK_JOURNAL A "
+                                                   "FROM TROOP_TRANSACTION_JOURNAL A "
                                                    "JOIN (SELECT A2.ACCT_HASH, MAX(A2.ACTIVITY_DATE) AS LASTPOS "
-                                                   "FROM TROOP_TRACK_JOURNAL A2 "
+                                                   "FROM TROOP_TRANSACTION_JOURNAL A2 "
                                                    "WHERE A2.BALANCE >= 0 "
                                                    "GROUP BY A2.ACCT_HASH) AS LP ON A.ACCT_HASH = LP.ACCT_HASH "
                                                    "JOIN(SELECT AM.ACCT_KEY,AM.SOURCE_KEY,J.ACCT_HASH, SUM(J.ACTIVITY_VALUE) AS ACCT_BALANCE "
-                                                   "FROM ACCOUNT_MASTER AM JOIN TROOP_TRACK_JOURNAL J ON AM.SOURCE_KEY = J.ACCT_HASH "
+                                                   "FROM ACCOUNT_MASTER AM JOIN TROOP_TRANSACTION_JOURNAL J ON AM.SOURCE_KEY = J.ACCT_HASH "
                                                    "WHERE AM.ACCT_PARENT IS NOT NULL "
                                                    "GROUP BY AM.ACCT_KEY,AM.SOURCE_KEY,J.ACCT_HASH) AS BAL ON A.ACCT_HASH = BAL.ACCT_HASH "
                                                    "WHERE A.ACTIVITY_DATE > LP.LASTPOS AND A.BALANCE < 0 AND BAL.ACCT_BALANCE < 0 "
