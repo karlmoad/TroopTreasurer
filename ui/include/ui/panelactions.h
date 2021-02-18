@@ -5,10 +5,12 @@
 #include <QtWidgets>
 #include <memory>
 #include "ui/panelwindow.h"
+#include "ui.h"
 
 class PanelActions
 {
 public:
+    REM_COPY_MOVE(PanelActions)
     explicit PanelActions(const QJsonObject& definition, QMainWindow *mainwindow);
     virtual ~PanelActions();
 

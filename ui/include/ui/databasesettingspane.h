@@ -20,11 +20,13 @@
 #include <memory>
 #include "applicationsettingspane.h"
 #include "applicationsettings.h"
+#include "ui.h"
 
 class DatabaseSettingsPane : public QWidget, public ApplicationSettingsPane
 {
     Q_OBJECT
 public:
+    REM_COPY_MOVE(DatabaseSettingsPane)
     explicit DatabaseSettingsPane(QWidget *parent = nullptr);
 
     ~DatabaseSettingsPane();

@@ -22,6 +22,7 @@
 #include <QMenu>
 #include <QToolBar>
 #include "itemstate.h"
+#include "ui.h"
 
 class PanelActions;
 

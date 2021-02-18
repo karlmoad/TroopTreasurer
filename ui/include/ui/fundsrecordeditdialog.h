@@ -4,18 +4,15 @@
 #include <QDialog>
 #include <memory>
 #include "objects/fundsrecord.h"
-#include "ui/ui.h"
+#include "ui.h"
 
 class FundsRecordEditDialog : public QDialog
 {
     Q_OBJECT
 
 public:
+    REM_COPY_MOVE(FundsRecordEditDialog)
     explicit FundsRecordEditDialog(QWidget *parent = nullptr);
-    FundsRecordEditDialog(const FundsRecordEditDialog&) = delete;
-    FundsRecordEditDialog(FundsRecordEditDialog&&) = delete;
-    FundsRecordEditDialog& operator=(const FundsRecordEditDialog&) = delete;
-    FundsRecordEditDialog& operator=(FundsRecordEditDialog&&) = delete;
     ~FundsRecordEditDialog();
 
     void setRecord(Transactions::FundsRecord *record, UI::Action action = UI::Action::NONE);

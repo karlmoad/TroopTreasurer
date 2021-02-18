@@ -11,6 +11,7 @@ class AccountsManagementPanel : public PanelWindow
 {
     Q_OBJECT
 public:
+    REM_COPY_MOVE(AccountsManagementPanel)
     explicit AccountsManagementPanel(QWidget *parent = nullptr);
     ~AccountsManagementPanel();
 

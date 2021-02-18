@@ -5,12 +5,14 @@
 #include <memory>
 #include <QAbstractTableModel>
 #include "objects/importspecification.h"
+#include "ui.h"
 
 class ImportTemplateTestDialog : public QDialog
 {
 Q_OBJECT
 
 public:
+    REM_COPY_MOVE(ImportTemplateTestDialog)
     explicit ImportTemplateTestDialog(QAbstractTableModel *model, ImportSpecification *spec, QWidget *parent=nullptr);
     explicit ImportTemplateTestDialog(QWidget *parent = nullptr);
     ~ImportTemplateTestDialog() override;

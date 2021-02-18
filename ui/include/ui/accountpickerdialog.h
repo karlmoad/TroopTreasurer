@@ -4,12 +4,14 @@
 #include <QDialog>
 #include <memory>
 #include "objects/accountsmodel.h"
+#include "ui.h"
 
 class AccountPickerDialog : public QDialog
 {
     Q_OBJECT
 
 public:
+    REM_COPY_MOVE(AccountPickerDialog)
     explicit AccountPickerDialog(AccountsModel *model, QWidget *parent = nullptr);
     ~AccountPickerDialog();
 

@@ -12,6 +12,8 @@ class PaymentsPanel : public PanelWindow
 {
     Q_OBJECT
 public:
+    REM_COPY_MOVE(PaymentsPanel)
+
     virtual QString panelName() const override;
 
     virtual Panel panelId() const override;

@@ -12,6 +12,7 @@ class AccountBalancesReportPanel : public PanelWindow
     Q_OBJECT
 
 public:
+    REM_COPY_MOVE(AccountBalancesReportPanel)
     explicit AccountBalancesReportPanel(QWidget *parent = nullptr);
     ~AccountBalancesReportPanel();
 

@@ -4,12 +4,14 @@
 #include <QDialog>
 #include <QPoint>
 #include <memory>
+#include "ui.h"
 
 class ImportDataDialog : public QDialog
 {
     Q_OBJECT
 
 public:
+    REM_COPY_MOVE(ImportDataDialog)
     explicit ImportDataDialog(const QString& filename, QWidget *parent = nullptr);
     ~ImportDataDialog();
 

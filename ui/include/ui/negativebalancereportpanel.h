@@ -12,6 +12,7 @@ class NegativeBalanceReportPanel : public PanelWindow
 {
     Q_OBJECT
 public:
+    REM_COPY_MOVE(NegativeBalanceReportPanel)
     explicit NegativeBalanceReportPanel(QWidget *parent = nullptr);
     ~NegativeBalanceReportPanel();
 

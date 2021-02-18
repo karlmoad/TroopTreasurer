@@ -5,12 +5,14 @@
 #include <QListWidgetItem>
 #include <memory>
 #include "applicationsettings.h"
+#include "ui.h"
 
 class MainSettingsPane : public QWidget
 {
     Q_OBJECT
 
 public:
+    REM_COPY_MOVE(MainSettingsPane)
     explicit MainSettingsPane(QWidget *parent = nullptr);
     ~MainSettingsPane();
 

@@ -5,12 +5,14 @@
 #include <memory>
 #include "ui/itemstate.h"
 #include "objects/accountsmodel.h"
+#include "ui.h"
 
 class AccountEditDialog : public QDialog
 {
     Q_OBJECT
 
 public:
+    REM_COPY_MOVE(AccountEditDialog)
     explicit AccountEditDialog(AccountsModel* model, ItemAction action ,QWidget *parent = nullptr);
     ~AccountEditDialog();
 

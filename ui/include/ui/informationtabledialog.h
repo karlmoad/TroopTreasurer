@@ -9,11 +9,13 @@
 #include <QList>
 #include <QString>
 #include <memory>
+#include "ui.h"
 
 class InformationTableDialog : public QDialog
 {
     Q_OBJECT
 public:
+    REM_COPY_MOVE(InformationTableDialog)
     explicit InformationTableDialog(QWidget *parent = nullptr);
     ~InformationTableDialog();
 

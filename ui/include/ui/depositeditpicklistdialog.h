@@ -5,12 +5,14 @@
 #include <memory>
 #include <QList>
 #include "objects/fundsrecord.h"
+#include "ui.h"
 
 class DepositEditPicklistDialog : public QDialog
 {
     Q_OBJECT
 
 public:
+    REM_COPY_MOVE(DepositEditPicklistDialog)
     explicit DepositEditPicklistDialog(QWidget *parent = nullptr);
     ~DepositEditPicklistDialog();
 

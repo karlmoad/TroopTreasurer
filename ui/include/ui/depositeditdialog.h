@@ -5,13 +5,14 @@
 #include <memory>
 #include "objects/deposit.h"
 #include "objects/fundsrecord.h"
-#include "ui/ui.h"
+#include "ui.h"
 
 class DepositEditDialog : public QDialog
 {
     Q_OBJECT
 
 public:
+    REM_COPY_MOVE(DepositEditDialog)
     explicit DepositEditDialog(QWidget *parent = nullptr);
     ~DepositEditDialog();
     DepositEditDialog(const DepositEditDialog&) = delete;

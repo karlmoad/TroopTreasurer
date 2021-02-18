@@ -4,12 +4,13 @@
 #include <QDialog>
 #include <memory>
 #include "objects/payment.h"
-#include "ui/ui.h"
+#include "ui.h"
 
 class PaymentEditDialog : public QDialog
 {
     Q_OBJECT
 public:
+    REM_COPY_MOVE(PaymentEditDialog)
     explicit PaymentEditDialog(QWidget *parent = nullptr);
     PaymentEditDialog(const PaymentEditDialog&) = delete;
     PaymentEditDialog(PaymentEditDialog&&) = delete;

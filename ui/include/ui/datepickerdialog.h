@@ -4,12 +4,14 @@
 #include <QDialog>
 #include <QDate>
 #include <memory>
+#include "ui.h"
 
 class DatePickerDialog : public QDialog
 {
     Q_OBJECT
 
 public:
+    REM_COPY_MOVE(DatePickerDialog)
     explicit DatePickerDialog(QWidget *parent = nullptr);
     ~DatePickerDialog();
 

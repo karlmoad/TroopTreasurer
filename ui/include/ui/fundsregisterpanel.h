@@ -12,6 +12,7 @@ class FundsRegisterPanel : public PanelWindow
 {
 Q_OBJECT
 public:
+    REM_COPY_MOVE(FundsRegisterPanel)
     explicit FundsRegisterPanel(QWidget *parent = nullptr);
     ~FundsRegisterPanel();
 

@@ -24,12 +24,14 @@
 #include <QtWidgets>
 #include <memory>
 #include "itemstate.h"
+#include "ui.h"
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
+    REM_COPY_MOVE(MainWindow)
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 

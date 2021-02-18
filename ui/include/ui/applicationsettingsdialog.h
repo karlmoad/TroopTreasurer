@@ -5,11 +5,13 @@
 #include <memory>
 #include "mainsettingspane.h"
 #include "applicationsettings.h"
+#include "ui.h"
 
 class ApplicationSettingsDialog : public QDialog
 {
     Q_OBJECT
 public:
+    REM_COPY_MOVE(ApplicationSettingsDialog)
     explicit ApplicationSettingsDialog(QWidget *parent = nullptr);
     ~ApplicationSettingsDialog();
 

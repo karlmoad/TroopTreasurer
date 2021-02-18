@@ -6,11 +6,13 @@
 #include <QJsonObject>
 #include <QJsonValue>
 #include <memory>
+#include "ui.h"
 
 class UnassociatedSourceAccountDialog : public QDialog
 {
     Q_OBJECT
 public:
+    REM_COPY_MOVE(UnassociatedSourceAccountDialog)
     explicit UnassociatedSourceAccountDialog(QWidget *parent = nullptr);
     ~UnassociatedSourceAccountDialog();
 

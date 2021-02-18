@@ -12,6 +12,7 @@ class DepositsPanel : public PanelWindow
 {
     Q_OBJECT
 public:
+    REM_COPY_MOVE(DepositsPanel)
     explicit DepositsPanel(QWidget *parent = nullptr);
     ~DepositsPanel();
 

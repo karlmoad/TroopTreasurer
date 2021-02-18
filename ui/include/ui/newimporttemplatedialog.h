@@ -4,12 +4,14 @@
 #include <QDialog>
 #include <memory>
 #include "objects/schema.h"
+#include "ui.h"
 
 class NewImportTemplateDialog : public QDialog
 {
     Q_OBJECT
 
 public:
+    REM_COPY_MOVE(NewImportTemplateDialog)
     explicit NewImportTemplateDialog(QString *name, Schema *target, QWidget *parent = nullptr);
     ~NewImportTemplateDialog();
 

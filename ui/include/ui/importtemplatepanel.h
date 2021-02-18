@@ -24,6 +24,7 @@ class ImportTemplatePanel : public PanelWindow
 {
     Q_OBJECT
 public:
+    REM_COPY_MOVE(ImportTemplatePanel)
     explicit ImportTemplatePanel(QWidget *parent = nullptr);
     ~ImportTemplatePanel();
 
