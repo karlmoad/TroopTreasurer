@@ -9,7 +9,7 @@
 
 namespace ReportSQl
 {
-    static const QString ReportQueryStmt = QString("SELECT A.ACCT_HASH , A.ACCT_NAME , MIN(A.ACTIVITY_DATE), TIMESTAMPDIFF(DAY,MIN(A.ACTIVITY_DATE),CURDATE()) AS DAYS_AGE "
+    static const QString ReportQueryStmt = QString("SELECT A.ACCT_HASH , A.ACCT_NAME , FORMAT(SUM(A.ACTIVITY_VALUE),2) ,MIN(A.ACTIVITY_DATE), TIMESTAMPDIFF(DAY,MIN(A.ACTIVITY_DATE),CURDATE()) AS DAYS_AGE "
                                                    "FROM TROOP_TRANSACTION_JOURNAL A "
                                                    "JOIN (SELECT A2.ACCT_HASH, MAX(A2.ACTIVITY_DATE) AS LASTPOS "
                                                    "FROM TROOP_TRANSACTION_JOURNAL A2 "
@@ -28,6 +28,7 @@ NegativeBalanceReportModel::NegativeBalanceReportModel(QObject *parent) : DataTa
 {
     impl->setHorizontalColumnsEnabled();
     impl->addHeader("name", "Account Name");
+    impl->addHeader("bal", "Current Balance");
     impl->addHeader("date", "Date Negative");
     impl->addHeader("days", "Days Aging");
 }
@@ -55,8 +56,9 @@ void NegativeBalanceReportModel::runReport()
     {
         QJsonObject record;
         record["name"] = q.value(1).toString();
-        record["date"] = q.value(2).toString();
-        record["days"] = q.value(3).toInt();
+        record["bal"] = q.value(2).toString();
+        record["date"] = q.value(3).toString();
+        record["days"] = q.value(4).toInt();
         record["acct_hash"] = q.value(0).toString();
         impl->addData(record);
     }
