@@ -45,6 +45,7 @@ public:
         Builder& setSchema(const Schema& schema);
         Builder& setOptionDuplicateCheck(bool option);
         Builder& setOptionTruncate(bool option);
+        Builder& setOptionArchive(bool option);
         DataImportController* build();
 
     private:

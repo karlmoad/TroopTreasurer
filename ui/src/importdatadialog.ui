@@ -35,7 +35,7 @@
    <item>
     <widget class="QStackedWidget" name="paneStack">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="page">
       <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -68,6 +68,13 @@
            <widget class="QCheckBox" name="chkDupCheck">
             <property name="text">
              <string>Perform duplicate record check</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="chkArchive">
+            <property name="text">
+             <string>Archive data following import</string>
             </property>
            </widget>
           </item>

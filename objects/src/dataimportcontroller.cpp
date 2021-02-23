@@ -16,7 +16,7 @@ class DataImportController::DataImportControllerImpl
 {
 public:
     enum class StatementType{DUPCHECK,PERIST,QUERY,OTHER};
-    DataImportControllerImpl(DataImportController *c): _controller(c), _runtime(nullptr)
+    DataImportControllerImpl(DataImportController *c): _controller(c), _runtime(nullptr), _trunc(false), _dup(false), _archive(false)
     {}
 
     ~DataImportControllerImpl()
@@ -54,6 +54,10 @@ public:
         _dbSettings = settings;
     }
 
+    void setArchiveOption(bool option)
+    {
+        _archive = option;
+    }
 
     void prep()
     {
@@ -294,7 +298,8 @@ private:
                     v.append((fieldType.isQuoted() ? QString("'%1'").arg(fieldValue.toString()): fieldValue.toString()));
                     x++;
                 }
-                stmt = QString("INSERT INTO %1 (%2) VALUES (%3)").arg(_schema.getTable(),f,v);
+
+                stmt = QString("INSERT INTO %1 (%2) VALUES (%3)").arg((_archive && _schema.isArchiveSupported() ? _schema.getArchiveTable() : _schema.getTable()),f,v);
                 break;
             }
             default:
@@ -313,6 +318,7 @@ private:
     QJsonObject _dbSettings;
     bool _dup;
     bool _trunc;
+    bool _archive;
 };
 
 DataImportController::~DataImportController(){}
@@ -368,5 +374,11 @@ DataImportController *DataImportController::Builder::build()
 DataImportController::Builder &DataImportController::Builder::setDatabaseSettings(const QJsonObject &settings)
 {
     _instance->impl->setDatabaseSettings(settings);
+    return *this;
+}
+
+DataImportController::Builder &DataImportController::Builder::setOptionArchive(bool option)
+{
+    _instance->impl->setArchiveOption(option);
     return *this;
 }

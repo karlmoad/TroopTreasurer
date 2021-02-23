@@ -71,6 +71,21 @@ public:
         return false;
     }
 
+    bool archiveSupported() const
+    {
+        return _schemaDefinition.contains("archive");
+    }
+
+    QString archiveTable() const
+    {
+        if(!_schemaDefinition.isEmpty() && _schemaDefinition.contains("archive"))
+        {
+            return _schemaDefinition["archive"].toString();
+        }
+        return QString();
+    }
+
+
     QMap <QString, QJsonObject> fields() const
     {
         QMap<QString,QJsonObject> fields;
@@ -210,4 +225,14 @@ Schema Schema::fromJson(const QJsonObject& json)
     }
 
     return s;
+}
+
+bool Schema::isArchiveSupported() const
+{
+    return impl->archiveSupported();
+}
+
+QString Schema::getArchiveTable() const
+{
+    return impl->archiveTable();
 }

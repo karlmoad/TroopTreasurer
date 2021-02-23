@@ -108,6 +108,7 @@ public:
         _ui->barProgress->setValue(0);
         _ui->lblProgress->setText("Preparing...");
         _ui->btnDetails->setEnabled(false);
+        _ui->chkArchive->setEnabled(false);
     }
 
     void setInputData(const QString& filename)
@@ -172,6 +173,7 @@ public:
 
         bool trunc = _ui->chkTruncate->checkState() == Qt::Checked;
         bool dups = _ui->chkDupCheck->checkState() == Qt::Checked;
+        bool archive = _ui->chkArchive->checkState() == Qt::Checked;
 
         if(trunc)
         {
@@ -198,9 +200,8 @@ public:
                     .setModel(_input)
                     .setOptionTruncate(trunc)
                     .setOptionDuplicateCheck(dups)
+                    .setOptionArchive(archive)
                     .build();
-
-
         }
         catch(ObjectError err)
         {
@@ -307,6 +308,7 @@ public:
                             _currentSpec = idx;
                             _currentSchema = schema.getName();
                             _ui->btnNext->setEnabled(true);
+                            _ui->chkArchive->setEnabled(schema.isArchiveSupported());
                             _ui->chkTruncate->setEnabled(schema.isTruncateSupported());
                             _ui->chkDupCheck->setEnabled(schema.isDupCheckSupported());
                         }
