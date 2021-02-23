@@ -22,6 +22,8 @@ public:
     bool isImportSupported() const;
     bool isDupCheckSupported() const;
     bool isTruncateSupported() const;
+    bool isArchiveSupported() const;
+    QString getArchiveTable() const;
     QMap<QString, QJsonObject> getFields() const;
     QJsonObject toJson() const;
 
@@ -35,3 +37,4 @@ private:
 
 
 #endif //TROOPTREASURER_SCHEMA_H
+
