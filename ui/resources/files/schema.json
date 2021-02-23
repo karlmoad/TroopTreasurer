@@ -5,6 +5,7 @@
     "import": true,
     "dupcheck": false,
     "truncate": true,
+    "archive": "TROOP_TRANSACTIONS_ARCHIVE",
     "fields":[
       {"name": "ID", "dt":"string", "length":40, "nullable": false},
       {"name": "UPLOAD_BATCH", "dt":"string", "length":40, "nullable": false},
@@ -30,6 +31,7 @@
     "import": true,
     "dupcheck": true,
     "truncate": false,
+    "archive": "BANK_DATA_ARCHIVE",
     "fields":[
       {"name": "ID", "dt":"string", "length":40, "nullable": false},
       {"name": "UPLOAD_BATCH", "dt":"string", "length":40, "nullable": false},
