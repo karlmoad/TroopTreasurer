@@ -24,6 +24,7 @@ public slots:
     void progressNotificationHandler(int index, QJsonObject data);
     void completionNotificationHandler(int processed, int successful, int duplicates, int errors);
     void showDetailResults();
+    void archiveSelectionChanged(int value);
 
 private:
     class ImportDataDialogImpl;

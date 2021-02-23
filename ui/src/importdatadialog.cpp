@@ -28,7 +28,7 @@ public:
         connect(_ui->paneStack,&QStackedWidget::currentChanged, _dialog, &ImportDataDialog::activePaneChangedHandler);
         connect(_ui->cboTemplate, qOverload<int>(&QComboBox::currentIndexChanged), _dialog, &ImportDataDialog::templateSelected);
         connect(_ui->btnDetails,&QPushButton::clicked ,_dialog, &ImportDataDialog::showDetailResults);
-
+        connect(_ui->chkArchive, &QCheckBox::stateChanged, _dialog, &ImportDataDialog::archiveSelectionChanged);
     }
 
     ~ImportDataDialogImpl()
@@ -270,6 +270,18 @@ public:
         infodialog->exec();
     }
 
+    void checkTruncateOptionState()
+    {
+        if(_ui->chkArchive->checkState() == Qt::Checked)
+        {
+            _ui->chkTruncate->setCheckState(Qt::Unchecked);
+            _ui->chkTruncate->setEnabled(false);
+        }
+        else
+        {
+            _ui->chkTruncate->setEnabled(true);
+        }
+    }
 
     void evaluateTemplateAndSchema(int index)
     {
@@ -377,4 +389,9 @@ void ImportDataDialog::completionNotificationHandler(int processed, int successf
 void ImportDataDialog::showDetailResults()
 {
     impl->showDetailResults();
+}
+
+void ImportDataDialog::archiveSelectionChanged(int value)
+{
+    impl->checkTruncateOptionState();
 }

@@ -74,7 +74,7 @@
           <item>
            <widget class="QCheckBox" name="chkArchive">
             <property name="text">
-             <string>Archive data following import</string>
+             <string>Archive import data</string>
             </property>
            </widget>
           </item>
