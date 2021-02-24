@@ -4,7 +4,6 @@
 #include <QWidget>
 #include <memory>
 #include "objects/objecterror.h"
-#include "objects/negativebalancereportmodel.h"
 #include "itemstate.h"
 #include "panelwindow.h"
 
@@ -27,6 +26,10 @@ public:
     virtual void deactivate(PanelActions *actions);
 
     Q_SLOT virtual void itemActionHandler(ItemAction action);
+
+    Q_SLOT void showContextMenuHandler(const QPoint& point);
+
+    Q_SLOT void copyHandler();
 
 private:
     class NegativeBalanceReportPanelImpl;

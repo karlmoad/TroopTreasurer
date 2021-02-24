@@ -5,8 +5,9 @@
 #include "ui/datepickerdialog.h"
 #include <QMessageBox>
 #include <QApplication>
+#include <QClipboard>
 #include <functional>
-#include <Qdebug>
+#include <QDebug>
 
 class AccountBalancesReportPanel::AccountBalancesReportPanelImpl
 {
