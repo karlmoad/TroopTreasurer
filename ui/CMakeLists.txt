@@ -34,7 +34,7 @@ set(SOURCES mainwindow.cpp mainwindow.ui
             accountbalancesreportpanel.cpp accountbalancesreportpanel.ui
             datepickerdialog.cpp datepickerdialog.ui
             householddialog.cpp householddialog.ui
-            memberdialog.cpp memberdialog.ui)
+            memberwidget.cpp memberwidget.ui)
 
 set(HEADERS ui.h
         mainwindow.h
@@ -68,7 +68,7 @@ set(HEADERS ui.h
         accountbalancesreportpanel.h
         datepickerdialog.h
         householddialog.h
-        memberdialog.h)
+        memberwidget.h)
 
 format_source_paths("/src" SOURCES)
 format_source_paths("/include/ui" HEADERS)
