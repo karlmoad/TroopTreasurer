@@ -37,7 +37,10 @@ set(SOURCES settingsmanager.cpp
             negativebalancereportmodel.cpp
             accountbalancereportmodel.cpp
             databasemanager.cpp
-            person.cpp)
+            person.cpp
+            group.cpp
+            household.cpp
+        )
 
 set(HEADERS settingsmanager.h
             objecterror.h
@@ -80,7 +83,10 @@ set(HEADERS settingsmanager.h
             negativebalancereportmodel.h
             accountbalancereportmodel.h
             databasemanager.h
-            person.h)
+            person.h
+            group.h
+            household.h
+        )
 
 format_source_paths("/src" SOURCES)
 format_source_paths("/include/objects" HEADERS)
