@@ -40,9 +40,11 @@ set(SOURCES settingsmanager.cpp
             person.cpp
             group.cpp
             household.cpp
+            resultstatus.cpp
         )
 
-set(HEADERS settingsmanager.h
+set(HEADERS objects.h
+            settingsmanager.h
             objecterror.h
             settingsmodel.h
             templatemappingmodel.h
@@ -86,6 +88,8 @@ set(HEADERS settingsmanager.h
             person.h
             group.h
             household.h
+            dao.h
+            resultstatus.h
         )
 
 format_source_paths("/src" SOURCES)
