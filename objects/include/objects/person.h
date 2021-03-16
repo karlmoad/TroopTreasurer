@@ -30,7 +30,7 @@ public:
     bool operator==(const Person &rhs) const;
     bool operator!=(const Person &rhs) const;
 private:
-    friend class PeopleModel;
+    friend class PeopleDAO;
     explicit Person(const QJsonObject& json);
 
     class PersonImpl;

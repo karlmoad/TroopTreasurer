@@ -17,7 +17,14 @@
 #include "utility.h"
 #include "dates.h"
 
-class DataObject
+class DataObjectBase
+{
+public:
+    virtual QString key() = 0;
+    virtual bool isNull() = 0;
+};
+
+class DataObject: public DataObjectBase
 {
 public:
     DataObject();
@@ -27,11 +34,13 @@ public:
     QJsonValue getValue(const QString& key);
     void setValue(const QString& key, const QJsonValue& value);
     const QJsonObject& json();
-
+    virtual QString key() override;
+    virtual bool isNull() override;
 protected:
     explicit  DataObject(const QJsonObject& json);
 
 private:
+    QString _key;
     QJsonObject _data;
 };
 
