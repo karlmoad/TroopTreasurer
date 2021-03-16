@@ -5,15 +5,23 @@
 #include <QObject>
 #include <QString>
 #include <QMap>
+#include <QJsonObject>
 #include "resultstatus.h"
 
 template <typename T>
-class DAOInterface
+class DataAccessObject
 {
 public:
-    ResultStatus load(const QMap<QString,QString> &params)=0;
-    ResultStatus add(const T& object)=0;
-    ResultStatus update(const QModelIndex &index, const T& object)=0;
-    ResultStatus delete(const QModelIndex &index, const T& object)=0;
+    virtual bool isHierarchical()=0;
+    virtual int count()=0;
+    virtual int indexOf(const QString& key) =0;
+    virtual ResultStatus loadObjects(const QMap<QString,QString> &params)=0;
+    virtual T getObject(const QString& key)=0;
+    virtual T getObject(int index)=0;
+    virtual QJsonObject getJson(const QString& key)=0;
+    virtual QJsonObject getJson(int index)=0;
+    virtual ResultStatus addObject(const T& object)=0;
+    virtual ResultStatus updateObject(const T& object)=0;
+    virtual ResultStatus removeObject(int index)=0;
 };
 #endif //TROOPTREASURER_DAO_H
