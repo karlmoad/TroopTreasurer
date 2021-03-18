@@ -6,7 +6,8 @@
   "database": {
     "meta": {
       "display": "Database Settings",
-      "icon": ":/resources/database.png"
+      "icon": ":/resources/database.png",
+      "schema": ":/resources/files/schema.json"
     },
     "parameters": [
       { "name": "host",

@@ -1,49 +1,189 @@
 {
-  "TT" : {
-    "display": "Troop Account Transaction File",
-    "table": "TROOP_TRANSACTIONS",
-    "import": true,
-    "dupcheck": false,
-    "truncate": true,
-    "archive": "TROOP_TRANSACTIONS_ARCHIVE",
-    "fields":[
-      {"name": "ID", "dt":"string", "length":40, "nullable": false},
-      {"name": "UPLOAD_BATCH", "dt":"string", "length":40, "nullable": false},
-      {"name": "RECORD_HASH", "dt":"string", "length":64, "nullable": false, "match_key": true},
-      {"name": "ACCT_HASH", "dt":"string", "length":64, "nullable": false},
-      {"name": "ACCT_NAME", "dt":"string", "length":200, "nullable": false},
-      {"name": "ACTIVITY_DATE", "dt":"date", "format": "yyyy-mm-dd", "nullable": false},
-      {"name": "ACTIVITY_VALUE", "dt":"decimal", "nullable": false},
-      {"name": "MEMO", "dt":"string", "nullable": true},
-      {"name": "PAYEE", "dt":"string", "length":200, "nullable": true},
-      {"name": "DESCRIPTION", "dt":"string", "nullable": true},
-      {"name": "CATEGORIES", "dt":"string", "length":200, "nullable": true},
-      {"name": "CHECK_NUM", "dt":"string", "length":50, "nullable": true},
-      {"name": "TENDER_TYPE", "dt":"string", "length":100, "nullable": true},
-      {"name": "TENDER_HASH", "dt":"string", "length":64, "nullable": true},
-      {"name": "DETAILS", "dt":"string", "nullable": true},
-      {"name": "BALANCE", "dt":"decimal", "nullable": false}
-    ]
+  "tables": {
+    "TT" : {
+      "display": "Troop Account Transaction",
+      "table": "TROOP_TRANSACTIONS",
+      "operations": {
+        "import": {
+          "truncate": true,
+          "update": false,
+          "dupcheck" : false,
+          "append": true,
+          "archive": true
+        },
+        "archive":{
+          "table": "TROOP_TRANSACTIONS_ARCHIVE"
+        }
+      },
+      "fields":[
+        {"name": "ID", "dt":"string", "length":40, "nullable": false, "key": true},
+        {"name": "UPLOAD_BATCH", "dt":"string", "length":40, "nullable": false},
+        {"name": "RECORD_HASH", "dt":"string", "length":64, "nullable": false, "match_key": true},
+        {"name": "ACCT_HASH", "dt":"string", "length":64, "nullable": false},
+        {"name": "ACCT_NAME", "dt":"string", "length":200, "nullable": false},
+        {"name": "ACTIVITY_DATE", "dt":"date", "format": "yyyy-mm-dd", "nullable": false},
+        {"name": "ACTIVITY_VALUE", "dt":"decimal", "nullable": false},
+        {"name": "MEMO", "dt":"string", "nullable": true},
+        {"name": "PAYEE", "dt":"string", "length":200, "nullable": true},
+        {"name": "DESCRIPTION", "dt":"string", "nullable": true},
+        {"name": "CATEGORIES", "dt":"string", "length":200, "nullable": true},
+        {"name": "CHECK_NUM", "dt":"string", "length":50, "nullable": true},
+        {"name": "TENDER_TYPE", "dt":"string", "length":100, "nullable": true},
+        {"name": "TENDER_HASH", "dt":"string", "length":64, "nullable": true},
+        {"name": "DETAILS", "dt":"string", "nullable": true},
+        {"name": "BALANCE", "dt":"decimal", "nullable": false}
+      ]
+    },
+    "BANK": {
+      "display": "Bank Transaction",
+      "table": "BANK_DATA",
+      "operations": {
+        "import": {
+          "truncate": true,
+          "update": false,
+          "dupcheck" : true,
+          "append": true,
+          "archive": true
+        },
+        "archive":{
+          "table": "BANK_DATA_ARCHIVE"
+        }
+      },
+      "fields":[
+        {"name": "ID", "dt":"string", "length":40, "nullable": false, "key": true},
+        {"name": "UPLOAD_BATCH", "dt":"string", "length":40, "nullable": false},
+        {"name": "RECORD_HASH", "dt":"string", "length":64, "nullable": false, "match_key": true},
+        {"name": "TRANS_DATE", "dt":"date", "format": "yyyy-mm-dd", "nullable": false},
+        {"name": "TRANS_VALUE", "dt":"decimal", "nullable": false},
+        {"name": "CAT_NUM", "dt": "int", "nullable": true},
+        {"name": "CAT_NAME", "dt":"string", "length":100, "nullable": true},
+        {"name": "REF_NUM", "dt":"string", "length":100, "nullable": true},
+        {"name": "DESC", "dt":"string", "length":100, "nullable": true},
+        {"name": "CODE", "dt":"string", "length":100, "nullable": true},
+        {"name": "IDENTIFIER", "dt":"string", "length":50, "nullable": true}
+      ]
+    },
+    "PEOPLE": {
+      "display": "People",
+      "table": "PEOPLE",
+      "fields": [
+        {"name": "ID", "dt": "string", "length": 40, "nullable": false, "key": true},
+        {"name": "FIRST_NAME", "dt": "string", "length": 100},
+        {"name": "LAST_NAME", "dt": "string", "length": 100},
+        {"name": "EMAIL", "dt": "string", "length": 200},
+        {"name": "MOBILE", "dt": "string", "length": 20},
+        {"name": "HOME", "dt": "string", "length": 20},
+        {"name": "WORK", "dt": "string", "length": 20},
+        {"name": "SCOUT_FLAG", "dt": "bool", "nullable": false},
+        {"name": "MEMBER_FLAG", "dt": "bool", "nullable": false}
+      ],
+      "relationships": {
+        "households": {"field":  "ID", "relationship":"PEOPLE_2_HOUSEHOLDS","target": "PERSON_LINK"},
+        "groups": {"field":  "ID", "relationship": "PEOPLE_2_GROUPS"},
+        "accounts": {"field":  "ID","relationship":"PEOPLE_2_ACCOUNTS"}
+      }
+    },
+    "HOUSEHOLD": {
+      "display": "Households",
+      "table": "HOUSEHOLD",
+      "fields": [
+        {"name": "ID", "dt": "string", "length": 40, "nullable": false, "key": true},
+        {"name": "NAME", "dt": "string", "length": 100},
+        {"name": "ADDRESS1", "dt": "string", "length": 150},
+        {"name": "ADDRESS2", "dt": "string", "length": 150},
+        {"name": "CITY", "dt": "string", "length": 100},
+        {"name": "STATE", "dt": "string", "length": 2},
+        {"name": "ZIP", "dt": "string", "length": 20}
+      ],
+      "relationships": {
+        "people": {"relationship":"PEOPLE_2_HOUSEHOLDS", "map":[{"fields":"ID", "target": "HH_LINK"}]}
+      }
+    },
+    "GROUP": {
+      "display": "Groups",
+      "table": "GROUP",
+      "fields": [
+        {"name": "ID", "dt": "string", "length": 40, "nullable": false, "key": true},
+        {"name": "NAME", "dt": "string", "length": 100}
+      ],
+      "relationships": {
+        "people": {"field":  "ID", "relationship": "PEOPLE_2_GROUPS"}
+      }
+    },
+    "ACCOUNT": {
+      "display": "Accounts",
+      "table": "ACCOUNT_MASTER",
+      "fields": [
+        {"name": "ACCT_KEY", "dt": "string", "length": 38, "nullable": false, "key": true},
+        {"name": "ACCT_NAME", "dt": "string", "length": 200, "nullable": false},
+        {"name": "ACCT_PARENT", "dt": "string", "length": 38},
+        {"name": "SOURCE_KEY", "dt": "string", "length": 64},
+        {"name": "ORG", "dt": "string", "length": 10},
+        {"name": "REPORTED_FLAG", "dt": "bool", "nullable": false},
+        {"name": "ROLLUP_FLAG", "dt": "bool", "nullable": false},
+        {"name": "EXTERNAL_FLAG", "dt": "bool", "nullable": false},
+        {"name": "CLOSED_FLAG", "dt": "bool", "nullable": false},
+        {"name": "DISPLAY_ORDER", "dt": "int", "nullable": false}
+      ],
+      "relationships": {
+        "people": {"field":  "ID", "relationship":"PEOPLE_2_ACCOUNTS"}
+      }
+    },
+    "PEOPLE_GROUP_LINK": {
+      "display": "People to Group linkage",
+      "table": "PEOPLE_GROUP_LINK",
+      "fields": [
+        {"name": "PERSON", "dt": "string", "length": 40, "nullable": false},
+        {"name": "GROUP", "dt": "string", "length": 40, "nullable": false}
+      ]
+    },
+    "PEOPLE_ACCT_LINK": {
+      "display": "People to Account linkage",
+      "table": "PEOPLE_ACCT_LINK",
+      "fields": [
+        {"name": "PERSON", "dt": "string", "length": 40, "nullable": false},
+        {"name": "ACCOUNT", "dt": "string", "length": 40, "nullable": false}
+      ]
+    },
+    "PEOPLE_HOUSEHOLD_LINK": {
+      "display": "People to Household linkage",
+      "table": "PEOPLE_HOUSEHOLD_LINK",
+      "fields": [
+        {"name": "PERSON", "dt": "string", "length": 40, "nullable": false},
+        {"name": "HOUSEHOLD", "dt": "string", "length": 40, "nullable": false}
+      ]
+    }
   },
-  "BANK": {
-    "display": "Bank Transaction File",
-    "table": "BANK_DATA",
-    "import": true,
-    "dupcheck": true,
-    "truncate": false,
-    "archive": "BANK_DATA_ARCHIVE",
-    "fields":[
-      {"name": "ID", "dt":"string", "length":40, "nullable": false},
-      {"name": "UPLOAD_BATCH", "dt":"string", "length":40, "nullable": false},
-      {"name": "RECORD_HASH", "dt":"string", "length":64, "nullable": false, "match_key": true},
-      {"name": "TRANS_DATE", "dt":"date", "format": "yyyy-mm-dd", "nullable": false},
-      {"name": "TRANS_VALUE", "dt":"decimal", "nullable": false},
-      {"name": "CAT_NUM", "dt": "int", "nullable": true},
-      {"name": "CAT_NAME", "dt":"string", "length":100, "nullable": true},
-      {"name": "REF_NUM", "dt":"string", "length":100, "nullable": true},
-      {"name": "DESC", "dt":"string", "length":100, "nullable": true},
-      {"name": "CODE", "dt":"string", "length":100, "nullable": true},
-      {"name": "IDENTIFIER", "dt":"string", "length":50, "nullable": true}
-    ]
+  "relationships": {
+    "PEOPLE_2_HOUSEHOLDS": {
+      "tables": {
+        "PEOPLE": {"PERSON_LINK": {"field":"PERSON"}},
+        "HOUSEHOLD": {"HH_LINK": {"field": "HOUSEHOLD"}}
+      },
+      "via": {
+        "type": "table",
+        "table": "PEOPLE_HOUSEHOLD_LINK"
+      }
+    },
+    "PEOPLE_2_GROUPS": {
+      "tables": {
+        "PEOPLE": {"field": "PERSON"},
+        "GROUP": {"field": "GROUP"}
+      },
+      "via": {
+        "type": "table",
+        "table": "PEOPLE_GROUP_LINK"
+      }
+    },
+    "PEOPLE_2_ACCOUNTS": {
+      "tables": {
+        "PEOPLE": {"field": "PERSON"},
+        "ACCOUNT": {"field": "ACCOUNT"}
+      },
+      "via": {
+        "type": "table",
+        "table": "PEOPLE_ACCT_LINK"
+      }
+    }
   }
 }

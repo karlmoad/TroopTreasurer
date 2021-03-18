@@ -188,7 +188,8 @@ Schema Schema::loadSchema(const QString &schemaId, const QString &filepath)
     {
         QByteArray raw = file.readAll();
         file.close();
-        QJsonObject schemas = QJsonDocument::fromJson(raw).object();
+        QJsonObject structures = QJsonDocument::fromJson(raw).object();
+        QJsonObject schemas = structures["tables"].toObject();
 
         if (schemas.contains(schemaId))
         {

@@ -32,6 +32,7 @@ public:
     virtual ResultStatus removeObject(const QModelIndex& Index);
     virtual void addHeader(const QString& field, const QString& header);
     virtual ResultStatus load(const QMap<QString,QString> &params);
+    virtual void load(const QList<T>& items);
 
 protected:
     std::shared_ptr<DataAccessObject<T>> _dao;
@@ -178,6 +179,12 @@ template<typename T>
 ResultStatus DataObjectModel<T>::load(const QMap<QString, QString> &params)
 {
     return _dao->loadObjects(params);
+}
+
+template<typename T>
+void DataObjectModel<T>::load(const QList<T> &items)
+{
+    _dao->loadObjects(items);
 }
 
 #endif //TROOPTREASURER_DATAOBJECTMODEL_H

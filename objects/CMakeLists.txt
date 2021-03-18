@@ -42,6 +42,10 @@ set(SOURCES settingsmanager.cpp
             household.cpp
             resultstatus.cpp
             persondao.cpp
+            databaseschema.cpp
+            tableschema.cpp
+            tablefield.cpp
+            relationship.cpp
         )
 
 set(HEADERS objects.h
@@ -93,6 +97,11 @@ set(HEADERS objects.h
             resultstatus.h
             persondao.h
             dataobjectmodel.h
+            informationschema.h
+            databaseschema.h
+            tableschema.h
+            tablefield.h
+            relationship.h
         )
 
 format_source_paths("/src" SOURCES)
