@@ -78,7 +78,7 @@
         {"name": "MEMBER_FLAG", "dt": "bool", "nullable": false}
       ],
       "relationships": {
-        "households": {"field":  "ID", "relationship":"PEOPLE_2_HOUSEHOLDS","target": "PERSON_LINK"},
+        "households": {"relationship":"PEOPLE_2_HOUSEHOLDS", "map":[{"field":  "ID","target": "PERSON"}],
         "groups": {"field":  "ID", "relationship": "PEOPLE_2_GROUPS"},
         "accounts": {"field":  "ID","relationship":"PEOPLE_2_ACCOUNTS"}
       }
@@ -96,7 +96,7 @@
         {"name": "ZIP", "dt": "string", "length": 20}
       ],
       "relationships": {
-        "people": {"relationship":"PEOPLE_2_HOUSEHOLDS", "map":[{"fields":"ID", "target": "HH_LINK"}]}
+        "people": {"relationship":"PEOPLE_2_HOUSEHOLDS", "map":[{"fields":"ID", "target": "HOUSEHOLD"}]}
       }
     },
     "GROUP": {
@@ -156,11 +156,12 @@
   },
   "relationships": {
     "PEOPLE_2_HOUSEHOLDS": {
-      "tables": {
-        "PEOPLE": {"PERSON_LINK": {"field":"PERSON"}},
-        "HOUSEHOLD": {"HH_LINK": {"field": "HOUSEHOLD"}}
+      "name" : "PEOPLE_2_HOUSEHOLDS",
+      "fields": {
+        "PERSON": {"field":"PERSON"},
+        "HOUSEHOLD": {"field": "HOUSEHOLD"}
       },
-      "via": {
+      "method": {
         "type": "table",
         "table": "PEOPLE_HOUSEHOLD_LINK"
       }

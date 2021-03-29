@@ -3,20 +3,6 @@
 
 #include "informationschema.h"
 
-class ReferenceMap
-{
-public:
-    ReferenceMap(const QString& origin, const QString& target);
-    virtual ~ReferenceMap();
-
-    QString getOriginReference() const;
-    QString getTargetReference() const;
-
-private:
-    QString _origin;
-    QString _target;
-};
-
 class Relationship: public InformationSchema
 {
 public:
@@ -26,42 +12,37 @@ public:
     virtual ~Relationship();
 
     RelationShipType getType() const;
-    QMap<QString, std::shared_ptr<ReferenceMap>> getReferenceMapForTable(const QString &table) const;
-    QMap<QString, QMap<QString, std::shared_ptr<ReferenceMap>>> getReferenceMaps() const;
     QString getTableName() const;
+    QList<std::shared_ptr<Reference>> getFields() const;
+    std::shared_ptr<Reference> getField(const QString& name) const;
+
 
     virtual QJsonObject toJson() override;
     virtual bool isNull() const override;
-
-private:
-    friend class DatabaseSchema;
     virtual void initialize(const QJsonObject &json) override;
-
 
 private:
     class RelationshipImpl;
     std::shared_ptr<RelationshipImpl> impl;
 };
 
-class RelationshipReference: public InformationSchema
+class RelationshipMapping: public InformationSchema
 {
 public:
-    RelationshipReference();
-    virtual ~RelationshipReference();
+    RelationshipMapping();
+    virtual ~RelationshipMapping();
 
-    std::shared_ptr<Relationship> getRelationship() const;
-    QList<std::shared_ptr<ReferenceMap>> getMapping() const;
+    QString getRelationshipName() const;
+    QList<std::shared_ptr<Reference>> getMapping() const;
+    std::shared_ptr<Reference> getMapping(const QString& field) const;
 
     virtual QJsonObject toJson() override;
     virtual bool isNull() const override;
-
-private:
-    friend class DatabaseSchema;
     virtual void initialize(const QJsonObject &json) override;
 
 private:
-    class RelationshipReferenceImpl;
-    std::shared_ptr<RelationshipReferenceImpl> impl;
+    class RelationshipMappingImpl;
+    std::shared_ptr<RelationshipMappingImpl> impl;
 };
 
 #endif //RELATIONSHIP_H

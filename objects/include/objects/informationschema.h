@@ -9,6 +9,30 @@
 #include <QList>
 #include <QMap>
 
+class Reference
+{
+public:
+    Reference(const QString& name, const QString& target): _name(name), _target(target)
+    {}
+
+    virtual ~Reference()
+    {}
+
+    QString getName() const
+    {
+        return _name;
+    }
+
+    QString getTarget() const
+    {
+        return _target;
+    }
+
+private:
+    QString _name;
+    QString _target;
+};
+
 class InformationSchemaImpl
 {
 public:

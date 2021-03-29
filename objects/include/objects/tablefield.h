@@ -24,8 +24,6 @@ public:
 
     virtual QJsonObject toJson() override;
     virtual bool isNull() const override;
-
-private:
     virtual void initialize(const QJsonObject &json) override;
 
 private:

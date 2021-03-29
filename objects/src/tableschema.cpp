@@ -74,14 +74,14 @@ public:
         return _fields;
     }
 
-    std::shared_ptr<RelationshipReference> getRelationshipReference(const QString& name) const
+    std::shared_ptr<RelationshipMapping> getRelationshipReference(const QString& name) const
     {
         if(_relationships.contains(name))
             return _relationships[name];
         return nullptr;
     }
 
-    QMap<QString,std::shared_ptr<RelationshipReference>> getRelationshipReferences() const
+    QMap<QString,std::shared_ptr<RelationshipMapping>> getRelationshipReferences() const
     {
         return _relationships;
     }
@@ -105,7 +105,7 @@ public:
             QJsonObject relationships = _json["relationships"].toObject();
             for(QString key : relationships.keys())
             {
-                auto rel = std::shared_ptr<RelationshipReference>(new RelationshipReference);
+                auto rel = std::shared_ptr<RelationshipMapping>(new RelationshipMapping);
                 rel->initialize(relationships[key].toObject());
                 _relationships.insert(key,rel);
             }
@@ -114,7 +114,7 @@ public:
 
 private:
     QMap<QString,std::shared_ptr<TableField>> _fields;
-    QMap<QString,std::shared_ptr<RelationshipReference>> _relationships;
+    QMap<QString,std::shared_ptr<RelationshipMapping>> _relationships;
 };
 
 
@@ -153,12 +153,12 @@ bool TableSchema::isNull() const
     return impl == nullptr || impl->isNull();
 }
 
-std::shared_ptr<RelationshipReference> TableSchema::getRelationshipReference(const QString &name) const
+std::shared_ptr<RelationshipMapping> TableSchema::getRelationshipReference(const QString &name) const
 {
     return impl->getRelationshipReference(name);
 }
 
-QMap<QString, std::shared_ptr<RelationshipReference>> TableSchema::getRelationshipReferences() const
+QMap<QString, std::shared_ptr<RelationshipMapping>> TableSchema::getRelationshipReferences() const
 {
     return impl->getRelationshipReferences();
 }
