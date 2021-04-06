@@ -8,12 +8,13 @@
 class ResultStatus
 {
 public:
+    enum class Status{UNKNOWN=0, SUCCESS, ERROR};
+
     ResultStatus();
     ResultStatus(const ResultStatus &copy);
     virtual ~ResultStatus();
 
-    bool status();
-    bool isError();
+    Status status();
     QString message();
 
     ResultStatus& operator=(const ResultStatus &copy);
@@ -28,19 +29,18 @@ public:
         REM_COPY_MOVE(Builder)
         Builder();
         ~Builder();
-        Builder& setStatus(bool status);
-        Builder& setIsError(bool error);
+        Builder& setStatus(Status status);
         Builder& setMessage(const QString &message);
         ResultStatus build();
     private:
         class BuilderImpl;
-        std::shared_ptr<BuilderImpl> _building;
+        std::shared_ptr<BuilderImpl> builder;
     };
 
 private:
-    bool _status;
-    bool _error;
-    QString _msg;
+    class ResultStatusImpl;
+    ResultStatus(std::shared_ptr<ResultStatusImpl> initialized);
+    std::shared_ptr<ResultStatusImpl> impl;
 };
 
 

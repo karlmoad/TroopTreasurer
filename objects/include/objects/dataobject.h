@@ -7,8 +7,8 @@
 */
 
 
-#ifndef TROOPTREASURER_DATAOBJECT_H
-#define TROOPTREASURER_DATAOBJECT_H
+#ifndef DATAOBJECT_H
+#define DATAOBJECT_H
 
 #include <QString>
 #include <QJsonObject>
@@ -16,28 +16,34 @@
 #include <QJsonValue>
 #include "utility.h"
 #include "dates.h"
+#include "resultstatus.h"
 
-class DataObjectBase
+class DataObject
 {
 public:
-    virtual QString key() = 0;
+    virtual QString key() const = 0;
     virtual bool isNull() = 0;
+    virtual QJsonObject json() const =0;
 };
 
-class DataObject: public DataObjectBase
+class DataObjectImpl
 {
 public:
-    DataObject();
-    explicit DataObject(const DataObject &other);
-    ~DataObject();
+    DataObjectImpl();
+    explicit DataObjectImpl(const DataObjectImpl &other);
+    ~DataObjectImpl();
 
     QJsonValue getValue(const QString& key);
     void setValue(const QString& key, const QJsonValue& value);
-    const QJsonObject& json();
-    virtual QString key() override;
-    virtual bool isNull() override;
+    virtual QJsonObject json() const;
+    virtual QString key() const;
+    virtual bool isNull();
+
+    DataObjectImpl& operator=(const DataObjectImpl& other);
+    bool operator==(const DataObjectImpl &rhs) const;
+    bool operator!=(const DataObjectImpl &rhs) const;
 protected:
-    explicit  DataObject(const QJsonObject& json);
+    explicit  DataObjectImpl(const QJsonObject& json);
 
 private:
     QString _key;
@@ -45,4 +51,4 @@ private:
 };
 
 
-#endif //TROOPTREASURER_DATAOBJECT_H
+#endif //DATAOBJECT_H

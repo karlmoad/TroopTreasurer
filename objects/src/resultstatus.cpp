@@ -1,51 +1,77 @@
 #include <objects/resultstatus.h>
 
-ResultStatus::ResultStatus() : _status(false), _error(false), _msg(QString())
+class ResultStatus::ResultStatusImpl
+{
+public:
+    ResultStatusImpl(): _status(Status::UNKNOWN){}
+    ResultStatusImpl(const ResultStatusImpl& copy)
+    {
+        this->_status = copy._status;
+        this->_msg = copy._msg;
+    }
+
+    ~ResultStatusImpl(){}
+
+    QString msg() const
+    {
+        return _msg;
+    }
+
+    Status status() const
+    {
+        return _status;
+    }
+
+    void setMsg(const QString& msg)
+    {
+        _msg = msg;
+    }
+
+    void setStatus(const Status status)
+    {
+        _status = status;
+    }
+
+private:
+    QString _msg;
+    Status _status;
+};
+
+ResultStatus::ResultStatus() : impl(new ResultStatusImpl)
 {}
 
 ResultStatus::ResultStatus(const ResultStatus &copy)
 {
-    this->_status = copy._status;
-    this->_error = copy._error;
-    this->_msg = copy._msg;
+    impl.reset();
+    impl = std::shared_ptr<ResultStatusImpl>(new ResultStatusImpl(*(copy.impl.get())));
 }
 
 ResultStatus::~ResultStatus()
-{
+{}
 
-}
-
-bool ResultStatus::status()
+ResultStatus::Status ResultStatus::status()
 {
-    return this->_status
-}
-
-bool ResultStatus::isError()
-{
-    return this->_error;
+    return impl->status();
 }
 
 QString ResultStatus::message()
 {
-    return this->_msg;
+    return impl->msg();
 }
 
 ResultStatus &ResultStatus::operator=(const ResultStatus &copy)
 {
     if(*this != copy)
     {
-        this->_status = copy._status;
-        this->_error = copy._error;
-        this->_msg = copy._msg;
+        impl.reset();
+        impl = std::shared_ptr<ResultStatusImpl>(new ResultStatusImpl(*(copy.impl.get())));
     }
     return *this;
 }
 
 bool ResultStatus::operator==(const ResultStatus &rhs) const
 {
-    return _status == rhs._status &&
-           _error == rhs._error &&
-           _msg.compare(rhs._msg, Qt::CaseSensitive) == 0;
+    return impl == rhs.impl;
 }
 
 bool ResultStatus::operator!=(const ResultStatus &rhs) const
@@ -53,41 +79,39 @@ bool ResultStatus::operator!=(const ResultStatus &rhs) const
     return !(rhs == *this);
 }
 
-// Buidler
+ResultStatus::ResultStatus(std::shared_ptr<ResultStatusImpl> initialized)
+{
+    impl = initialized;
+}
 
-class ResultStatus::Builder::BuilderImpl
+// Builder
+
+struct ResultStatus::Builder::BuilderImpl
 {
 public:
-    ResultStatus _constructing;
+    BuilderImpl(): _building(std::make_shared<ResultStatusImpl>()){}
+    std::shared_ptr<ResultStatusImpl> _building;
 };
 
-ResultStatus::Builder::Builder()
-{
-    _building = std::shared_ptr<BuilderImpl>(new BuilderImpl());
-}
+ResultStatus::Builder::Builder(): builder(std::make_shared<BuilderImpl>())
+{}
 
 ResultStatus::Builder::~Builder()
 {}
 
-ResultStatus::Builder &ResultStatus::Builder::setStatus(bool status)
+ResultStatus::Builder &ResultStatus::Builder::setStatus(ResultStatus::Status status)
 {
-    this->_building->_constructing._status = status;
-    return *this;
-}
-
-ResultStatus::Builder &ResultStatus::Builder::setIsError(bool error)
-{
-    this->_building->_constructing._error = error;
+    builder->_building->setStatus(status);
     return *this;
 }
 
 ResultStatus::Builder &ResultStatus::Builder::setMessage(const QString &message)
 {
-    this->_building->_constructing._msg = message;
+    builder->_building->setMsg(message);
     return *this;
 }
 
 ResultStatus ResultStatus::Builder::build()
 {
-    return this->_building->_constructing;
+    return ResultStatus(builder->_building);
 }

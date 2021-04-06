@@ -1,6 +1,6 @@
 #include "objects/dataobject.h"
 
-DataObject::DataObject()
+DataObjectImpl::DataObjectImpl()
 {
     _key = Utility::GenerateKey();
 
@@ -14,14 +14,14 @@ DataObject::DataObject()
     }
 }
 
-DataObject::DataObject(const DataObject &other)
+DataObjectImpl::DataObjectImpl(const DataObjectImpl &other)
 {
     this->_data = other._data;
 }
 
-DataObject::~DataObject(){}
+DataObjectImpl::~DataObjectImpl(){}
 
-QJsonValue DataObject::getValue(const QString &key)
+QJsonValue DataObjectImpl::getValue(const QString &key)
 {
     if(_data.contains(key))
     {
@@ -30,7 +30,7 @@ QJsonValue DataObject::getValue(const QString &key)
     return QJsonValue();
 }
 
-void DataObject::setValue(const QString &key, const QJsonValue &value)
+void DataObjectImpl::setValue(const QString &key, const QJsonValue &value)
 {
     _data[key]=value;
     if(key.compare("key",Qt::CaseSensitive) == 0)
@@ -39,12 +39,12 @@ void DataObject::setValue(const QString &key, const QJsonValue &value)
     }
 }
 
-const QJsonObject &DataObject::json()
+QJsonObject DataObjectImpl::json() const
 {
     return _data;
 }
 
-DataObject::DataObject(const QJsonObject &json)
+DataObjectImpl::DataObjectImpl(const QJsonObject &json)
 {
     _data = json;
     if(_data.contains("key") && _key.compare(_data["key"].toString(), Qt::CaseSensitive) != 0)
@@ -53,12 +53,29 @@ DataObject::DataObject(const QJsonObject &json)
     }
 }
 
-QString DataObject::key()
+QString DataObjectImpl::key() const
 {
     return _key;
 }
 
-bool DataObject::isNull()
+bool DataObjectImpl::isNull()
 {
     return _data.isEmpty();
+}
+
+DataObjectImpl &DataObjectImpl::operator=(const DataObjectImpl &other)
+{
+    _key = other._key;
+    _data = other._data;
+    return *this;
+}
+
+bool DataObjectImpl::operator==(const DataObjectImpl &rhs) const
+{
+    return _key == rhs._key;
+}
+
+bool DataObjectImpl::operator!=(const DataObjectImpl &rhs) const
+{
+    return !(rhs == *this);
 }

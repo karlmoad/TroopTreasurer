@@ -5,13 +5,13 @@
 #include <QJsonArray>
 #include <QJsonValue>
 
-class Household::HouseholdImpl : public DataObject
+class Household::HouseholdImpl : public DataObjectImpl
 {
 public:
-    HouseholdImpl(): DataObject(){}
+    HouseholdImpl(): DataObjectImpl(){}
     ~HouseholdImpl(){}
-    explicit HouseholdImpl(const HouseholdImpl &other): DataObject(other){}
-    explicit HouseholdImpl(const QJsonObject &json): DataObject(json){}
+    explicit HouseholdImpl(const HouseholdImpl &other): DataObjectImpl(other){}
+    explicit HouseholdImpl(const QJsonObject &json): DataObjectImpl(json){}
 };
 
 Household::Household() : impl(new HouseholdImpl())
@@ -112,4 +112,49 @@ bool Household::operator!=(const Household &rhs) const
 Household::Household(const QJsonObject &json)
 {
     this->impl = std::shared_ptr<HouseholdImpl>(new HouseholdImpl(json));
+}
+
+bool Household::isNull()
+{
+    return impl == nullptr && impl->isNull();
+}
+
+QJsonObject Household::json() const
+{
+    return impl->json();
+}
+
+ResultStatus HouseholdController::load(const QMap<QString, QVariant> &args)
+{
+    return ResultStatus();
+}
+
+void HouseholdController::setData(const QList<Household> &objects)
+{
+
+}
+
+DataAccessObject<Household> HouseholdController::dataAccessObject()
+{
+    return DataAccessObject<Household>();
+}
+
+int HouseholdController::count()
+{
+    return 0;
+}
+
+int HouseholdController::indexOf(const QString &key)
+{
+    return 0;
+}
+
+Household HouseholdController::getObject(int index)
+{
+    return Household();
+}
+
+QJsonObject HouseholdController::getJson(int index)
+{
+    return QJsonObject();
 }

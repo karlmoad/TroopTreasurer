@@ -8,17 +8,17 @@
 #include "objects/dates.h"
 #include "objects/dataobject.h"
 
-class Account::AccountImpl : public DataObject
+class Account::AccountImpl : public DataObjectImpl
 {
 public:
-    AccountImpl(): DataObject(){}
-    AccountImpl(const AccountImpl &copy): DataObject(copy)
+    AccountImpl(): DataObjectImpl(){}
+    AccountImpl(const AccountImpl &copy): DataObjectImpl(copy)
     {
         this->_parent = copy._parent;
         this->_subAccounts = copy._subAccounts;
     }
 
-    AccountImpl(const QJsonObject& json): DataObject(json){}
+    AccountImpl(const QJsonObject& json): DataObjectImpl(json){}
 
     std::shared_ptr<Account> _parent;
     QVector<std::shared_ptr<Account>> _subAccounts;

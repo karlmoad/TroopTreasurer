@@ -5,21 +5,21 @@
 #include <QJsonArray>
 #include <QJsonValue>
 
-class Person::PersonImpl : public DataObject
+class Person::PersonImpl : public DataObjectImpl
 {
 public:
-    PersonImpl(): DataObject(){}
+    PersonImpl(): DataObjectImpl(){}
     ~PersonImpl(){}
-    PersonImpl(const PersonImpl& other): DataObject(other){}
-    PersonImpl(const QJsonObject& json): DataObject(json){}
+    PersonImpl(const PersonImpl& other): DataObjectImpl(other){}
+    PersonImpl(const QJsonObject& json): DataObjectImpl(json){}
 };
 
-Person::Person(): impl(new PersonImpl())
+Person::Person(): impl(new PersonImpl)
 {}
 
 Person::Person(const Person &copy)
 {
-    this->impl = std::shared_ptr<PersonImpl>(new PersonImpl(copy.impl->json()));
+    this->impl = std::shared_ptr<PersonImpl>(new PersonImpl(*(copy.impl.get())));
 }
 
 Person::~Person()
@@ -94,7 +94,8 @@ Person &Person::operator=(const Person &other)
 {
     if(*this != other)
     {
-        this->impl = std::shared_ptr<PersonImpl>(new PersonImpl(other.impl->json()));
+        impl.reset();
+        impl = std::shared_ptr<PersonImpl>(new PersonImpl(*(other.impl.get())));
     }
     return *this;
 }
@@ -113,3 +114,135 @@ bool Person::operator!=(const Person &rhs) const
 {
     return !(rhs == *this);
 }
+
+bool Person::isNull()
+{
+    return impl==nullptr && impl->isNull();
+}
+
+QJsonObject Person::json() const
+{
+    return impl != nullptr ? impl->json() : QJsonObject();
+}
+
+std::shared_ptr<DataAccessObject<Household>> Person::households()
+{
+    return std::shared_ptr<DataAccessObject<Household>>();
+}
+
+// CONTROLLER
+
+class PersonController::PersonControllerImpl : public DataObjectController<Person>,
+                            public DataObjectControllerAddBinding<Person>,
+                            public DataObjectControllerUpdateBinding<Person>,
+                            public DataObjectControllerRemoveBinding<Person>
+{
+public:
+    PersonControllerImpl() : _dao(new DataAccessObject<Person>)
+    {
+        _dao->bindContextItemCount(std::bind(&PersonController::PersonControllerImpl::count, this));
+        _dao->bindContextIndexForKey(std::bind(&PersonController::PersonControllerImpl::indexOf, this, std::placeholders::_1));
+        _dao->bindContextGet(std::bind(&PersonController::PersonControllerImpl::getObject, this, std::placeholders::_1));
+        _dao->bindContextJson(std::bind(&PersonController::PersonControllerImpl::getJson, this, std::placeholders::_1));
+        _dao->bindContextAdd(std::bind(&PersonController::PersonControllerImpl::add, this, std::placeholders::_1));
+        _dao->bindContextUpdate(std::bind(&PersonController::PersonControllerImpl::update, this, std::placeholders::_1));
+        _dao->bindContextRemove(std::bind(&PersonController::PersonControllerImpl::remove, this, std::placeholders::_1));
+    }
+    ~PersonControllerImpl(){}
+
+    virtual ResultStatus load(const QMap<QString, QVariant> &args) override
+    {
+        return ResultStatus();
+    }
+
+    virtual void setData(const QList<Person> &objects) override
+    {
+
+    }
+
+    virtual std::shared_ptr<DataAccessObject<Person>> dataAccessObject() override
+    {
+        return _dao;
+    }
+
+    virtual int count() override
+    {
+        return 0;
+    }
+
+    int indexOf(const QString &key) override
+    {
+        return 0;
+    }
+
+    const Person& getObject(int index) override
+    {
+        return Person();
+    }
+
+    QJsonObject getJson(int index) override
+    {
+        return QJsonObject();
+    }
+
+    ResultStatus add(const Person &t) override
+    {
+        return ResultStatus();
+    }
+
+    ResultStatus update(const Person &t) override
+    {
+        return ResultStatus();
+    }
+
+    ResultStatus remove(int i) override
+    {
+        return ResultStatus();
+    }
+
+private:
+    std::shared_ptr<DataAccessObject<Person>> _dao;
+};
+
+PersonController::PersonController() : impl(new PersonControllerImpl)
+{}
+
+PersonController::~PersonController()
+{}
+
+ResultStatus PersonController::load(const QMap<QString, QVariant> &args)
+{
+    return impl->load(args);
+}
+
+void PersonController::setData(const QList<Person> &objects)
+{
+    impl->setData(objects);
+}
+
+std::shared_ptr<DataAccessObject<Person>> PersonController::dataAccessObject()
+{
+    return impl->dataAccessObject();
+}
+
+int PersonController::count()
+{
+    return impl->count();
+}
+
+int PersonController::indexOf(const QString &key)
+{
+    return impl->indexOf(key);
+}
+
+const Person& PersonController::getObject(int index)
+{
+    return impl->getObject(index);
+}
+
+QJsonObject PersonController::getJson(int index)
+{
+    return impl->getJson(index);
+}
+
+

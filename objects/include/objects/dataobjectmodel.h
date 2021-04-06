@@ -8,7 +8,7 @@
 #include <QJsonObject>
 #include <QJsonValue>
 #include "objects/datatablemodel.h"
-#include "objects/dao.h"
+#include "objects/dataaccessobject.h"
 #include "resultstatus.h"
 #include "dataobject.h"
 #include <memory>

@@ -41,7 +41,6 @@ set(SOURCES settingsmanager.cpp
             group.cpp
             household.cpp
             resultstatus.cpp
-            persondao.cpp
             databaseschema.cpp
             tableschema.cpp
             tablefield.cpp
@@ -93,9 +92,9 @@ set(HEADERS objects.h
             person.h
             group.h
             household.h
-            dao.h
+            dataaccessobject.h
+            dataobjectcontroller.h
             resultstatus.h
-            persondao.h
             dataobjectmodel.h
             informationschema.h
             databaseschema.h
