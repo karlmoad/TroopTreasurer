@@ -45,6 +45,7 @@ set(SOURCES settingsmanager.cpp
             tableschema.cpp
             tablefield.cpp
             relationship.cpp
+            databaseoperation.cpp
         )
 
 set(HEADERS objects.h
@@ -101,6 +102,7 @@ set(HEADERS objects.h
             tableschema.h
             tablefield.h
             relationship.h
+            databaseoperation.h
         )
 
 format_source_paths("/src" SOURCES)

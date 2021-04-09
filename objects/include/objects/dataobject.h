@@ -31,6 +31,7 @@ class DataObjectImpl
 public:
     DataObjectImpl();
     explicit DataObjectImpl(const DataObjectImpl &other);
+    explicit  DataObjectImpl(const QJsonObject& json);
     ~DataObjectImpl();
 
     QJsonValue getValue(const QString& key);
@@ -42,8 +43,6 @@ public:
     DataObjectImpl& operator=(const DataObjectImpl& other);
     bool operator==(const DataObjectImpl &rhs) const;
     bool operator!=(const DataObjectImpl &rhs) const;
-protected:
-    explicit  DataObjectImpl(const QJsonObject& json);
 
 private:
     QString _key;

@@ -4,6 +4,10 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonValue>
+#include "objects/databaseschema.h"
+#include "objects/tableschema.h"
+#include "objects/relationship.h"
+#include "objects/databasecontroller.h"
 
 class Person::PersonImpl : public DataObjectImpl
 {
@@ -147,17 +151,34 @@ public:
         _dao->bindContextAdd(std::bind(&PersonController::PersonControllerImpl::add, this, std::placeholders::_1));
         _dao->bindContextUpdate(std::bind(&PersonController::PersonControllerImpl::update, this, std::placeholders::_1));
         _dao->bindContextRemove(std::bind(&PersonController::PersonControllerImpl::remove, this, std::placeholders::_1));
+        _databaseController = std::shared_ptr<DatabaseController>(new DatabaseController(DatabaseSchema::retrieve()->getTable("HOUSEHOLD")));
     }
     ~PersonControllerImpl(){}
 
-    virtual ResultStatus load(const QMap<QString, QVariant> &args) override
+    virtual void setArguments(const QMap<QString, QVariant> &args) override
     {
-        return ResultStatus();
+        _databaseController->setArguments(args);
     }
 
-    virtual void setData(const QList<Person> &objects) override
+    virtual ResultStatus load() override
     {
+        QList<QJsonObject> records;
+        auto rs = _databaseController->load(records);
+        if(rs.status() == ResultStatus::Status::SUCCESS)
+        {
+            _objects.clear();
+            for(int i = 0; i < records.count(); i++)
+            {
+                _objects.insert(i, Person(records[i]));
+                _keyIndex.insert(_objects[i].key(), i);
+            }
+        }
+        return rs;
+    }
 
+    virtual void addRelationship(std::shared_ptr<Relationship> relationship, const QString &fieldName, const QString &fieldValue) override
+    {
+        _databaseController->addRelationship(relationship, fieldName, fieldValue);
     }
 
     virtual std::shared_ptr<DataAccessObject<Person>> dataAccessObject() override
@@ -167,22 +188,30 @@ public:
 
     virtual int count() override
     {
-        return 0;
+        return _objects.count();
     }
 
     int indexOf(const QString &key) override
     {
-        return 0;
+        if(_keyIndex.contains(key))
+        {
+            return _keyIndex[key];
+        }
+        return -1;
     }
 
     const Person& getObject(int index) override
     {
+        if(index < _objects.count())
+        {
+            return _objects[index];
+        }
         return Person();
     }
 
     QJsonObject getJson(int index) override
     {
-        return QJsonObject();
+        return getObject(index).json();
     }
 
     ResultStatus add(const Person &t) override
@@ -202,6 +231,9 @@ public:
 
 private:
     std::shared_ptr<DataAccessObject<Person>> _dao;
+    std::shared_ptr<DatabaseController> _databaseController;
+    QList<Person> _objects;
+    QMap<QString, int> _keyIndex;
 };
 
 PersonController::PersonController() : impl(new PersonControllerImpl)
@@ -210,14 +242,9 @@ PersonController::PersonController() : impl(new PersonControllerImpl)
 PersonController::~PersonController()
 {}
 
-ResultStatus PersonController::load(const QMap<QString, QVariant> &args)
+void PersonController::setArguments(const QMap<QString, QVariant> &args)
 {
-    return impl->load(args);
-}
-
-void PersonController::setData(const QList<Person> &objects)
-{
-    impl->setData(objects);
+    return impl->setArguments(args);
 }
 
 std::shared_ptr<DataAccessObject<Person>> PersonController::dataAccessObject()
@@ -243,6 +270,16 @@ const Person& PersonController::getObject(int index)
 QJsonObject PersonController::getJson(int index)
 {
     return impl->getJson(index);
+}
+
+ResultStatus PersonController::load()
+{
+    return impl->load();
+}
+
+void PersonController::addRelationship(std::shared_ptr<Relationship> relationship, const QString &fieldName, const QString &fieldValue)
+{
+    impl->addRelationship(relationship, fieldName, fieldValue);
 }
 
 

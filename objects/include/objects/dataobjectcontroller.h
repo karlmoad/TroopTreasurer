@@ -7,13 +7,15 @@
 #include <QJsonObject>
 #include "resultstatus.h"
 #include "dataaccessobject.h"
+#include "relationship.h"
 
 template <typename T>
 class DataObjectController
 {
 public:
-    virtual ResultStatus load(const QMap<QString, QVariant>& args)=0;
-    virtual void setData(const QList<T>& objects)=0;
+    virtual ResultStatus load()=0;
+    virtual void setArguments(const QMap<QString, QVariant>& args)=0;
+    virtual void addRelationship(std::shared_ptr<Relationship> relationship, const QString& fieldName, const QString& fieldValue)=0;
     virtual std::shared_ptr<DataAccessObject<T>> dataAccessObject()=0;
     virtual int count() = 0;
     virtual int indexOf(const QString& key)=0;

@@ -14,6 +14,7 @@ class Person: public DataObject
 public:
     Person();
     explicit Person(const Person &copy);
+    explicit Person(const QJsonObject& json);
     virtual ~Person();
 
     virtual QString key() const override;
@@ -39,9 +40,6 @@ public:
     bool operator!=(const Person &rhs) const;
 
 private:
-    friend class PersonController;
-    explicit Person(const QJsonObject& json);
-
     class PersonImpl;
     std::shared_ptr<PersonImpl> impl;
 };
@@ -52,8 +50,11 @@ public:
     PersonController();
     ~PersonController();
 
-    virtual ResultStatus load(const QMap<QString, QVariant> &args) override;
-    virtual void setData(const QList<Person> &objects) override;
+    virtual ResultStatus load() override;
+
+    virtual void addRelationship(std::shared_ptr<Relationship>, const QString &fieldName, const QString &fieldValue) override;
+
+    virtual void setArguments(const QMap<QString, QVariant> &args) override;
     virtual std::shared_ptr<DataAccessObject<Person>> dataAccessObject() override;
     virtual int count() override;
     virtual int indexOf(const QString &key) override;
