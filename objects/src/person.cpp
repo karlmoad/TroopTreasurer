@@ -54,6 +54,16 @@ QString Person::lastName() const
     return impl->getValue("lastname").toString();
 }
 
+QString Person::email() const
+{
+    return impl->getValue("email").toString();
+}
+
+void Person::setEmail(const QString &email)
+{
+    impl->setValue("email", email);
+}
+
 void Person::setMobile(const QString &phone)
 {
     impl->setValue("mobilephone", phone);
@@ -92,6 +102,16 @@ void Person::setScout(bool isScout)
 bool Person::isScout() const
 {
     return impl->getValue("scout").toBool(false);
+}
+
+void Person::setMember(bool isMember)
+{
+    impl->setValue("member",isMember);
+}
+
+bool Person::isMember() const
+{
+    return impl->getValue("member").toBool(false);
 }
 
 Person &Person::operator=(const Person &other)
@@ -142,8 +162,9 @@ class PersonController::PersonControllerImpl : public DataObjectController<Perso
                             public DataObjectControllerRemoveBinding<Person>
 {
 public:
-    PersonControllerImpl() : _dao(new DataAccessObject<Person>)
+    PersonControllerImpl(DataResponsibility responsibility) : DataObjectController<Person>(responsibility)
     {
+        _dao = std::make_shared<DataAccessObject<Person>>();
         _dao->bindContextItemCount(std::bind(&PersonController::PersonControllerImpl::count, this));
         _dao->bindContextIndexForKey(std::bind(&PersonController::PersonControllerImpl::indexOf, this, std::placeholders::_1));
         _dao->bindContextGet(std::bind(&PersonController::PersonControllerImpl::getObject, this, std::placeholders::_1));
@@ -151,7 +172,7 @@ public:
         _dao->bindContextAdd(std::bind(&PersonController::PersonControllerImpl::add, this, std::placeholders::_1));
         _dao->bindContextUpdate(std::bind(&PersonController::PersonControllerImpl::update, this, std::placeholders::_1));
         _dao->bindContextRemove(std::bind(&PersonController::PersonControllerImpl::remove, this, std::placeholders::_1));
-        _databaseController = std::shared_ptr<DatabaseController>(new DatabaseController(DatabaseSchema::retrieve()->getTable("HOUSEHOLD")));
+        _databaseController = std::shared_ptr<DatabaseController>(new DatabaseController(DatabaseSchema::retrieve()->getTable("HOUSEHOLD"), this->_responsibility));
     }
     ~PersonControllerImpl(){}
 
@@ -236,7 +257,7 @@ private:
     QMap<QString, int> _keyIndex;
 };
 
-PersonController::PersonController() : impl(new PersonControllerImpl)
+PersonController::PersonController(DataResponsibility responsibility) : DataObjectController<Person>(responsibility), impl(new PersonControllerImpl(this->_responsibility))
 {}
 
 PersonController::~PersonController()

@@ -10,7 +10,7 @@ public:
 
     bool isImportSupported() const
     {
-        return _json.contains("options") && _json["options"].toObject().contains("import");
+        return _json.contains("operations") && _json["operations"].toObject().contains("import");
     }
 
     ImportOptions importOptions() const
@@ -18,7 +18,7 @@ public:
         ImportOptions opts;
         if(isImportSupported())
         {
-            QJsonObject importOpts = _json["options"].toObject()["import"].toObject();
+            QJsonObject importOpts = _json["operations"].toObject()["import"].toObject();
 
             if(importOpts.contains("truncate") && importOpts["truncate"].toBool())
                 opts.setTruncateEnabled(true);
@@ -48,18 +48,56 @@ public:
         return opts;
     }
 
+    QString tableName() const
+    {
+        if(_json.contains("table"))
+        {
+            return _json["table"].toString();
+        }
+        return QString();
+    }
+
+    QString displayName() const
+    {
+        if(_json.contains("display"))
+        {
+            return _json["display"].toString();
+        }
+        return QString();
+    }
+
     bool isArchiveSupported() const
     {
-        return _json.contains("options") && _json["options"].toObject().contains("archive");
+        return _json.contains("operations") && _json["operations"].toObject().contains("archive");
     }
 
     QString archiveTable() const
     {
-        if(isArchiveSupported() && _json["options"].toObject()["archive"].toObject().contains("table"))
+        if(isArchiveSupported() && _json["operations"].toObject()["archive"].toObject().contains("table"))
         {
-            return _json["options"].toObject()["archive"].toObject()["table"].toString();
+            return _json["operations"].toObject()["archive"].toObject()["table"].toString();
         }
         return QString();
+    }
+
+    bool isBindingSupported() const
+    {
+        return _json.contains("operations") && _json["operations"].toObject().contains("binding");
+    }
+
+    QList<Reference> binding() const
+    {
+        QList<Reference> out;
+        if(isBindingSupported() && _json["operations"].toObject()["binding"].toObject().contains("map"))
+        {
+            QJsonArray mappings = _json["operations"].toObject()["binding"].toObject()["map"].toArray();
+            for(int i = 0; i< mappings.count(); i++)
+            {
+                QJsonObject mapping = mappings.at(i).toObject();
+                out.append(Reference(mapping["property"].toString(), mapping["field"].toString()));
+            }
+        }
+        return out;
     }
 
     std::shared_ptr<TableField> getField(const QString& ref) const
@@ -181,4 +219,24 @@ bool TableSchema::isArchiveSupported() const
 QString TableSchema::archiveTable() const
 {
     return impl->archiveTable();
+}
+
+QString TableSchema::tableName() const
+{
+    return impl->tableName();
+}
+
+QString TableSchema::displayName() const
+{
+    return impl->displayName();
+}
+
+bool TableSchema::isBindingSupported() const
+{
+    return impl->isBindingSupported();
+}
+
+const QList<Reference>& TableSchema::getMapping() const
+{
+    return QList<Reference>();
 }

@@ -13,16 +13,16 @@
 #include "relationship.h"
 #include "tableschema.h"
 #include "objects.h"
+#include "dataresponsibility.h"
 
 class DatabaseController
 {
 public:
-    explicit DatabaseController(std::shared_ptr<TableSchema> tableSchema= nullptr);
+    explicit DatabaseController(std::shared_ptr<TableSchema> tableSchema= nullptr, DataResponsibility responsibility=DataResponsibility::SELF_ONLY);
     REM_COPY_MOVE(DatabaseController)
     ~DatabaseController();
 
     void addRelationship(std::shared_ptr<Relationship> relationship, const QString& fieldName, const QString& fieldValue);
-    void addMapping(const QString& jsonKey, const QString& fieldBinding);
     void setArguments(const QMap<QString, QVariant>& args);
 
     ResultStatus load(QList<QJsonObject>& results);

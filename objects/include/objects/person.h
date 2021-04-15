@@ -23,6 +23,8 @@ public:
     void setLastName(const QString &name);
     QString lastName() const;
     void setMobile(const QString &phone);
+    QString email() const;
+    void setEmail(const QString &email);
     QString mobile() const;
     void setHome(const QString &phone);
     QString home() const;
@@ -30,6 +32,8 @@ public:
     QString work() const;
     void setScout(bool isScout);
     bool isScout() const;
+    void setMember(bool isMember);
+    bool isMember() const;
     virtual bool isNull() override;
     virtual QJsonObject json() const override;
 
@@ -47,7 +51,7 @@ private:
 class PersonController : public DataObjectController<Person>
 {
 public:
-    PersonController();
+    PersonController(DataResponsibility responsibility);
     ~PersonController();
 
     virtual ResultStatus load() override;

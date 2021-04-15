@@ -66,6 +66,21 @@
     "PEOPLE": {
       "display": "People",
       "table": "PEOPLE",
+      "operations": {
+        "binding" : {
+          "map": [
+            {"property": "key", "field": "ID"},
+            {"property": "firstname", "field": "FIRST_NAME"},
+            {"property": "lastname", "field": "LAST_NAME"},
+            {"property": "email", "field": "EMAIL"},
+            {"property": "mobilephone", "field": "MOBILE"},
+            {"property": "homephone", "field": "HOME"},
+            {"property": "workphone", "field": "WORK"},
+            {"property": "scout", "field": "SCOUT_FLAG"},
+            {"property": "member", "field": "MEMBER_FLAG"}
+          ]
+        }
+      },
       "fields": [
         {"name": "ID", "dt": "string", "length": 40, "nullable": false, "key": true},
         {"name": "FIRST_NAME", "dt": "string", "length": 100},

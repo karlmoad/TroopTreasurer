@@ -40,10 +40,16 @@ public:
     std::shared_ptr<RelationshipMapping> getRelationshipReference(const QString& name) const;
     QMap<QString,std::shared_ptr<RelationshipMapping>> getRelationshipReferences() const;
 
+
+
+    QString tableName() const;
+    QString displayName() const;
     bool isImportSupported() const;
     ImportOptions importOptions() const;
     bool isArchiveSupported() const;
     QString archiveTable() const;
+    bool isBindingSupported() const;
+    QList<Reference> getMapping() const;
 
     virtual QJsonObject toJson() override;
     virtual bool isNull() const override;
