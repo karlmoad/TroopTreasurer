@@ -11,6 +11,7 @@ public:
     Relationship();
     virtual ~Relationship();
 
+    QString name() const;
     RelationShipType getType() const;
     QString getTableName() const;
     QList<std::shared_ptr<Reference>> getFields() const;

@@ -90,6 +90,13 @@ Relationship::RelationShipType Relationship::getType() const
 QString Relationship::getTableName() const
 {
     if(impl)
+        return impl->table();
+    return QString("UNKNOWN");
+}
+
+QString Relationship::name() const
+{
+    if(impl)
         return impl->name();
     return QString("UNKNOWN");
 }

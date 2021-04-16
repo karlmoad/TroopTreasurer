@@ -1,4 +1,5 @@
 #include "objects/databasecontroller.h"
+#include "objects/tablefield.h"
 
 class DatabaseController::DatabaseControllerImpl
 {
@@ -45,12 +46,75 @@ public:
 
 private:
 
-
-    QString renderFromStatement()
+    QString generateSelectStatement()
     {
-        QString statement = QString("FROM %1").arg(_table->tableName());
+        QString statement;
+        if(_table && _table->isBindingSupported())
+        {
+            auto fields = _table->getFields();
+            auto keys = fields.keys();
+            QString selectFields;
+            for(int i = 0; i< keys.count(); i++)
+            {
+                if(i > 0)
+                {
+                    selectFields.append(" ,");
+                }
+                selectFields.append(QString("%1.%2").arg(_table->tableName(), fields[keys[i]]->getName()));
+            }
+
+            QString selectFrom = _table->tableName();
+
+            if(_relationships.count() > 0)
+            {
+                for(QString relation : _relationships.keys())
+                {
+                    QString Join = generateJoinCondition(relation, _table->tableName());
+                    if(!Join.isEmpty())
+                    {
+                        selectFrom.append(" " + Join);
+                    }
+                }
+            }
 
 
+
+
+
+
+        }
+        return statement;
+    }
+
+    QString generateJoinCondition(const QString &relationship, const QString& table)
+    {
+        QString output;
+        if(_table && _relationships.contains(relationship))
+        {
+            std::shared_ptr<Relationship> rel = _relationships[relationship];
+            std::shared_ptr<RelationshipMapping> ref = _table->getRelationshipReference(_relationships[relationship]->name());
+            if(rel && ref)
+            {
+                auto joinMap = ref->getMapping();
+                if(joinMap.count() > 0)
+                {
+                    output = QString("JOIN %1").arg(rel->getTableName());
+                    for(int i = 0; i < joinMap.count(); i++)
+                    {
+                        auto joinItem = joinMap.at(i);
+                        QString joinOn = QString(" ON %1.%2 = %3.%4").arg(table, joinItem->getName(), rel->getTableName(), joinItem->getTarget());
+
+                        if(i > 0)
+                        {
+                            output.append(" AND");
+                        }
+
+                        output.append(joinOn);
+                    }
+                }
+            }
+        }
+        return output;
     }
 
 
