@@ -104,6 +104,8 @@ set(HEADERS objects.h
             relationship.h
             databasecontroller.h
             dataresponsibility.h
+            criterion.h
+            operator.h
         )
 
 format_source_paths("/src" SOURCES)

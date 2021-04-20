@@ -2,6 +2,9 @@
 #define TABLEFIELD_H
 
 #include "informationschema.h"
+#include <QSqlRecord>
+#include <QSqlField>
+#include <QSqlError>
 #include <QVariant>
 
 class TableField: public InformationSchema

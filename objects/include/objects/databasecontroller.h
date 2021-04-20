@@ -14,6 +14,7 @@
 #include "tableschema.h"
 #include "objects.h"
 #include "dataresponsibility.h"
+#include "criterion.h"
 
 class DatabaseController
 {
@@ -23,7 +24,7 @@ public:
     ~DatabaseController();
 
     void addRelationship(std::shared_ptr<Relationship> relationship, const QString& fieldName, const QString& fieldValue);
-    void setArguments(const QMap<QString, QVariant>& args);
+    void setArguments(const QList<Criterion>& args);
 
     ResultStatus load(QList<QJsonObject>& results);
     ResultStatus add(const QJsonObject& objectJson);
